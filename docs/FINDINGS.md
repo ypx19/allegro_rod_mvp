@@ -1,5 +1,24 @@
 # Findings
 
+## FIND-20260724-001: Finger 2 is kinematically excluded from rod contact
+- Confidence: high
+- Supporting runs: `20260724-1730-contact-reachability`
+- Related debug issues: `DBG-20260724-001`
+- Applies to: `models/three_finger_rod.xml` at commit `46fa9b8`
+- Does not apply to: future geometry after EXP-20260724-005
+
+### Finding
+Finger 2 cannot contact the rod under the current model at any joint configuration because its planar chain remains at world Y=+0.04 m while the rod lies near Y=-0.05 m. The minimum observed surface gap is 66.66 mm, consistent with the 90 mm plane separation minus 24 mm combined collision radii.
+
+### Evidence
+A 60,000-configuration, three-seed bounded search found 4,166 two-contact configurations and no three-contact configuration. Fingers 0 and 1 each achieved approximately -24 mm signed distance and registered simultaneous 32–54 N reset forces; finger 2 remained at least 66.66–68.27 mm away.
+
+### Implication
+Do not use a three-contact reward or interpret its failure as an RL exploration problem until finger-2 geometry is corrected and reachability is reverified.
+
+### Caveats
+The conclusion is specific to the current simplified planar hand model and rod placement. Geometry changes require rerunning the reachability protocol.
+
 ## F1 — Stage 0 needs a stable tip constraint under gravity
 A MuJoCo `<connect>` tip anchor is a **spherical point constraint**, not a hinge. If the tip is below the COM, the rod is an inverted pendulum and axis-tilt objectives fight gravity. Hang the tip **above** the COM (or add an axial hinge / orientation stabilizer).
 

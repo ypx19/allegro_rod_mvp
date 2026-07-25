@@ -1,0 +1,17 @@
+run_id: 20260724-1730-contact-reachability
+experiment: EXP-20260724-004
+algorithm: bounded_uniform_joint_space_search
+learning: false
+stage: 2
+tip_connect: true
+tip_connect_solref: 0.10
+axis_stabilizer_scale: 0.10
+samples_per_seed: 20000
+seeds: [0, 1, 2]
+total_samples: 60000
+joint_ranges: model_declared_limits
+rod_pose: fixed_per_reset_during_geometric_search
+contact_definition: "exact signed geom distance <= 0; dynamic verification force > 0.05 N"
+dynamic_replay_steps: 100
+success_criteria: "Each finger individually reaches signed distance <= 0, and one simultaneous three-contact configuration settles with all forces >0.05 N across three resets."
+baseline_commit: 46fa9b8

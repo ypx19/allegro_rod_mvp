@@ -451,10 +451,12 @@ reject
 Run EXP-20260724-004 to validate per-finger and simultaneous-contact mechanical reachability before attempting another contact-reward training run.
 
 ## EXP-20260724-004: Three-fingertip contact reachability validation
-- Run ID: `planned-20260724-contact-reachability`
+- Run ID: `20260724-1730-contact-reachability`
 - Date: 2026-07-24
-- Status: planned
+- Status: completed (failed reachability; root cause confirmed)
 - Parent or baseline run: `20260724-1718-stage2-discrete-contact-seed0`
+- Git commit: `46fa9b8` at experiment start
+- Git branch: `main`
 - Random seed: deterministic sweep plus fixed random-search seeds
 - Device: CPU
 
@@ -475,3 +477,52 @@ Find and reproduce at least one configuration for each individual fingertip and 
 - Images/video of best one-, two-, and three-contact candidates
 - Regression test for per-finger contact detection if a detector issue is found
 - Explicit go/no-go decision for another contact-reward training experiment
+
+### Result
+Across 60,000 configurations over seeds 0–2, fingers 0 and 1 each reached approximately -24 mm signed distance, but finger 2 remained 66.66–68.27 mm from the rod surface. The search found 4,166 two-contact states and zero three-contact states. Normal resets registered simultaneous 32–54 N force on fingers 0 and 1, confirming the detector works.
+
+### Key Metrics
+| Metric | Seed 0 | Seed 1 | Seed 2 |
+|---|---:|---:|---:|
+| Finger 0 min distance | -23.99 mm | -23.99 mm | -23.99 mm |
+| Finger 1 min distance | -24.00 mm | -24.00 mm | -24.00 mm |
+| Finger 2 min distance | +66.66 mm | +68.27 mm | +67.92 mm |
+| Two-contact samples | 1,437 | 1,383 | 1,346 |
+| Three-contact samples | 0 | 0 | 0 |
+
+### Visual Evidence
+- `runs/20260724-1730-contact-reachability/images/contact_reachability_comparison.png`
+
+### Interpretation
+The hypothesis is rejected: three-finger contact is mechanically impossible in the current model. Finger 2 moves in an XZ plane fixed at world Y=+0.04 m while the rod lies near Y=-0.05 m. The resulting 90 mm plane separation is larger than the combined 24 mm collision radii.
+
+### Decision
+Investigate and correct the model geometry. Do not train another three-contact reward until the same test produces reproducible three-contact force.
+
+### Next Step
+EXP-20260724-005: change only finger-2 placement/orientation so its motion plane intersects the rod, then rerun the identical no-learning reachability test.
+
+## EXP-20260724-005: Correct finger-2 contact geometry
+- Run ID: `planned-20260724-finger2-geometry-fix`
+- Date: 2026-07-24
+- Status: planned
+- Parent or baseline run: `20260724-1730-contact-reachability`
+- Device: CPU
+
+### Question
+Does aligning finger 2's motion plane with the rod make three-fingertip contact reproducibly reachable without introducing instability?
+
+### Hypothesis
+Changing only finger 2's base placement/orientation will reduce its minimum signed distance from at least +66 mm to ≤0 and produce a dynamically settled three-contact configuration on all three fixed reset seeds.
+
+### Change from Baseline
+Geometry only: adjust finger 2's base Y coordinate and/or orientation. Do not change rewards, observations, actuators, solver settings, rod geometry, or other fingers.
+
+### Success Criteria
+1. Finger 2 individual minimum signed distance ≤0 on seeds 0–2.
+2. At least one three-contact configuration settles above 0.05 N on every fingertip across three resets.
+3. Environment checks remain finite and stable.
+4. Rendered evidence confirms genuine fingertip-rod contact rather than interpenetration or another collision artifact.
+
+### Next Step if Successful
+Establish a corrected-geometry baseline before deciding whether gradual per-finger contact shaping is still needed.

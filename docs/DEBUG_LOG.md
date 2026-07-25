@@ -1,9 +1,9 @@
 # Debug Log
 
-## DBG-20260724-001: Multi-finger contact target may be unreachable or mismeasured
+## DBG-20260724-001: Finger 2 motion plane cannot intersect the rod
 - Date: 2026-07-24
-- Status: investigating
-- Related runs: `20260724-1718-stage2-discrete-contact-seed0`, `20260723-1200-stage2-tip-joint-no-axis-stabilizer`
+- Status: open
+- Related runs: `20260724-1718-stage2-discrete-contact-seed0`, `20260724-1730-contact-reachability`, `20260723-1200-stage2-tip-joint-no-axis-stabilizer`
 - Related files: `allegro_rod_mvp/env.py`, `models/three_finger_rod.xml`, `scripts/eval_policy.py`
 - Severity: high
 - First observed: per-finger diagnostic before EXP-20260724-003
@@ -35,21 +35,28 @@ python scripts/eval_policy.py runs/20260723-1045-capacity512-stab012-denseckpt-s
 - Added per-finger contact logging and full contact-count step distributions.
 - Re-evaluated unstable Stage 2 and stable stabilizer-0.10 policies.
 - Confirmed the steep reward alone does not produce multi-finger contact.
+- Ran 60,000 bounded configurations across three seeds using exact signed MuJoCo geometry distance.
+- Found 4,166 two-contact configurations and zero three-contact configurations.
+- Verified fingers 0 and 1 start with simultaneous 32–54 N contact, so force detection works.
+- Finger 2 remained at least 66.66–68.27 mm from the rod surface.
 
 ### Root Cause
-Unknown.
+Confirmed geometry error. Finger 2 is based at world `y=+0.04 m` and its `euler="1.5708 0 0"` orientation makes the planar chain move in XZ at fixed Y. The rod is centered near `y=-0.05 m`. The 90 mm plane separation exceeds the 24 mm combined collision radii, so finger 2 cannot contact the rod at any joint angles.
 
 ### Resolution
-None. EXP-20260724-004 is planned as a bounded mechanical/contact-sensor reachability test.
+Not yet implemented. EXP-20260724-005 will change only finger-2 placement/orientation and rerun the same reachability protocol before training.
 
 ### Verification
-Pending controlled configurations and visual evidence.
+- Search results: `runs/20260724-1730-contact-reachability/reachability.json`
+- Metrics: `runs/20260724-1730-contact-reachability/metrics.csv`
+- Visual evidence: `runs/20260724-1730-contact-reachability/images/contact_reachability_comparison.png`
+- Repeated over reset seeds 0, 1, and 2.
 
 ### Prevention
 Do not define future success rewards around simultaneous three-finger contact until reachability and detection are verified.
 
 ### Lessons Learned
-A large reward cannot teach a target state that may be unreachable or absent from the policy's explored state distribution.
+A reward cannot teach a target state excluded by the model's kinematics. Validate geometric reachability before reward design.
 
 ---
 
