@@ -56,7 +56,7 @@ Define before interpreting. Diagnostic: fewer than 20/20 axis-tilt terminations 
 ## EXP-20260723-016: Stage 2 short adaptation at stabilizer 0.10
 - Run ID: `20260723-1700-stage2-stab010-shortadapt-seed0`
 - Date: 2026-07-23
-- Status: planned
+- Status: completed (failed)
 - Parent or baseline run: `20260723-1045-capacity512-stab012-denseckpt-seed0`
 - Random seed: 0
 - Device: CPU
@@ -382,3 +382,96 @@ revise Stage 1 assist fade (see EXP-002/003).
 Bottom tip + axis objective → inverted pendulum collapse (DBG-002). Superseded by hanging tip.
 ### Decision
 reject
+## EXP-20260724-003: Stage 2 steep discrete contact reward
+- Run ID: `20260724-1718-stage2-discrete-contact-seed0`
+- Date: 2026-07-24
+- Status: planned
+- Parent or baseline run: `20260723-1200-stage2-tip-joint-no-axis-stabilizer`
+- Git commit: `8e262a006c7a427034cdcc3a5715321d4400e326` (preserved baseline)
+- Git branch: `main`
+- Random seed: 0
+- Device: CPU
+
+### Question
+Can a steep simultaneous-contact reward make the policy coordinate all three fingertips and prevent the Stage 2 axis-tilt collapse?
+
+### Hypothesis
+Replacing only the linear contact bonus with the discrete ladder `0→-10, 1→-1, 2→0.1, 3→10` will produce nonzero three-contact occupancy and fewer than 20/20 axis-tilt terminations.
+
+### Change from Baseline
+Only contact reward mapping changes. Tip joint, stabilizer 0, Stage 2 randomization, other rewards, parent checkpoint, network, optimizer, and evaluation seeds remain fixed.
+
+### Configuration
+- Algorithm: PPO
+- Environment: Stage 2, tip connect solref 0.10, stabilizer 0
+- Reward terms: rotation 160, tilt penalty weight 0.10, discrete contact reward
+- Observation space: 48-dimensional baseline observation
+- Action space: 9 normalized joint commands
+- Network: policy/value 2x512
+- Optimizer: Adam, resumed optimizer
+- Learning rate: 1e-5
+- Batch size: 128
+- Horizon: 1024
+- Number of environments: 1
+- Training steps: 25,000
+- Domain randomization: Stage 2 mass/friction
+- Curriculum stage: 2
+- Evaluation protocol: deterministic seeds 0–19 every 5k
+
+### Success Criteria
+Gate: rotation >180°, tip error <0.02 m, drop ≤0.15. Diagnostic support: nonzero three-contact step fraction and fewer than 20/20 axis-tilt terminations. Reject reward hacking if contact improves while rotation collapses.
+
+### Pre-experiment Diagnostic
+The baseline has 0 contacts on 80.47% of steps, 1 contact on 19.53%, and never 2 or 3. Only fingertip 2 contacts (19.53% of steps); all 20 episodes end on axis tilt. This supports the single-finger/lost-contact premise.
+
+### Result
+All five periodic checkpoints and the final checkpoint had 20/20 axis-tilt terminations, zero two-contact steps, and zero three-contact steps. Final rotation was 0.92°, tip error 4.85 mm, drop 1.0, with the contact component averaging -8.147 per step. The best checkpoint by rotation reached only 1.53°.
+
+### Key Metrics
+| Metric | Baseline | Final | Change |
+|---|---:|---:|---:|
+| Rotation | 1.13° | 0.92° | -0.21° |
+| Tip error | 4.03 mm | 4.85 mm | +0.82 mm |
+| Drop rate | 1.00 | 1.00 | 0 |
+| Three-contact step fraction | 0 | 0 | 0 |
+| One-contact step fraction | 0.1953 | 0.2027 | +0.0074 |
+| Mean contact reward | +0.050 | -8.147 | -8.197 |
+
+### Visual Evidence
+- `runs/20260724-1718-stage2-discrete-contact-seed0/plots/contact_reward_evaluation.png`
+- `runs/20260724-1718-stage2-discrete-contact-seed0/videos/stage2_best_00_seed0_rot8deg.mp4`
+
+### Interpretation
+Measured fact: the steep reward was active and dominated the reward scale. Measured fact: it did not create any multi-finger contact or reduce tilt terminations. A stabilizer-0.10 control also produced no multi-finger contact despite 176.55° rotation and zero drops, so three-contact reachability/detection is not yet validated.
+
+### Decision
+reject
+
+### Next Step
+Run EXP-20260724-004 to validate per-finger and simultaneous-contact mechanical reachability before attempting another contact-reward training run.
+
+## EXP-20260724-004: Three-fingertip contact reachability validation
+- Run ID: `planned-20260724-contact-reachability`
+- Date: 2026-07-24
+- Status: planned
+- Parent or baseline run: `20260724-1718-stage2-discrete-contact-seed0`
+- Random seed: deterministic sweep plus fixed random-search seeds
+- Device: CPU
+
+### Question
+Can the current hand geometry, joint limits, and contact detector produce valid contact for each fingertip and all three simultaneously?
+
+### Hypothesis
+At least one collision-free configuration within actuator limits should register all three fingertips above 0.05 N while keeping tip error below 0.02 m and axis tilt below 0.25 rad.
+
+### Change from Baseline
+No learning and no reward change. Search controlled joint configurations/actions around the initial grasp and record per-finger force, fingertip-to-rod distance, pose, and rendered evidence.
+
+### Success Criteria
+Find and reproduce at least one configuration for each individual fingertip and at least one simultaneous three-contact configuration across three resets. If none is found after a documented bounded search, inspect collision groups/contact-force measurement and revise the grasp or target from three contacts to a mechanically supported requirement.
+
+### Planned Evidence
+- Machine-readable search results with qpos, forces, distances, and pose errors
+- Images/video of best one-, two-, and three-contact candidates
+- Regression test for per-finger contact detection if a detector issue is found
+- Explicit go/no-go decision for another contact-reward training experiment

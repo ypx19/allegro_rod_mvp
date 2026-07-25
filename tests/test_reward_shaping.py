@@ -33,5 +33,21 @@ class AxisTiltRecoveryRewardTest(unittest.TestCase):
         )
 
 
+class ContactRewardTest(unittest.TestCase):
+    def test_discrete_contact_reward_ladder(self):
+        expected = {0: -10.0, 1: -1.0, 2: 0.1, 3: 10.0}
+        for count, reward in expected.items():
+            self.assertEqual(RodRotationEnv._contact_reward(count, "discrete"), reward)
+
+    def test_linear_mode_preserves_baseline(self):
+        expected = {0: 0.0, 1: 0.25, 2: 0.7, 3: 0.95}
+        for count, reward in expected.items():
+            self.assertAlmostEqual(RodRotationEnv._contact_reward(count, "linear"), reward)
+
+    def test_rejects_invalid_contact_count(self):
+        with self.assertRaises(ValueError):
+            RodRotationEnv._contact_reward(4, "discrete")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -27,6 +27,7 @@ def evaluate(
     axis_tilt_penalty_weight: float = 1.0,
     axis_tilt_recovery_scale: float = 0.0,
     rotation_reward_scale: float = 16.0,
+    contact_reward_mode: str = "linear",
 ) -> dict:
     env = RodRotationEnv(
         render_mode=None,
@@ -38,12 +39,16 @@ def evaluate(
         axis_tilt_penalty_weight=axis_tilt_penalty_weight,
         axis_tilt_recovery_scale=axis_tilt_recovery_scale,
         rotation_reward_scale=rotation_reward_scale,
+        contact_reward_mode=contact_reward_mode,
     )
     model = PPO.load(model_path, device="cpu")
 
     rotations = []
     tip_errors = []
     contacts = []
+    contact_step_counts: Counter[int] = Counter()
+    finger_contact_steps = np.zeros(3, dtype=np.int64)
+    total_contact_steps = 0
     successes = []
     drops = []
     final_axis_tilts = []
@@ -74,6 +79,10 @@ def evaluate(
         while not (terminated or truncated):
             action, _ = model.predict(obs, deterministic=True)
             obs, _, terminated, truncated, info = env.step(action)
+            count = int(info.get("contact_count", 0))
+            contact_step_counts[count] += 1
+            finger_contact_steps += np.asarray(info.get("finger_contacts", [0, 0, 0]), dtype=np.int64)
+            total_contact_steps += 1
             torque_values.append(float(info.get("stabilizer_torque_norm", 0.0)))
             for key in reward_keys:
                 reward_values[key].append(float(info.get(key, 0.0)))
@@ -109,11 +118,19 @@ def evaluate(
         "axis_tilt_penalty_weight": axis_tilt_penalty_weight,
         "axis_tilt_recovery_scale": axis_tilt_recovery_scale,
         "rotation_reward_scale": rotation_reward_scale,
+        "contact_reward_mode": contact_reward_mode,
         "axis_rotation_deg_mean": float(rotations_arr.mean()),
         "axis_rotation_deg_std": float(rotations_arr.std()),
         "tip_error_m_mean": float(tip_arr.mean()),
         "tip_error_m_std": float(tip_arr.std()),
         "contact_count_mean": float(contact_arr.mean()),
+        "contact_count_step_distribution": {
+            str(count): float(contact_step_counts[count] / max(total_contact_steps, 1))
+            for count in range(4)
+        },
+        "finger_contact_step_fraction": (
+            finger_contact_steps / max(total_contact_steps, 1)
+        ).tolist(),
         "final_axis_tilt_deg_mean": float(np.mean(final_axis_tilts)),
         "stabilizer_torque_mean": float(np.mean(episode_torque_means)),
         "stabilizer_torque_max_mean": float(np.mean(episode_torque_maxes)),
@@ -150,6 +167,11 @@ def main() -> int:
     parser.add_argument("--axis-tilt-penalty-weight", type=float, default=1.0)
     parser.add_argument("--axis-tilt-recovery-scale", type=float, default=0.0)
     parser.add_argument("--rotation-reward-scale", type=float, default=16.0)
+    parser.add_argument(
+        "--contact-reward-mode",
+        choices=["linear", "discrete"],
+        default="linear",
+    )
     parser.add_argument("--out", type=str, default=None, help="Optional JSON metrics path")
     args = parser.parse_args()
 
@@ -165,6 +187,7 @@ def main() -> int:
         args.axis_tilt_penalty_weight,
         args.axis_tilt_recovery_scale,
         args.rotation_reward_scale,
+        args.contact_reward_mode,
     )
     print(json.dumps(metrics, indent=2))
 

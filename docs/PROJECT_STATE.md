@@ -1,7 +1,7 @@
 # Project State
 
 ## Current Objective
-Train the corrected Stage 2 task: tip ball/universal joint active, axis stabilizer off, while preserving >180° rotation and endpoint stability.
+Validate whether simultaneous three-fingertip rod contact is mechanically reachable and correctly detected before further contact-reward training.
 
 ## Current Best Result
 Stage 1 with solref 0.10 / stabilizer 0.15 passed using the 2x512 policy: mean rotation 200.00°, tip error 12.15 mm, success 0.50, drop 0.10.
@@ -29,12 +29,13 @@ The dominant failure is a nonlinear curriculum cliff between stabilizer 0.10 and
 New ideas to test (recorded 2026-07-24, NOT yet verified):
 - H-A (single-finger cause): The policy may rotate the rod using effectively one finger, which pushes the rod off-axis and induces the Stage 2 axis tilt. Proposed fix: a reward requiring all three fingertips to hold positive contact simultaneously so the fingers work together. See EXP-20260724-001. Verify the single-finger premise on existing checkpoints (per-fingertip contact logging) before training.
 - H-B (stabilizer dependence / transfer value): Stage 1 uses the axis stabilizer but Stage 2 does not, so Stage 1 pretraining might teach reliance on external orientation torque and could be neutral or harmful for stabilizer-free Stage 2. Open question whether Stage 0/1 pretraining actually benefits Stage 2. Assumption only; deferred to later verification. See EXP-20260724-002.
+- H-C (contact reachability/detection): Multi-finger contact may be mechanically unreachable or incorrectly detected. Baseline, stable stabilizer-0.10 control, and the discrete-reward run all showed only fingertip 2 contact. See DBG-20260724-001 and EXP-20260724-004.
 
 ## Most Recent Experiment
-EXP-20260723-015 `20260723-1600-stage2-rand-adapt-stab012-seed0`: untrained parent transferred at 178.51°/drop 0.05, but 15k continued training regressed to 66.70°.
+EXP-20260724-003 `20260724-1718-stage2-discrete-contact-seed0`: the -10/-1/0.1/10 contact ladder produced no multi-finger contact; final 0.92° rotation, 4.85 mm tip error, drop 1.0, and 20/20 axis-tilt terminations. Rejected.
 
 ## Next Recommended Experiment
-Run a bounded 5k Stage 2 adaptation at stabilizer 0.10 with checkpoint evaluation every 1k steps.
+Run EXP-20260724-004: a no-learning controlled configuration/action search to verify per-finger and simultaneous three-contact reachability and sensor correctness. Only after a reproducible three-contact state exists should contact shaping be retried.
 
 Queued ideas (unverified, recorded 2026-07-24):
 1. Diagnose per-fingertip contact on existing checkpoints to confirm/refute the single-finger premise, then add a three-finger simultaneous-contact reward (EXP-20260724-001).

@@ -42,6 +42,7 @@ class RodRotationEnv(gym.Env):
         axis_tilt_penalty_weight: float = 1.0,
         axis_tilt_recovery_scale: float = 0.0,
         rotation_reward_scale: float = 16.0,
+        contact_reward_mode: str = "linear",
     ) -> None:
         super().__init__()
         root = Path(__file__).resolve().parents[1]
@@ -58,6 +59,9 @@ class RodRotationEnv(gym.Env):
         self.axis_tilt_penalty_weight = float(axis_tilt_penalty_weight)
         self.axis_tilt_recovery_scale = float(axis_tilt_recovery_scale)
         self.rotation_reward_scale = float(rotation_reward_scale)
+        if contact_reward_mode not in {"linear", "discrete"}:
+            raise ValueError("contact_reward_mode must be 'linear' or 'discrete'")
+        self.contact_reward_mode = contact_reward_mode
         self.frame_skip = max(1, round(1.0 / (policy_hz * self.model.opt.timestep)))
         self.max_steps = int(episode_seconds * policy_hz)
         self.step_count = 0
@@ -139,6 +143,17 @@ class RodRotationEnv(gym.Env):
     def _axis_tilt_recovery_reward(previous: float, current: float, scale: float) -> float:
         """Reward reducing tilt, penalize increasing tilt, and bound outliers."""
         return float(np.clip((previous - current) * scale, -2.0, 2.0))
+
+    @staticmethod
+    def _contact_reward(contact_count: int, mode: str) -> float:
+        """Return the legacy linear reward or the EXP-20260724-003 discrete ladder."""
+        if contact_count not in (0, 1, 2, 3):
+            raise ValueError("contact_count must be between 0 and 3")
+        if mode == "linear":
+            return 0.25 * contact_count + (0.2 if contact_count >= 2 else 0.0)
+        if mode == "discrete":
+            return (-10.0, -1.0, 0.1, 10.0)[contact_count]
+        raise ValueError("mode must be 'linear' or 'discrete'")
 
     def _axis_rotation_increment(self) -> float:
         # Body quaternion uses wxyz. Relative quaternion is expressed in previous rod frame.
@@ -364,13 +379,10 @@ class RodRotationEnv(gym.Env):
         )
         self.prev_axis_tilt = axis_tilt
         lateral_omega_penalty = float(np.clip(0.03 * lateral_omega ** 2, 0.0, 10.0))
-        contact_bonus = 0.25 * contact_count
+        contact_bonus = self._contact_reward(contact_count, self.contact_reward_mode)
         # Encourage staying near the rod when contact is lost.
         dists = self._tip_rod_distances()
         proximity = float(np.clip(0.04 - float(np.mean(dists[:2])), 0.0, 0.04)) * 8.0
-        # Extra bonus for sustained multi-finger contact.
-        if contact_count >= 2:
-            contact_bonus += 0.2
         touch_for_penalty = np.clip(touch, 0.0, 50.0)
         force_penalty = 0.001 * float(np.sum(np.maximum(touch_for_penalty - 12.0, 0.0) ** 2))
         action_rate_penalty = 0.005 * float(np.mean((action - self.last_action) ** 2))
@@ -419,6 +431,7 @@ class RodRotationEnv(gym.Env):
             "axis_tilt_deg": np.degrees(axis_tilt),
             "lateral_omega": lateral_omega,
             "contact_count": contact_count,
+            "finger_contacts": (touch > 0.05).astype(int).tolist(),
             "axial_slip_proxy": axial_slip,
             "stabilizer_torque_norm": self.last_stabilizer_torque_norm,
             "reward_rotation": float(rotation_reward),
@@ -428,6 +441,7 @@ class RodRotationEnv(gym.Env):
             "reward_axis_tilt_recovery": axis_tilt_recovery_reward,
             "reward_lateral_omega_penalty": float(-lateral_omega_penalty),
             "reward_contact_bonus": float(contact_bonus),
+            "contact_reward_mode": self.contact_reward_mode,
             "reward_proximity": float(proximity),
             "reward_force_penalty": float(-force_penalty),
             "reward_action_rate_penalty": float(-action_rate_penalty),

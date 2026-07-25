@@ -34,5 +34,23 @@ Stage 2 requirement: exactly zero.
 ## Reward Components
 Evaluation records per-step means for rotation, tip error, raw and weighted axis-tilt penalty, lateral angular velocity, contact, proximity, force, and action-rate terms. Raw and weighted axis-tilt values must both be retained when changing its weight.
 
+## Fingertip Contact Count and Discrete Contact Reward
+Definition:
+Each fingertip is in contact when its summed normal contact force against the rod exceeds 0.05 N. Contact count is the number of contacting fingertips, from 0 to 3.
+Unit:
+Count; per-step contact reward is unitless.
+Aggregation:
+Report the fraction of evaluation steps at each contact count and the per-finger contact-step fraction.
+Evaluation frequency:
+Every checkpoint evaluation.
+Success threshold:
+No standalone threshold. For EXP-20260724-003, diagnostic support requires a nonzero three-contact fraction and fewer axis-tilt terminations without sacrificing rotation.
+Edge cases:
+Numerically unstable steps report zero contacts. Multiple contacts on one fingertip are summed but count as one fingertip.
+Implementation:
+`RodRotationEnv._touch`, `RodRotationEnv._contact_reward`, and `scripts/eval_policy.py`.
+Discrete EXP-20260724-003 mapping:
+0 → -10.0, 1 → -1.0, 2 → +0.1, 3 → +10.0. The legacy linear mapping remains available for reproduction.
+
 ## Termination Reason
 Operational categories: `axis_tilt`, `tip_error`, `rod_height`, `nonfinite_reward`, `unstable`, or `none` for time truncation.

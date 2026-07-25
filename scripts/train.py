@@ -19,6 +19,7 @@ def make_env(
     axis_tilt_penalty_weight: float,
     axis_tilt_recovery_scale: float,
     rotation_reward_scale: float,
+    contact_reward_mode: str,
 ):
     return Monitor(
         RodRotationEnv(
@@ -30,6 +31,7 @@ def make_env(
             axis_tilt_penalty_weight=axis_tilt_penalty_weight,
             axis_tilt_recovery_scale=axis_tilt_recovery_scale,
             rotation_reward_scale=rotation_reward_scale,
+            contact_reward_mode=contact_reward_mode,
         )
     )
 
@@ -51,6 +53,11 @@ if __name__ == "__main__":
     parser.add_argument("--axis-tilt-penalty-weight", type=float, default=1.0)
     parser.add_argument("--axis-tilt-recovery-scale", type=float, default=0.0)
     parser.add_argument("--rotation-reward-scale", type=float, default=16.0)
+    parser.add_argument(
+        "--contact-reward-mode",
+        choices=["linear", "discrete"],
+        default="linear",
+    )
     parser.add_argument("--learning-rate", type=float, default=None)
     parser.add_argument("--ent-coef", type=float, default=None)
     parser.add_argument("--checkpoint-freq", type=int, default=25_000)
@@ -76,6 +83,7 @@ if __name__ == "__main__":
                 args.axis_tilt_penalty_weight,
                 args.axis_tilt_recovery_scale,
                 args.rotation_reward_scale,
+                args.contact_reward_mode,
             )
         ]
     )

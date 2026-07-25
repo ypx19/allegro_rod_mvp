@@ -1,5 +1,58 @@
 # Debug Log
 
+## DBG-20260724-001: Multi-finger contact target may be unreachable or mismeasured
+- Date: 2026-07-24
+- Status: investigating
+- Related runs: `20260724-1718-stage2-discrete-contact-seed0`, `20260723-1200-stage2-tip-joint-no-axis-stabilizer`
+- Related files: `allegro_rod_mvp/env.py`, `models/three_finger_rod.xml`, `scripts/eval_policy.py`
+- Severity: high
+- First observed: per-finger diagnostic before EXP-20260724-003
+
+### Symptom
+Across the failed Stage 2 baseline, every discrete-contact checkpoint, and a stable stabilizer-0.10 control, evaluation recorded only fingertip 2 contact. No step recorded two or three contacting fingertips.
+
+### Expected Behavior
+The three-finger manipulation task and its proposed reward require each fingertip—and ideally all three simultaneously—to be able to contact the rod.
+
+### Reproduction
+```bash
+python scripts/eval_policy.py runs/20260723-1045-capacity512-stab012-denseckpt-seed0/checkpoints/ppo_rod_84200_steps.zip --stage 2 --tip-connect --tip-connect-solref 0.10 --axis-stabilizer-scale 0.10 --axis-tilt-penalty-weight 0.10 --rotation-reward-scale 160
+```
+
+### Evidence
+- Stabilizer-0 baseline: 80.47% zero contact, 19.53% fingertip 2 only.
+- Stabilizer-0.10 stable control: 72.82% zero contact, 27.18% fingertip 2 only, 176.55° rotation, zero drops.
+- EXP-20260724-003: every checkpoint had 0% two-/three-contact steps.
+- Plot: `runs/20260724-1718-stage2-discrete-contact-seed0/plots/contact_reward_evaluation.png`.
+
+### Hypotheses
+1. The current grasp/kinematics cannot bring all three tip geoms to the rod simultaneously.
+2. Collision filtering or contact geometry prevents fingers 1 and 3 from contacting.
+3. The force-based detector or geometry IDs miss valid contacts.
+4. The policy never explores the coordinated configuration despite it being reachable.
+
+### Investigation
+- Added per-finger contact logging and full contact-count step distributions.
+- Re-evaluated unstable Stage 2 and stable stabilizer-0.10 policies.
+- Confirmed the steep reward alone does not produce multi-finger contact.
+
+### Root Cause
+Unknown.
+
+### Resolution
+None. EXP-20260724-004 is planned as a bounded mechanical/contact-sensor reachability test.
+
+### Verification
+Pending controlled configurations and visual evidence.
+
+### Prevention
+Do not define future success rewards around simultaneous three-finger contact until reachability and detection are verified.
+
+### Lessons Learned
+A large reward cannot teach a target state that may be unreachable or absent from the policy's explored state distribution.
+
+---
+
 ## DBG-20260723-005: Stage 2 cannot recover axis tilt with absolute penalty scaling
 - Date: 2026-07-23
 - Status: investigating

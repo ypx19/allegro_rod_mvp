@@ -1,0 +1,19 @@
+{
+  "model": "runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip",
+  "stage": 2,
+  "episodes": 20,
+  "axis_rotation_deg_mean": 1.1290671729687027,
+  "tip_error_m_mean": 0.004029470732255835,
+  "final_axis_tilt_deg_mean": 41.318803727334725,
+  "contact_count_step_distribution": {
+    "0": 0.8047169811320755,
+    "1": 0.19528301886792454,
+    "2": 0.0,
+    "3": 0.0
+  },
+  "finger_contact_step_fraction": [0.0, 0.19528301886792454, 0.0],
+  "termination_reasons": {"axis_tilt": 20},
+  "success_rate": 0.0,
+  "drop_rate": 1.0,
+  "passed": false
+}

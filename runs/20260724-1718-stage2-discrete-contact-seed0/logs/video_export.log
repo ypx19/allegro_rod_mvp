@@ -1,0 +1,8 @@
+seed=   0 rot=    8.0° peak=    8.0° tip=0.0061 success=False dropped=True
+seed=   1 rot=    2.6° peak=    2.6° tip=0.0038 success=False dropped=True
+seed=   2 rot=   -0.3° peak=   -0.3° tip=0.0067 success=False dropped=True
+seed=   3 rot=   -2.7° peak=   -2.7° tip=0.0015 success=False dropped=True
+seed=   4 rot=   -2.0° peak=   -2.0° tip=0.0035 success=False dropped=True
+No success/near-success found; exporting top rotations instead.
+wrote runs/20260724-1718-stage2-discrete-contact-seed0/videos/stage2_best_00_seed0_rot8deg.mp4 (38 frames)
+manifest: runs/20260724-1718-stage2-discrete-contact-seed0/videos/stage2_manifest.json
