@@ -1,13 +1,14 @@
 # Project State
 
 ## Current Objective
-Validate a verified moderate-force three-contact reset initialization before further corrected-geometry training.
+Validate a verified moderate-force three-contact reset initialization while retaining the new assisted Stage 1 checkpoint.
 
 ## Current Best Result
-Stage 1 with solref 0.10 / stabilizer 0.15 passed using the 2x512 policy: mean rotation 200.00°, tip error 12.15 mm, success 0.50, drop 0.10.
+Assisted Stage 1 with stabilizer 1.0 and spatial finger 2: 269.30° rotation, 18.86 mm tip error, success 0.90, drop 0.05.
 
 ## Best Checkpoint
 - Stage 1: `runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip`
+- Assisted Stage 1 spatial-finger: `runs/20260724-2130-spatial-stage1-stabilizer1-train-seed0/checkpoints/ppo_rod_65600_steps.zip`
 - Stage 2 baseline videos: `runs/20260723-1200-stage2-tip-joint-no-axis-stabilizer/videos/`
 
 ## Active Configuration
@@ -32,7 +33,7 @@ New ideas to test (recorded 2026-07-24, NOT yet verified):
 - H-C resolved and corrected: `f2_j0` now uses a nonparallel local-X axis before two distal local-Z axes. Finger 2 reaches the rod and settled three-contact grasps were verified on seeds 0–2. See DBG-20260724-001 and EXP-20260724-005.
 
 ## Most Recent Experiment
-EXP-20260724-006 `20260724-2100-spatial-finger2-retrain-seed0`: corrected geometry plus identical discrete-reward retraining still produced 0% multi-contact occupancy, 20/20 tilt terminations, and best rotation 1.53°. Checkpoints rejected; geometry retained.
+EXP-20260724-008 `20260724-2130-spatial-stage1-stabilizer1-train-seed0`: selected post-training checkpoint passed at 269.30° rotation, 18.86 mm tip error, success 0.90, and drop 0.05. No three-contact occupancy; assisted result only.
 
 ## Next Recommended Experiment
 Run EXP-20260724-007: replace only the reset joint pose with the verified moderate-force three-contact configuration. Require robust three-contact resets and bounded forces on seeds 0–19 before launching another training run.

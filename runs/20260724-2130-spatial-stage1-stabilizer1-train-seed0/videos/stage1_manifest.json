@@ -1,0 +1,12 @@
+[
+  {
+    "file": "runs/20260724-2130-spatial-stage1-stabilizer1-train-seed0/videos/stage1_success_00_seed0_rot239deg.mp4",
+    "seed": 0,
+    "axis_rotation_deg": 239.1529193471353,
+    "peak_rotation_deg": 239.46111581939894,
+    "tip_error_m": 0.012238668480023824,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  }
+]

@@ -621,3 +621,47 @@ Across seeds 0–19 after settling: finite dynamics, all three forces >0.05 N in
 
 ### Training Success Criteria
 At least one checkpoint must show nonzero three-contact evaluation occupancy and fewer than 20/20 tilt terminations. Full task gate remains rotation >180°, tip error <0.02 m, drop ≤0.15.
+## EXP-20260724-008: Stage 1 training with stabilizer 1.0
+- Run ID: `20260724-2130-spatial-stage1-stabilizer1-train-seed0`
+- Date: 2026-07-24
+- Status: completed
+- Parent checkpoint: `runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip`
+- Geometry commit: `080e367`
+- Random seed: 0
+- Device: CPU
+
+### Question
+Can Stage 1 PPO training with stabilizer 1.0 preserve rotation and endpoint stability while using the spatial finger and discrete contact reward?
+
+### Hypothesis
+Strong axis assistance will prevent tilt collapse and allow a post-training checkpoint to pass rotation >180°, tip error <0.02 m, and drop ≤0.15.
+
+### Change from Parent
+Stage 1 stabilizer is 1.0, corrected spatial finger 2 is active, and the discrete contact reward is used. Tip solref 0.10, network, optimizer, and fixed evaluation seeds remain controlled.
+
+### Success Criteria
+At least one post-training checkpoint passes rotation >180°, tip error <0.02 m, and drop ≤0.15 on deterministic seeds 0–19.
+
+### Result
+Three of six post-training checkpoints passed. The selected 65,600-step checkpoint reached 269.30° rotation, 18.86 mm tip error, 0.90 success rate, and 0.05 drop. Later checkpoints rotated farther but failed the endpoint-error gate.
+
+### Key Metrics
+| Checkpoint | Rotation | Tip error | Success | Drop | Passed |
+|---|---:|---:|---:|---:|---|
+| Pre-training | 232.59° | 13.85 mm | 0.95 | 0.05 | yes |
+| 55,600 | 217.90° | 14.8 mm | 0.80 | 0.05 | yes |
+| 60,600 | 245.30° | 17.3 mm | 0.75 | 0.05 | yes |
+| 65,600 | 269.30° | 18.86 mm | 0.90 | 0.05 | yes |
+| Final | 317.90° | 22.6 mm | 0.65 | 0.05 | no |
+
+### Visual Evidence
+- `runs/20260724-2130-spatial-stage1-stabilizer1-train-seed0/videos/stage1_success_00_seed0_rot239deg.mp4`
+
+### Interpretation
+The stabilizer prevents tilt collapse and supports strong assisted rotation. Training trades endpoint accuracy for rotation after 65,600 steps. No checkpoint produces three-contact occupancy, so the contact-coordination objective remains unmet.
+
+### Decision
+Adopt the 65,600-step checkpoint for assisted Stage 1 demonstrations; reject later checkpoints.
+
+### Next Step
+Use the verified three-contact reset initialization if the next objective remains coordinated contact. Treat this checkpoint as assisted and do not compare it directly with stabilizer-free Stage 2.

@@ -1,0 +1,3 @@
+seed=   0 rot=  239.2° peak=  239.5° tip=0.0122 success=True dropped=False
+wrote runs/20260724-2130-spatial-stage1-stabilizer1-train-seed0/videos/stage1_success_00_seed0_rot239deg.mp4 (301 frames)
+manifest: runs/20260724-2130-spatial-stage1-stabilizer1-train-seed0/videos/stage1_manifest.json
