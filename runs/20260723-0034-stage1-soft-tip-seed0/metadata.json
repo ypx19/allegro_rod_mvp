@@ -1,0 +1,10 @@
+{
+  "run_id": "20260723-0034-stage1-soft-tip-seed0",
+  "timestamp": "2026-07-23T07:33:50.139691+00:00",
+  "git_commit": "unknown",
+  "command": "python scripts/train.py --stage 1 --steps 250000 --resume checkpoints/stage0/final_model.zip --out runs/20260723-0034-stage1-soft-tip-seed0/checkpoints",
+  "seed": 0,
+  "device": "cpu",
+  "parent_baseline": "EXP-20260723-001 stage1 connect off",
+  "rejected_sibling": "20260723-0026-stage1-softstab-seed0"
+}

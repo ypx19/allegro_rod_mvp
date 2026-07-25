@@ -1,0 +1,32 @@
+{
+  "model": "runs/20260723-0130-stage1-stab020-lowlr-seed0/checkpoints/ppo_rod_301480_steps.zip",
+  "stage": 1,
+  "episodes": 20,
+  "tip_connect_solref": 0.1,
+  "axis_stabilizer_scale": 0.2,
+  "axis_rotation_deg_mean": 199.5823336401939,
+  "axis_rotation_deg_std": 72.2138829148227,
+  "tip_error_m_mean": 0.01604194498851882,
+  "tip_error_m_std": 0.010944300942281908,
+  "contact_count_mean": 0.5,
+  "final_axis_tilt_deg_mean": 16.717885921766573,
+  "stabilizer_torque_mean": 0.09273785157189511,
+  "stabilizer_torque_max_mean": 0.26397490933629175,
+  "termination_reasons": {
+    "none": 17,
+    "axis_tilt": 3
+  },
+  "reward_component_step_means": {
+    "reward_rotation": 0.26282299143786314,
+    "reward_tip_penalty": -0.4852649254830294,
+    "reward_axis_tilt_penalty": -6.196388572141392,
+    "reward_lateral_omega_penalty": -0.08653363008681035,
+    "reward_contact_bonus": 0.12165014619883044,
+    "reward_proximity": 0.000412156026217401,
+    "reward_force_penalty": -0.002050287168588087,
+    "reward_action_rate_penalty": -0.00668718134666602
+  },
+  "success_rate": 0.4,
+  "drop_rate": 0.15,
+  "passed": true
+}

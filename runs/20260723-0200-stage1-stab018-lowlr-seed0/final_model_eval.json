@@ -1,0 +1,15 @@
+{
+  "model": "runs/20260723-0200-stage1-stab018-lowlr-seed0/checkpoints/final_model.zip",
+  "stage": 1,
+  "episodes": 20,
+  "tip_connect_solref": 0.1,
+  "axis_stabilizer_scale": 0.18,
+  "axis_rotation_deg_mean": 164.86855934621977,
+  "axis_rotation_deg_std": 86.42501690993564,
+  "tip_error_m_mean": 0.0232730182151931,
+  "tip_error_m_std": 0.011718450021070366,
+  "contact_count_mean": 0.7,
+  "success_rate": 0.2,
+  "drop_rate": 0.35,
+  "passed": false
+}

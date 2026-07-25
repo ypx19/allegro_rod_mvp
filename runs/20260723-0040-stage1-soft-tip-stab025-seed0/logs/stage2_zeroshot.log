@@ -1,0 +1,13 @@
+{
+  "model": "checkpoints/stage1/final_model.zip",
+  "stage": 2,
+  "episodes": 20,
+  "axis_rotation_deg_mean": -9.510746795660568,
+  "axis_rotation_deg_std": 3.355848247511822,
+  "tip_error_m_mean": 0.12236412562539574,
+  "tip_error_m_std": 0.0014389944953808105,
+  "contact_count_mean": 0.0,
+  "success_rate": 0.0,
+  "drop_rate": 1.0,
+  "passed": false
+}

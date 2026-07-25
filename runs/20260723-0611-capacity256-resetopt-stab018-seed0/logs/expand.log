@@ -1,0 +1,4 @@
+source_parameters=159251
+expanded_parameters=159251
+max_deterministic_action_error=0.000e+00
+saved=runs/20260723-0611-capacity256-resetopt-stab018-seed0/checkpoints/reset_initial.zip

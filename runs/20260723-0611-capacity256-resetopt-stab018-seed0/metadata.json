@@ -1,0 +1,12 @@
+{
+  "run_id": "20260723-0611-capacity256-resetopt-stab018-seed0",
+  "timestamp": "2026-07-23T06:11:00-07:00",
+  "git_commit": "unavailable",
+  "git_branch": "unavailable",
+  "git_dirty": true,
+  "command": "recreate 256 policy with exact function preservation and reset optimizer; train 25000 steps at stabilizer 0.18",
+  "seed": 0,
+  "device": "cpu",
+  "baseline_run": "20260723-0130-stage1-stab020-lowlr-seed0",
+  "notes": "Matched control for capacity ablation."
+}

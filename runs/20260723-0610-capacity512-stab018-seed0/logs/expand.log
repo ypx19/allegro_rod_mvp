@@ -1,0 +1,4 @@
+source_parameters=159251
+expanded_parameters=580627
+max_deterministic_action_error=1.788e-07
+saved=runs/20260723-0610-capacity512-stab018-seed0/checkpoints/expanded_initial.zip

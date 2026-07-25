@@ -1,0 +1,12 @@
+{
+  "run_id": "20260723-1115-capacity512-stab012-localckpt-seed0",
+  "timestamp": "2026-07-23T11:15:00-07:00",
+  "git_commit": "unavailable",
+  "git_branch": "unavailable",
+  "git_dirty": true,
+  "command": "continue 5000 steps at stabilizer 0.12 and save every 1000 calls",
+  "seed": 0,
+  "device": "cpu",
+  "baseline_run": "20260723-1045-capacity512-stab012-denseckpt-seed0",
+  "notes": "Final bounded local checkpoint-selection experiment."
+}

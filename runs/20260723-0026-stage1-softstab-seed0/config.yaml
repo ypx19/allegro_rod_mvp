@@ -1,0 +1,15 @@
+# EXP-20260723-002 Stage 1 with 50% axis stabilizer
+run_id: 20260723-0026-stage1-softstab-seed0
+stage: 1
+axis_stabilizer_scale: 0.5
+tip_connect: false
+resume: checkpoints/stage0/final_model.zip
+steps: 250000
+seed: 0
+device: cpu
+algorithm: PPO
+change_from_baseline: "Only Stage1 axis stabilizer scale 0.0 -> 0.5; tip connect still off"
+success_criteria:
+  axis_rotation_deg_mean: ">180"
+  tip_error_m_mean: "<0.02"
+  drop_rate: "<=0.15"

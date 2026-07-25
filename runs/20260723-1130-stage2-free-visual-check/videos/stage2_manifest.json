@@ -1,0 +1,32 @@
+[
+  {
+    "file": "runs/20260723-1130-stage2-free-visual-check/videos/stage2_best_00_seed0_rot-4deg.mp4",
+    "seed": 0,
+    "axis_rotation_deg": -3.5617188500701937,
+    "peak_rotation_deg": -2.223908670222596,
+    "tip_error_m": 0.12307067069456862,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 6
+  },
+  {
+    "file": "runs/20260723-1130-stage2-free-visual-check/videos/stage2_best_01_seed9_rot-5deg.mp4",
+    "seed": 9,
+    "axis_rotation_deg": -5.215328530381966,
+    "peak_rotation_deg": -3.240651411903203,
+    "tip_error_m": 0.1216998563996508,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 6
+  },
+  {
+    "file": "runs/20260723-1130-stage2-free-visual-check/videos/stage2_best_02_seed19_rot-5deg.mp4",
+    "seed": 19,
+    "axis_rotation_deg": -5.2196842025524735,
+    "peak_rotation_deg": -3.209030720888831,
+    "tip_error_m": 0.12435531151182765,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 6
+  }
+]

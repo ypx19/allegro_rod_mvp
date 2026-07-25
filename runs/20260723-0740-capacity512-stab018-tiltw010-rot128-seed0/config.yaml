@@ -1,0 +1,16 @@
+run_id: 20260723-0740-capacity512-stab018-tiltw010-rot128-seed0
+stage: 1
+tip_connect_solref: 0.10
+axis_stabilizer_scale: 0.18
+axis_tilt_penalty_weight: 0.10
+rotation_reward_scale: 128.0
+resume: runs/20260723-0610-capacity512-stab018-seed0/checkpoints/expanded_initial.zip
+steps: 25000
+seed: 0
+device: cpu
+learning_rate: 0.00001
+ent_coef: 0.0
+network: "pi=[512,512], vf=[512,512], 580627 parameters"
+baseline_run: 20260723-0450-stage1-stab018-tiltw010-rot128-seed0
+question: "Can added capacity retain stability under the rot128 reward that made the 256 policy aggressive?"
+success_criteria: "20-episode deterministic eval: rotation >180 deg, tip error <0.02 m, drop <=0.15."

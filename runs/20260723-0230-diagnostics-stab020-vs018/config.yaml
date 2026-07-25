@@ -1,0 +1,8 @@
+run_id: 20260723-0230-diagnostics-stab020-vs018
+type: deterministic_evaluation
+checkpoint: runs/20260723-0130-stage1-stab020-lowlr-seed0/checkpoints/ppo_rod_301480_steps.zip
+episodes: 20
+seeds: "0-19"
+conditions:
+  - {tip_connect_solref: 0.10, axis_stabilizer_scale: 0.20}
+  - {tip_connect_solref: 0.10, axis_stabilizer_scale: 0.18}

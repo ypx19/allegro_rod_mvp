@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/Users/youpeixing/ws/allegro_rod_mvp/scripts/export_success_videos.py", line 174, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/youpeixing/ws/allegro_rod_mvp/scripts/export_success_videos.py", line 98, in main
+    ep = rollout_episode(model, env, seed)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/youpeixing/ws/allegro_rod_mvp/scripts/export_success_videos.py", line 39, in rollout_episode
+    frame = env.render()
+            ^^^^^^^^^^^^
+  File "/Users/youpeixing/ws/allegro_rod_mvp/allegro_rod_mvp/env.py", line 389, in render
+    self.renderer = mujoco.Renderer(self.model, height=480, width=640)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/youpeixing/ws/allegro_rod_mvp/.venv/lib/python3.12/site-packages/mujoco/rendering/classic/renderer.py", line 89, in __init__
+    self._gl_context = gl_context.GLContext(width, height)  # type: ignore
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/youpeixing/ws/allegro_rod_mvp/.venv/lib/python3.12/site-packages/mujoco/cgl/__init__.py", line 47, in __init__
+    cgl.CGLChoosePixelFormat(
+  File "/Users/youpeixing/ws/allegro_rod_mvp/.venv/lib/python3.12/site-packages/mujoco/cgl/cgl.py", line 132, in checked_func
+    raise CGLError(_CGLErrorString(err).decode())
+mujoco.cgl.cgl.CGLError: invalid CoreGraphics connection

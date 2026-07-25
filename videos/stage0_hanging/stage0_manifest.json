@@ -1,0 +1,52 @@
+[
+  {
+    "file": "videos/stage0_hanging/stage0_success_00_seed0_rot557deg.mp4",
+    "seed": 0,
+    "axis_rotation_deg": 556.6898175951158,
+    "peak_rotation_deg": 556.6898175951158,
+    "tip_error_m": 0.00042923565813936726,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "videos/stage0_hanging/stage0_success_01_seed1_rot542deg.mp4",
+    "seed": 1,
+    "axis_rotation_deg": 542.4394458520512,
+    "peak_rotation_deg": 542.4394458520512,
+    "tip_error_m": 0.0008831234392741968,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "videos/stage0_hanging/stage0_success_02_seed2_rot575deg.mp4",
+    "seed": 2,
+    "axis_rotation_deg": 574.9833160439835,
+    "peak_rotation_deg": 574.9833160439835,
+    "tip_error_m": 0.0009119950448284154,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "videos/stage0_hanging/stage0_success_03_seed3_rot537deg.mp4",
+    "seed": 3,
+    "axis_rotation_deg": 537.4519824982159,
+    "peak_rotation_deg": 537.4519824982159,
+    "tip_error_m": 0.000256939704795913,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "videos/stage0_hanging/stage0_success_04_seed4_rot579deg.mp4",
+    "seed": 4,
+    "axis_rotation_deg": 579.0964131030265,
+    "peak_rotation_deg": 579.0964131030265,
+    "tip_error_m": 0.0005454612799997142,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  }
+]

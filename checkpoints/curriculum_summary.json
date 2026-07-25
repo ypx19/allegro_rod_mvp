@@ -1,0 +1,61 @@
+{
+  "stages": {
+    "0": {
+      "model": "/Users/youpeixing/ws/allegro_rod_mvp/checkpoints/stage0/final_model.zip",
+      "extra_steps": 100000,
+      "metrics": {
+        "model": "/Users/youpeixing/ws/allegro_rod_mvp/checkpoints/stage0/final_model.zip",
+        "stage": 0,
+        "episodes": 20,
+        "axis_rotation_deg_mean": 527.6399818769764,
+        "axis_rotation_deg_std": 124.06987959410131,
+        "tip_error_m_mean": 0.0005819712457708281,
+        "tip_error_m_std": 0.00022832037545179686,
+        "contact_count_mean": 0.75,
+        "success_rate": 0.95,
+        "drop_rate": 0.05,
+        "passed": true,
+        "eval_exit": 0
+      },
+      "passed": true
+    },
+    "1": {
+      "model": "/Users/youpeixing/ws/allegro_rod_mvp/checkpoints/stage1/final_model.zip",
+      "extra_steps": 450000,
+      "metrics": {
+        "model": "/Users/youpeixing/ws/allegro_rod_mvp/checkpoints/stage1/final_model.zip",
+        "stage": 1,
+        "episodes": 20,
+        "axis_rotation_deg_mean": -38.64814074881913,
+        "axis_rotation_deg_std": 33.539558744004125,
+        "tip_error_m_mean": 0.0172230275484941,
+        "tip_error_m_std": 0.01193957097911886,
+        "contact_count_mean": 0.85,
+        "success_rate": 0.0,
+        "drop_rate": 0.6,
+        "passed": false,
+        "eval_exit": 1
+      },
+      "passed": false
+    },
+    "2": {
+      "model": "/Users/youpeixing/ws/allegro_rod_mvp/checkpoints/stage2/final_model.zip",
+      "extra_steps": 600000,
+      "metrics": {
+        "model": "/Users/youpeixing/ws/allegro_rod_mvp/checkpoints/stage2/final_model.zip",
+        "stage": 2,
+        "episodes": 20,
+        "axis_rotation_deg_mean": -106.39495528780317,
+        "axis_rotation_deg_std": 57.33628933086045,
+        "tip_error_m_mean": 0.0170059599840998,
+        "tip_error_m_std": 0.02772993886238433,
+        "contact_count_mean": 1.9,
+        "success_rate": 0.0,
+        "drop_rate": 0.05,
+        "passed": false,
+        "eval_exit": 1
+      },
+      "passed": false
+    }
+  }
+}

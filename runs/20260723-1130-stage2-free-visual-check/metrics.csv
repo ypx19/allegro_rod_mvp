@@ -1,0 +1,4 @@
+seed,axis_rotation_deg,tip_error_m,dropped,num_frames
+0,-3.6,0.1231,true,6
+9,-5.2,0.1217,true,6
+19,-5.2,0.1244,true,6

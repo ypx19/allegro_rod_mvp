@@ -1,0 +1,15 @@
+{
+  "model": "runs/20260723-0130-stage1-stab020-lowlr-seed0/checkpoints/ppo_rod_301480_steps.zip",
+  "stage": 1,
+  "episodes": 20,
+  "tip_connect_solref": 0.1,
+  "axis_stabilizer_scale": 0.0,
+  "axis_rotation_deg_mean": -5.49298591287734,
+  "axis_rotation_deg_std": 8.300555926220762,
+  "tip_error_m_mean": 0.005619702856850105,
+  "tip_error_m_std": 0.0025928304749392914,
+  "contact_count_mean": 0.2,
+  "success_rate": 0.0,
+  "drop_rate": 0.95,
+  "passed": false
+}

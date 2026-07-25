@@ -1,0 +1,13 @@
+{
+  "model": "/Users/youpeixing/ws/allegro_rod_mvp/checkpoints/stage1/final_model.zip",
+  "stage": 1,
+  "episodes": 20,
+  "axis_rotation_deg_mean": -38.64814074881913,
+  "axis_rotation_deg_std": 33.539558744004125,
+  "tip_error_m_mean": 0.0172230275484941,
+  "tip_error_m_std": 0.01193957097911886,
+  "contact_count_mean": 0.85,
+  "success_rate": 0.0,
+  "drop_rate": 0.6,
+  "passed": false
+}

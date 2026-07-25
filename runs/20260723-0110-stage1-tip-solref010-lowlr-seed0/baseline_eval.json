@@ -1,0 +1,15 @@
+{
+  "model": "checkpoints/stage0/final_model.zip",
+  "stage": 1,
+  "episodes": 20,
+  "tip_connect_solref": 0.1,
+  "axis_stabilizer_scale": 0.25,
+  "axis_rotation_deg_mean": 211.3684395699711,
+  "axis_rotation_deg_std": 107.05293301737376,
+  "tip_error_m_mean": 0.015358465242540833,
+  "tip_error_m_std": 0.0095931287992222,
+  "contact_count_mean": 0.65,
+  "success_rate": 0.45,
+  "drop_rate": 0.05,
+  "passed": true
+}

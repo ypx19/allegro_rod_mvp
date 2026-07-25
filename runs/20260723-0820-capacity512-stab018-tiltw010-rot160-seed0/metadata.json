@@ -1,0 +1,12 @@
+{
+  "run_id": "20260723-0820-capacity512-stab018-tiltw010-rot160-seed0",
+  "timestamp": "2026-07-23T08:20:00-07:00",
+  "git_commit": "unavailable",
+  "git_branch": "unavailable",
+  "git_dirty": true,
+  "command": "train function-preserving 512-width expansion for 25000 steps with tilt weight 0.1 and rotation scale 160",
+  "seed": 0,
+  "device": "cpu",
+  "baseline_run": "20260723-0740-capacity512-stab018-tiltw010-rot128-seed0",
+  "notes": "Bounded refinement from the closest stable candidate."
+}

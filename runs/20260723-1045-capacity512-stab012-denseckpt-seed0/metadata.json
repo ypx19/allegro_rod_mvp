@@ -1,0 +1,12 @@
+{
+  "run_id": "20260723-1045-capacity512-stab012-denseckpt-seed0",
+  "timestamp": "2026-07-23T10:45:00-07:00",
+  "git_commit": "unavailable",
+  "git_branch": "unavailable",
+  "git_dirty": true,
+  "command": "continue 10000 steps at stabilizer 0.12 and save every 2000 calls",
+  "seed": 0,
+  "device": "cpu",
+  "baseline_run": "20260723-1000-capacity512-stab012-tiltw010-rot160-seed0",
+  "notes": "Dense checkpoint-selection experiment."
+}

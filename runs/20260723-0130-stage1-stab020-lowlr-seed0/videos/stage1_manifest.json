@@ -1,0 +1,22 @@
+[
+  {
+    "file": "runs/20260723-0130-stage1-stab020-lowlr-seed0/videos/stage1_success_00_seed0_rot180deg.mp4",
+    "seed": 0,
+    "axis_rotation_deg": 180.13967524538114,
+    "peak_rotation_deg": 180.13967524538114,
+    "tip_error_m": 0.01290048684253078,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "runs/20260723-0130-stage1-stab020-lowlr-seed0/videos/stage1_success_01_seed1_rot237deg.mp4",
+    "seed": 1,
+    "axis_rotation_deg": 237.09316939514136,
+    "peak_rotation_deg": 237.09316939514136,
+    "tip_error_m": 0.007916940028569396,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  }
+]

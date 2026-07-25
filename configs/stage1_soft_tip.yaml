@@ -1,0 +1,12 @@
+# EXP-20260723-003 Stage 1 soft tip-connect fade
+run_id: 20260723-0034-stage1-soft-tip-seed0
+stage: 1
+tip_connect: true
+eq_solref_timeconst: 0.05
+axis_stabilizer_scale: 0.0
+resume: checkpoints/stage0/final_model.zip
+steps: 250000
+seed: 0
+device: cpu
+change_from_baseline: "Stage1 keeps tip connect but softens solref 0.008->0.05; stabilizer remains 0"
+parent_rejected: "20260723-0026-stage1-softstab-seed0 (xfrc 0.5 without tip -> ep_len~5, DOF12 NaNs)"

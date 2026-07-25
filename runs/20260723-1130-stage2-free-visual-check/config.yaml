@@ -1,0 +1,10 @@
+run_id: 20260723-1130-stage2-free-visual-check
+type: visual_evaluation
+stage: 2
+tip_connect: false
+axis_stabilizer_scale: 0.0
+domain_randomization: true
+checkpoint: runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip
+search_episodes: 20
+exported_seeds: [0, 9, 19]
+note: "Original six-frame failures are preserved; hold3s variants clone the final frame for viewing only."

@@ -1,0 +1,15 @@
+{
+  "run_id": "20260723-1600-stage2-rand-adapt-stab012-seed0",
+  "timestamp": "2026-07-23T16:00:00-07:00",
+  "git_commit": "unavailable",
+  "git_branch": "unavailable",
+  "git_dirty": true,
+  "command": ".venv/bin/python scripts/train.py --stage 2 --steps 15000 --resume runs/20260723-1045-capacity512-stab012-denseckpt-seed0/checkpoints/ppo_rod_84200_steps.zip --out runs/20260723-1600-stage2-rand-adapt-stab012-seed0/checkpoints --tip-connect --tip-connect-solref 0.10 --axis-stabilizer-scale 0.12 --axis-tilt-penalty-weight 0.10 --axis-tilt-recovery-scale 0 --rotation-reward-scale 160 --learning-rate 0.00001 --ent-coef 0 --checkpoint-freq 3000",
+  "seed": 0,
+  "device": "cpu",
+  "hostname": "local-mac",
+  "python_version": "3.12",
+  "framework_versions": {},
+  "baseline_run": "20260723-1045-capacity512-stab012-denseckpt-seed0",
+  "notes": "Stage 2 randomization adaptation control; repository has no .git directory."
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "file": "videos/stage0/stage0_success_00_seed9_rot431deg.mp4",
+    "seed": 9,
+    "axis_rotation_deg": 430.83526999176087,
+    "peak_rotation_deg": 430.83526999176087,
+    "tip_error_m": 0.01593993285873345,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "videos/stage0/stage0_success_01_seed15_rot186deg.mp4",
+    "seed": 15,
+    "axis_rotation_deg": 186.31173538049202,
+    "peak_rotation_deg": 187.60671027215236,
+    "tip_error_m": 0.003636482218010769,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "videos/stage0/stage0_success_02_seed17_rot194deg.mp4",
+    "seed": 17,
+    "axis_rotation_deg": 193.9561499449971,
+    "peak_rotation_deg": 193.95614994499718,
+    "tip_error_m": 0.0036393659781440123,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "videos/stage0/stage0_success_03_seed31_rot184deg.mp4",
+    "seed": 31,
+    "axis_rotation_deg": 183.52823059907865,
+    "peak_rotation_deg": 183.5282305990788,
+    "tip_error_m": 0.003690378078259803,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  },
+  {
+    "file": "videos/stage0/stage0_success_04_seed42_rot216deg.mp4",
+    "seed": 42,
+    "axis_rotation_deg": 215.9090374167846,
+    "peak_rotation_deg": 215.9248376207858,
+    "tip_error_m": 0.003699867450240628,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  }
+]

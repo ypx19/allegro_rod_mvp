@@ -1,0 +1,14 @@
+seed=   0 rot=  150.6° peak=  150.6° tip=0.0029 success=False dropped=False
+seed=   1 rot=  307.3° peak=  307.3° tip=0.0055 success=True dropped=False
+seed=   2 rot=  348.0° peak=  348.0° tip=0.0043 success=False dropped=False
+seed=   3 rot=  340.0° peak=  341.5° tip=0.0030 success=True dropped=False
+seed=   4 rot=  355.2° peak=  355.2° tip=0.0053 success=False dropped=False
+seed=   5 rot=  270.7° peak=  270.7° tip=0.0034 success=True dropped=False
+seed=   6 rot=  272.4° peak=  272.4° tip=0.0027 success=True dropped=False
+seed=   7 rot=  308.3° peak=  308.8° tip=0.0021 success=True dropped=False
+wrote videos/stage1_soft_tip_stab025/stage1_success_00_seed1_rot307deg.mp4 (301 frames)
+wrote videos/stage1_soft_tip_stab025/stage1_success_01_seed3_rot340deg.mp4 (301 frames)
+wrote videos/stage1_soft_tip_stab025/stage1_success_02_seed5_rot271deg.mp4 (301 frames)
+wrote videos/stage1_soft_tip_stab025/stage1_success_03_seed6_rot272deg.mp4 (301 frames)
+wrote videos/stage1_soft_tip_stab025/stage1_success_04_seed7_rot308deg.mp4 (301 frames)
+manifest: videos/stage1_soft_tip_stab025/stage1_manifest.json

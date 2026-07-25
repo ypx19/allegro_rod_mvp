@@ -1,0 +1,32 @@
+[
+  {
+    "file": "runs/20260723-1200-stage2-tip-joint-no-axis-stabilizer/videos/stage2_best_00_seed0_rot9deg.mp4",
+    "seed": 0,
+    "axis_rotation_deg": 8.735544057439203,
+    "peak_rotation_deg": 8.735544057439203,
+    "tip_error_m": 0.005700651705234151,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 44
+  },
+  {
+    "file": "runs/20260723-1200-stage2-tip-joint-no-axis-stabilizer/videos/stage2_best_01_seed19_rot8deg.mp4",
+    "seed": 19,
+    "axis_rotation_deg": 7.8696864506532025,
+    "peak_rotation_deg": 7.8696864506532025,
+    "tip_error_m": 0.005400307419637345,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 56
+  },
+  {
+    "file": "runs/20260723-1200-stage2-tip-joint-no-axis-stabilizer/videos/stage2_best_02_seed13_rot7deg.mp4",
+    "seed": 13,
+    "axis_rotation_deg": 6.502662440411132,
+    "peak_rotation_deg": 6.502662440411132,
+    "tip_error_m": 0.005504277614246001,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 69
+  }
+]

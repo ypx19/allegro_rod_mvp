@@ -1,0 +1,4 @@
+seed,axis_rotation_deg,tip_error_m,axis_tilt_terminated,num_frames
+0,8.7355,0.0057007,true,44
+19,7.8697,0.0054003,true,56
+13,6.5027,0.0055043,true,69

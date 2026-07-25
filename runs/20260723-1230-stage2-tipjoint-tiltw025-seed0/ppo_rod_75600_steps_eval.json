@@ -1,0 +1,35 @@
+{
+  "model": "runs/20260723-1230-stage2-tipjoint-tiltw025-seed0/checkpoints/ppo_rod_75600_steps.zip",
+  "stage": 2,
+  "episodes": 20,
+  "tip_connect_solref": 0.1,
+  "tip_connect_enabled": true,
+  "axis_stabilizer_scale": 0.0,
+  "axis_tilt_penalty_weight": 0.25,
+  "rotation_reward_scale": 160.0,
+  "axis_rotation_deg_mean": 1.7303542940371568,
+  "axis_rotation_deg_std": 4.12450131756611,
+  "tip_error_m_mean": 0.004101726898105935,
+  "tip_error_m_std": 0.001578458765296213,
+  "contact_count_mean": 0.3,
+  "final_axis_tilt_deg_mean": 41.0560546142889,
+  "stabilizer_torque_mean": 0.0,
+  "stabilizer_torque_max_mean": 0.0,
+  "termination_reasons": {
+    "axis_tilt": 20
+  },
+  "reward_component_step_means": {
+    "reward_rotation": 0.8929442198630655,
+    "reward_tip_penalty": -0.12524123188235178,
+    "reward_axis_tilt_penalty": -5.011287887082134,
+    "reward_axis_tilt_penalty_raw": -20.045151548328537,
+    "reward_lateral_omega_penalty": -0.02010854611949714,
+    "reward_contact_bonus": 0.046640559860777676,
+    "reward_proximity": 0.002636763140459132,
+    "reward_force_penalty": 0.0,
+    "reward_action_rate_penalty": -0.008298853374898964
+  },
+  "success_rate": 0.0,
+  "drop_rate": 1.0,
+  "passed": false
+}

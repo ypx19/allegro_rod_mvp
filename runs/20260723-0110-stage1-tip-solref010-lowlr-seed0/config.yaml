@@ -1,0 +1,13 @@
+run_id: 20260723-0110-stage1-tip-solref010-lowlr-seed0
+stage: 1
+tip_connect: true
+tip_connect_solref: 0.10
+axis_stabilizer_scale: 0.25
+resume: checkpoints/stage0/final_model.zip
+steps: 25000
+seed: 0
+device: cpu
+learning_rate: 0.00001
+ent_coef: 0.0
+change_from_baseline: "Only tip-connect solref changes from 0.05 to 0.10; stabilizer stays 0.25."
+success_criteria: "20-episode deterministic eval: mean rotation >180 deg, mean tip error <0.02 m, drop rate <=0.15."

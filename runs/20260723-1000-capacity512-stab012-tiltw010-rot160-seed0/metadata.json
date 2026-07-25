@@ -1,0 +1,12 @@
+{
+  "run_id": "20260723-1000-capacity512-stab012-tiltw010-rot160-seed0",
+  "timestamp": "2026-07-23T10:00:00-07:00",
+  "git_commit": "unavailable",
+  "git_branch": "unavailable",
+  "git_dirty": true,
+  "command": "continue 512-width rot160 policy for 25000 steps at stabilizer 0.12",
+  "seed": 0,
+  "device": "cpu",
+  "baseline_run": "20260723-0900-capacity512-stab015-tiltw010-rot160-seed0",
+  "notes": "Single-factor assist fade."
+}

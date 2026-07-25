@@ -1,0 +1,4 @@
+step,axis_rotation_deg_mean,axis_rotation_deg_std,tip_error_m_mean,success_rate,drop_rate,passed
+301480,162.6890,74.6427,0.0251623,0.20,0.45,false
+326480,177.1833,78.1343,0.0200564,0.25,0.30,false
+327080,164.8686,86.4250,0.0232730,0.20,0.35,false

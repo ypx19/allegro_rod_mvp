@@ -1,0 +1,7 @@
+step,axis_rotation_deg_mean,tip_error_m_mean,final_axis_tilt_deg_mean,success_rate,drop_rate,axis_tilt_terminations,passed
+55600,1.7574,0.0035681,41.1799,0.0,1.0,20,false
+60600,1.8920,0.0035939,41.5360,0.0,1.0,20,false
+65600,1.5387,0.0038008,41.2499,0.0,1.0,20,false
+70600,1.3188,0.0047347,41.5437,0.0,1.0,20,false
+75600,1.7304,0.0041017,41.0561,0.0,1.0,20,false
+76200,1.7575,0.0046106,41.6201,0.0,1.0,20,false

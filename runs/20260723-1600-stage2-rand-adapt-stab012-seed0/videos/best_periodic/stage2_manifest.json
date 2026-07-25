@@ -1,0 +1,12 @@
+[
+  {
+    "file": "runs/20260723-1600-stage2-rand-adapt-stab012-seed0/videos/best_periodic/stage2_success_00_seed1_rot195deg.mp4",
+    "seed": 1,
+    "axis_rotation_deg": 195.36119536629965,
+    "peak_rotation_deg": 196.37782165125816,
+    "tip_error_m": 0.006683234108539616,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 301
+  }
+]

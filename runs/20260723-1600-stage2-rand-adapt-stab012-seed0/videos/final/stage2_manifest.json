@@ -1,0 +1,12 @@
+[
+  {
+    "file": "runs/20260723-1600-stage2-rand-adapt-stab012-seed0/videos/final/stage2_best_00_seed7_rot97deg.mp4",
+    "seed": 7,
+    "axis_rotation_deg": 97.42901090500666,
+    "peak_rotation_deg": 97.42901090500666,
+    "tip_error_m": 0.005570434731560626,
+    "is_success": false,
+    "dropped": false,
+    "num_frames": 301
+  }
+]

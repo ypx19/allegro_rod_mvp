@@ -1,0 +1,12 @@
+{
+  "run_id": "20260723-0700-capacity512-stab018-extend-seed0",
+  "timestamp": "2026-07-23T07:00:00-07:00",
+  "git_commit": "unavailable",
+  "git_branch": "unavailable",
+  "git_dirty": true,
+  "command": "continue 512-width candidate for 25000 additional steps at fixed stabilizer 0.18",
+  "seed": 0,
+  "device": "cpu",
+  "baseline_run": "20260723-0610-capacity512-stab018-seed0",
+  "notes": "Training-budget extension; no configuration change."
+}
