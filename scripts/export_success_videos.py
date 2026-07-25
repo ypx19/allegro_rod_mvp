@@ -81,6 +81,8 @@ def main() -> int:
         default="linear",
     )
     parser.add_argument("--three-contact-reward", type=float, default=10.0)
+    parser.add_argument("--contact-window-steps", type=int, default=0)
+    parser.add_argument("--contact-window-threshold", type=float, default=0.0)
     parser.add_argument("--fps", type=int, default=25)
     parser.add_argument(
         "--min-rotation-deg",
@@ -105,6 +107,8 @@ def main() -> int:
         rotation_reward_scale=args.rotation_reward_scale,
         contact_reward_mode=args.contact_reward_mode,
         three_contact_reward=args.three_contact_reward,
+        contact_window_steps=args.contact_window_steps,
+        contact_window_threshold=args.contact_window_threshold,
     )
     model = PPO.load(args.model, device="cpu")
 
@@ -160,6 +164,8 @@ def main() -> int:
             rotation_reward_scale=args.rotation_reward_scale,
             contact_reward_mode=args.contact_reward_mode,
             three_contact_reward=args.three_contact_reward,
+            contact_window_steps=args.contact_window_steps,
+            contact_window_threshold=args.contact_window_threshold,
         )
         ranked: list[dict] = []
         for i in range(min(args.search_episodes, 40)):

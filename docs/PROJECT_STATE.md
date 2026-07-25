@@ -1,7 +1,7 @@
 # Project State
 
 ## Current Objective
-Train and evaluate Stage 0 with the requested 20-step rolling contact-support termination and success gate.
+Establish a learnable Stage 0 three-contact curriculum after the hard rolling contact gate failed from the current reset distribution.
 
 ## Current Best Result
 Assisted Stage 1 with stabilizer 1.0 and spatial finger 2: 269.30° rotation, 18.86 mm tip error, success 0.90, drop 0.05.
@@ -20,6 +20,7 @@ Assisted Stage 1 with stabilizer 1.0 and spatial finger 2: 269.30° rotation, 18
 Stage 0; Stage 1 assist fade through stabilizer 0.15; function-preserving 2x256→2x512 expansion; explicit tip-joint/stabilizer/reward CLI parameters; dense checkpoint selection; representative videos.
 
 ## Known Problems
+- The 20-step/+5 contact gate works mechanically, but fresh Stage 0 PPO never contacts with finger2 and terminates before discovering three-contact support.
 - Corrected Stage 2 baseline has 20/20 axis-tilt terminations, mean rotation 1.13°, mean tilt 41.32°, while endpoint error remains only 4.03 mm.
 - Under Stage 2 randomization, stabilizer 0.10 retains 176.55°/5.57 mm/drop 0, but 0.08 falls to 132.42°/13.31 mm/drop 0.40.
 - Continued training can regress; final checkpoint is not reliably best.
@@ -33,10 +34,10 @@ New ideas to test (recorded 2026-07-24, NOT yet verified):
 - H-C resolved and corrected: `f2_j0` now uses a nonparallel local-X axis before two distal local-Z axes. Finger 2 reaches the rod and settled three-contact grasps were verified on seeds 0–2. See DBG-20260724-001 and EXP-20260724-005.
 
 ## Most Recent Experiment
-EXP-20260724-009 `20260724-2200-stage0-contact30-seed0`: increasing the three-contact reward to +30 still produced 0% three-contact occupancy; best success was 0.15 and drop 0.85.
+EXP-20260724-010 `20260724-2230-stage0-contact-gate-seed0`: the 20-step/+5 gate produced 0% three-contact occupancy and 0% success at every checkpoint. The best checkpoint (20k) reached 149.93° with 17/20 contact-gate terminations.
 
 ## Next Recommended Experiment
-Run EXP-20260724-010: rolling 20-step contact reward must be ≥+5; otherwise terminate with `contact_support`. Require the same gate for trajectory success.
+Initialize Stage 0 from the verified settled three-contact grasp and delay gate activation with an explicit grace period. Keep the +30 reward and 20-step/+5 gate fixed so initialization is the only important factor changed.
 
 Queued ideas (unverified, recorded 2026-07-24):
 1. Diagnose per-fingertip contact on existing checkpoints to confirm/refute the single-finger premise, then add a three-finger simultaneous-contact reward (EXP-20260724-001).

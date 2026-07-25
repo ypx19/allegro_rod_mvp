@@ -1,0 +1,12 @@
+[
+  {
+    "file": "runs/20260724-2230-stage0-contact-gate-seed0/videos/stage0_best_00_seed17_rot167deg.mp4",
+    "seed": 17,
+    "axis_rotation_deg": 167.13673899244026,
+    "peak_rotation_deg": 167.13673899244026,
+    "tip_error_m": 0.00023604925495920607,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 21
+  }
+]

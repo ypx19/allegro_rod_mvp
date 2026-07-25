@@ -1,0 +1,20 @@
+{
+  "run_id": "20260724-2230-stage0-contact-gate-seed0",
+  "timestamp": "2026-07-24T22:30:00-07:00",
+  "git_commit": "bab18a7",
+  "git_branch": "main",
+  "git_dirty": true,
+  "command": ".venv/bin/python scripts/train.py --stage 0 --steps 25000 --out runs/20260724-2230-stage0-contact-gate-seed0/checkpoints --axis-stabilizer-scale 1.0 --axis-tilt-penalty-weight 0.10 --rotation-reward-scale 160 --contact-reward-mode discrete --three-contact-reward 30 --contact-window-steps 20 --contact-window-threshold 5 --checkpoint-freq 5000",
+  "seed": 0,
+  "device": "cpu",
+  "hostname": "youpeixingdeMacBook-Air.local",
+  "python_version": "3.12.10",
+  "framework_versions": {
+    "gymnasium": "1.3.0",
+    "mujoco": "3.10.0",
+    "numpy": "2.5.1",
+    "stable_baselines3": "2.9.0"
+  },
+  "baseline_run": "20260724-2200-stage0-contact30-seed0",
+  "notes": "Fresh matched PPO control. Contact gate activates at step 20 and is required for both continuation and success."
+}

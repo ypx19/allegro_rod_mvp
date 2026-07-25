@@ -54,6 +54,32 @@ class ContactRewardTest(unittest.TestCase):
             30.0,
         )
 
+    def test_contact_gate_waits_for_full_window(self):
+        self.assertEqual(
+            RodRotationEnv._contact_gate_status([-10.0] * 19, 20, 5.0),
+            (False, True, -190.0),
+        )
+
+    def test_contact_gate_rejects_no_simultaneous_contact(self):
+        ready, satisfied, total = RodRotationEnv._contact_gate_status(
+            [0.1] * 20,
+            20,
+            5.0,
+        )
+        self.assertTrue(ready)
+        self.assertFalse(satisfied)
+        self.assertAlmostEqual(total, 2.0)
+
+    def test_contact_gate_accepts_one_three_contact_step(self):
+        ready, satisfied, total = RodRotationEnv._contact_gate_status(
+            [30.0] + [-1.0] * 19,
+            20,
+            5.0,
+        )
+        self.assertTrue(ready)
+        self.assertTrue(satisfied)
+        self.assertEqual(total, 11.0)
+
 
 if __name__ == "__main__":
     unittest.main()

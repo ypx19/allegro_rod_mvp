@@ -687,3 +687,63 @@ reject; activate the predefined 20-step rolling contact gate in EXP-20260724-010
 
 ### Next Step
 Terminate when the rolling 20-step accumulated contact reward is below +5, and require the same gate for success.
+
+## EXP-20260724-010: Stage 0 rolling simultaneous-contact gate
+- Run ID: `20260724-2230-stage0-contact-gate-seed0`
+- Date: 2026-07-24
+- Status: completed (failed)
+- Parent or baseline run: `20260724-2200-stage0-contact30-seed0`
+- Git commit: `bab18a7` at launch
+- Git branch: `main`
+- Random seed: 0
+- Device: CPU
+- Duration: 25,000 environment steps
+- Checkpoint: `runs/20260724-2230-stage0-contact-gate-seed0/checkpoints/ppo_rod_20000_steps.zip` (best rotation)
+
+### Question
+Does terminating when a rolling 20-step contact reward is below +5 cause fresh Stage 0 PPO to discover and maintain simultaneous three-finger contact?
+
+### Hypothesis
+Because at least one three-contact step is mathematically required to pass each full window, the policy will learn three-finger support rather than remain in a one-/two-finger solution.
+
+### Change from Baseline
+Only the rolling 20-step/+5 contact gate was added to termination and success. Geometry, Stage 0 stabilizer, reward table, PPO settings, seed, and training budget remained fixed.
+
+### Configuration
+- Algorithm: PPO
+- Environment: Stage 0, spatial finger2
+- Reward terms: contact `0:-10, 1:-1, 2:+0.1, 3:+30`; rotation scale 160; tilt weight 0.10
+- Network: 2x256 policy and value networks
+- Learning rate: 0.0003
+- Training steps: 25,000
+- Curriculum stage: 0
+- Evaluation protocol: deterministic, fixed seeds 0–19, every 5k checkpoint
+
+### Success Criteria
+Nonzero three-contact occupancy, fewer contact-support terminations over training, rotation >180°, tip error <0.02 m, and drop ≤0.15.
+
+### Result
+No checkpoint produced a single three-contact evaluation step or a successful episode. Finger2 contact occupancy remained 0%. The best checkpoint at 20k reached 149.93° mean rotation and 0.63 mm mean tip error, but 17/20 episodes terminated on the contact gate.
+
+### Key Metrics
+| Metric | Baseline best-success checkpoint | Current 20k | Change |
+|---|---:|---:|---:|
+| Success rate | 0.15 | 0.00 | -0.15 |
+| Mean rotation | 107.9° | 149.93° | +42.03° |
+| Tip error | not recorded here | 0.63 mm | — |
+| Three-contact occupancy | 0.000 | 0.000 | 0 |
+| Contact-support terminations | n/a | 17/20 | new |
+| Drop/termination rate | 0.85 | 1.00 | +0.15 |
+
+### Visual Evidence
+- Plot: `runs/20260724-2230-stage0-contact-gate-seed0/plots/contact_gate_evaluation.png`
+- Representative failure: `runs/20260724-2230-stage0-contact-gate-seed0/videos/stage0_best_00_seed17_rot167deg.mp4`
+
+### Interpretation
+Measured fact: the gate is active and rejects unsupported windows. Measured fact: finger2 never contacts during fixed-seed evaluation. The evidence supports an exploration-failure/curriculum-mismatch diagnosis: the hard gate shortens episodes without creating a path to three-contact behavior.
+
+### Decision
+revise
+
+### Next Step
+Use the verified settled three-contact reset distribution and add an initial gate grace period, while holding the reward table and gate threshold fixed.

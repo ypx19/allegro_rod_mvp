@@ -173,3 +173,21 @@ Treat 0.10→0.08 as the next curriculum transition. Do not attribute the Stage 
 
 ### Caveats
 One checkpoint and fixed evaluation seeds; the exact cliff may move with a different trained policy.
+## FIND-20260724-013: Hard 20-step contact gate does not bootstrap three-contact behavior
+- Confidence: medium
+- Supporting runs: `20260724-2200-stage0-contact30-seed0`, `20260724-2230-stage0-contact-gate-seed0`
+- Related debug issues: DBG-20260724-002
+- Applies to: fresh Stage 0 PPO from the current reset distribution
+- Does not apply to: contact-friendly resets or curricula with a grace period
+
+### Finding
+Requiring a +5 rolling contact-reward sum within the first 20 steps does not bootstrap simultaneous three-finger contact.
+
+### Evidence
+All five gated checkpoints had 0% three-contact and finger2 occupancy over fixed seeds 0–19. The best checkpoint had 17/20 contact-support terminations and 0% success.
+
+### Implication
+Do not tune this threshold further from the same reset distribution. Change initialization or curriculum exposure first.
+
+### Caveats
+One training seed and a 25k-step budget. The gate may be useful after the policy already has a three-contact behavior.

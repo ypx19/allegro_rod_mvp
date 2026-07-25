@@ -313,3 +313,54 @@ Document tip must hang from top when using point `connect` under gravity. Prefer
 
 ### Root Cause
 Unknown (transfer gap confirmed; xfrc-without-tip ruled out as assist).
+## DBG-20260724-002: Hard contact gate blocks Stage 0 exploration
+- Date: 2026-07-24
+- Status: investigating
+- Related runs: `20260724-2200-stage0-contact30-seed0`, `20260724-2230-stage0-contact-gate-seed0`
+- Related files: `allegro_rod_mvp/env.py`
+- Severity: high
+- First observed: all gated Stage 0 checkpoints had 0% three-contact occupancy
+
+### Symptom
+Fresh PPO trajectories usually terminate at the first failed 20-step contact window. Finger2 has 0% contact occupancy, and every evaluated checkpoint has 0% success.
+
+### Expected Behavior
+The policy should discover a three-contact step and accumulate at least +5 contact reward per full 20-step window.
+
+### Reproduction
+```bash
+python scripts/eval_policy.py runs/20260724-2230-stage0-contact-gate-seed0/checkpoints/ppo_rod_20000_steps.zip --stage 0 --episodes 20 --seed 0 --axis-stabilizer-scale 1.0 --contact-reward-mode discrete --three-contact-reward 30 --contact-window-steps 20 --contact-window-threshold 5
+```
+
+### Evidence
+- 20k checkpoint: 149.93° rotation, 0.63 mm tip error, success 0/20.
+- Terminations: 17/20 `contact_support`, 3/20 `axis_tilt`.
+- Finger2 and three-contact occupancy: both 0%.
+- Representative video: `runs/20260724-2230-stage0-contact-gate-seed0/videos/stage0_best_00_seed17_rot167deg.mp4`.
+
+### Hypotheses
+1. The current reset distribution places finger2 outside a readily discoverable contact basin.
+2. A 20-step deadline is too short for exploration from that reset.
+3. A settled three-contact reset plus grace period will expose the policy to the desired state.
+
+### Investigation
+- Verified deterministically that an unsupported rollout terminates at step 20 with `termination_reason=contact_support`.
+- Evaluated every 5k checkpoint on fixed seeds 0–19.
+- Confirmed zero three-contact and finger2 occupancy at every checkpoint.
+
+### Root Cause
+Not yet confirmed. Current evidence indicates exploration failure/curriculum mismatch rather than incorrect gate logic.
+
+### Resolution
+None yet. Preserve the failed hard-gate run and test contact-friendly initialization next.
+
+### Verification
+The gate implementation has unit tests and a deterministic 20-step smoke test. A behavioral resolution remains unverified.
+
+### Prevention
+Before hard-gating a sparse behavior, verify that the reset distribution or a staged curriculum exposes the policy to successful examples.
+
+### Lessons Learned
+A logically correct threshold can destroy the exploration horizon when its passing state is absent from the reset distribution.
+
+---

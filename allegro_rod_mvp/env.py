@@ -44,6 +44,8 @@ class RodRotationEnv(gym.Env):
         rotation_reward_scale: float = 16.0,
         contact_reward_mode: str = "linear",
         three_contact_reward: float = 10.0,
+        contact_window_steps: int = 0,
+        contact_window_threshold: float = 0.0,
     ) -> None:
         super().__init__()
         root = Path(__file__).resolve().parents[1]
@@ -64,6 +66,11 @@ class RodRotationEnv(gym.Env):
             raise ValueError("contact_reward_mode must be 'linear' or 'discrete'")
         self.contact_reward_mode = contact_reward_mode
         self.three_contact_reward = float(three_contact_reward)
+        self.contact_window_steps = int(contact_window_steps)
+        if self.contact_window_steps < 0:
+            raise ValueError("contact_window_steps must be non-negative")
+        self.contact_window_threshold = float(contact_window_threshold)
+        self.contact_reward_history: list[float] = []
         self.frame_skip = max(1, round(1.0 / (policy_hz * self.model.opt.timestep)))
         self.max_steps = int(episode_seconds * policy_hz)
         self.step_count = 0
@@ -160,6 +167,20 @@ class RodRotationEnv(gym.Env):
         if mode == "discrete":
             return (-10.0, -1.0, 0.1, float(three_contact_reward))[contact_count]
         raise ValueError("mode must be 'linear' or 'discrete'")
+
+    @staticmethod
+    def _contact_gate_status(
+        history: list[float],
+        window_steps: int,
+        threshold: float,
+    ) -> tuple[bool, bool, float]:
+        """Return (ready, satisfied, rolling_sum) for the contact-support gate."""
+        if window_steps <= 0:
+            return False, True, 0.0
+        window = history[-window_steps:]
+        rolling_sum = float(sum(window))
+        ready = len(window) == window_steps
+        return ready, (not ready or rolling_sum >= threshold), rolling_sum
 
     def _axis_rotation_increment(self) -> float:
         # Body quaternion uses wxyz. Relative quaternion is expressed in previous rod frame.
@@ -278,6 +299,7 @@ class RodRotationEnv(gym.Env):
         self.unwrapped_angle = 0.0
         self.last_action.fill(0)
         self.last_stabilizer_torque_norm = 0.0
+        self.contact_reward_history.clear()
         self.step_count = 0
         self.data.xfrc_applied[:] = 0.0
         return self._get_obs(), {"curriculum_stage": self.curriculum_stage}
@@ -390,6 +412,14 @@ class RodRotationEnv(gym.Env):
             self.contact_reward_mode,
             self.three_contact_reward,
         )
+        self.contact_reward_history.append(contact_bonus)
+        contact_gate_ready, contact_gate_satisfied, contact_reward_window_sum = (
+            self._contact_gate_status(
+                self.contact_reward_history,
+                self.contact_window_steps,
+                self.contact_window_threshold,
+            )
+        )
         # Encourage staying near the rod when contact is lost.
         dists = self._tip_rod_distances()
         proximity = float(np.clip(0.04 - float(np.mean(dists[:2])), 0.0, 0.04)) * 8.0
@@ -415,12 +445,15 @@ class RodRotationEnv(gym.Env):
             or tip_error > 0.12
             or axis_tilt > 0.7
             or not np.isfinite(reward)
+            or (contact_gate_ready and not contact_gate_satisfied)
         )
         terminated = bool(dropped)
         termination_reason = "none"
         if dropped:
             if not np.isfinite(reward):
                 termination_reason = "nonfinite_reward"
+            elif contact_gate_ready and not contact_gate_satisfied:
+                termination_reason = "contact_support"
             elif axis_tilt > 0.7:
                 termination_reason = "axis_tilt"
             elif tip_error > 0.12:
@@ -452,6 +485,9 @@ class RodRotationEnv(gym.Env):
             "reward_lateral_omega_penalty": float(-lateral_omega_penalty),
             "reward_contact_bonus": float(contact_bonus),
             "contact_reward_mode": self.contact_reward_mode,
+            "contact_reward_window_sum": contact_reward_window_sum,
+            "contact_gate_ready": contact_gate_ready,
+            "contact_gate_satisfied": contact_gate_satisfied,
             "reward_proximity": float(proximity),
             "reward_force_penalty": float(-force_penalty),
             "reward_action_rate_penalty": float(-action_rate_penalty),
@@ -461,6 +497,7 @@ class RodRotationEnv(gym.Env):
                 self.unwrapped_angle > np.pi
                 and tip_error < 0.02
                 and axis_tilt < 0.25
+                and contact_gate_satisfied
                 and not dropped
             ),
         }

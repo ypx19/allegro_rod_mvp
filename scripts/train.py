@@ -21,6 +21,8 @@ def make_env(
     rotation_reward_scale: float,
     contact_reward_mode: str,
     three_contact_reward: float,
+    contact_window_steps: int,
+    contact_window_threshold: float,
 ):
     return Monitor(
         RodRotationEnv(
@@ -34,6 +36,8 @@ def make_env(
             rotation_reward_scale=rotation_reward_scale,
             contact_reward_mode=contact_reward_mode,
             three_contact_reward=three_contact_reward,
+            contact_window_steps=contact_window_steps,
+            contact_window_threshold=contact_window_threshold,
         )
     )
 
@@ -61,6 +65,8 @@ if __name__ == "__main__":
         default="linear",
     )
     parser.add_argument("--three-contact-reward", type=float, default=10.0)
+    parser.add_argument("--contact-window-steps", type=int, default=0)
+    parser.add_argument("--contact-window-threshold", type=float, default=0.0)
     parser.add_argument("--learning-rate", type=float, default=None)
     parser.add_argument("--ent-coef", type=float, default=None)
     parser.add_argument("--checkpoint-freq", type=int, default=25_000)
@@ -88,6 +94,8 @@ if __name__ == "__main__":
                 args.rotation_reward_scale,
                 args.contact_reward_mode,
                 args.three_contact_reward,
+                args.contact_window_steps,
+                args.contact_window_threshold,
             )
         ]
     )

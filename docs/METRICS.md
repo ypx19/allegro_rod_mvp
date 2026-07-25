@@ -11,6 +11,7 @@ Episode `is_success` (env info) additionally requires:
 - `tip_error < 0.02`
 - `axis_tilt < 0.25` rad
 - not dropped / not unstable
+- when configured, the rolling contact-support gate is satisfied
 
 ## Latest hanging-tip curriculum snapshot (2026-07-23)
 
@@ -50,7 +51,21 @@ Numerically unstable steps report zero contacts. Multiple contacts on one finger
 Implementation:
 `RodRotationEnv._touch`, `RodRotationEnv._contact_reward`, and `scripts/eval_policy.py`.
 Discrete EXP-20260724-003 mapping:
-0 → -10.0, 1 → -1.0, 2 → +0.1, 3 → +10.0. The legacy linear mapping remains available for reproduction.
+0 → -10.0, 1 → -1.0, 2 → +0.1, 3 → +10.0. EXP-20260724-009 and later contact experiments use +30.0 for three contacts. The legacy linear mapping remains available for reproduction.
+
+## Rolling Contact-Support Gate
+Definition:
+The sum of raw discrete contact rewards over the most recent configured number of steps.
+Unit:
+Reward units.
+Aggregation:
+Per-step rolling sum; evaluation reports termination reason counts and three-contact step occupancy.
+Success threshold:
+For EXP-20260724-010, a full 20-step window must sum to at least +5. The condition is required for both episode continuation and success.
+Edge cases:
+The gate is not ready before the first full window. With the +30/+0.1/-1/-10 mapping, a +5 threshold cannot be passed by only zero-, one-, or two-contact states.
+Implementation:
+`RodRotationEnv._contact_gate_status` and `RodRotationEnv.step`.
 
 ## Termination Reason
-Operational categories: `axis_tilt`, `tip_error`, `rod_height`, `nonfinite_reward`, `unstable`, or `none` for time truncation.
+Operational categories: `axis_tilt`, `tip_error`, `rod_height`, `contact_support`, `nonfinite_reward`, `unstable`, or `none` for time truncation.
