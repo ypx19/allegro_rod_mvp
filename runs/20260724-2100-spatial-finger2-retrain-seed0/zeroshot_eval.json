@@ -1,0 +1,49 @@
+{
+  "model": "runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip",
+  "stage": 2,
+  "episodes": 20,
+  "tip_connect_solref": 0.1,
+  "tip_connect_enabled": true,
+  "axis_stabilizer_scale": 0.0,
+  "axis_tilt_penalty_weight": 0.1,
+  "axis_tilt_recovery_scale": 0.0,
+  "rotation_reward_scale": 160.0,
+  "contact_reward_mode": "discrete",
+  "axis_rotation_deg_mean": 1.2598042264586533,
+  "axis_rotation_deg_std": 4.156489441338412,
+  "tip_error_m_mean": 0.004545006445175785,
+  "tip_error_m_std": 0.0020986199571087407,
+  "contact_count_mean": 0.15,
+  "contact_count_step_distribution": {
+    "0": 0.8018386108273748,
+    "1": 0.19816138917262513,
+    "2": 0.0,
+    "3": 0.0
+  },
+  "finger_contact_step_fraction": [
+    0.0,
+    0.19816138917262513,
+    0.0
+  ],
+  "final_axis_tilt_deg_mean": 41.55104056388028,
+  "stabilizer_torque_mean": 0.0,
+  "stabilizer_torque_max_mean": 0.0,
+  "termination_reasons": {
+    "axis_tilt": 20
+  },
+  "reward_component_step_means": {
+    "reward_rotation": 0.7757596558477737,
+    "reward_tip_penalty": -0.08793257807105928,
+    "reward_axis_tilt_penalty": -1.9927700953106335,
+    "reward_axis_tilt_penalty_raw": -19.92770095310633,
+    "reward_axis_tilt_recovery": 0.0,
+    "reward_lateral_omega_penalty": -0.01617979792105358,
+    "reward_contact_bonus": -8.215922768531312,
+    "reward_proximity": 0.002359819414306966,
+    "reward_force_penalty": 0.0,
+    "reward_action_rate_penalty": -0.008644042873244624
+  },
+  "success_rate": 0.0,
+  "drop_rate": 1.0,
+  "passed": false
+}

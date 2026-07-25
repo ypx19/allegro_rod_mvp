@@ -1,0 +1,36 @@
+run_id: 20260724-2100-spatial-finger2-retrain-seed0
+experiment: EXP-20260724-006
+stage: 2
+geometry_commit: 080e367
+finger2_first_joint_axis: [1, 0, 0]
+tip_connect: true
+tip_connect_solref: 0.10
+axis_stabilizer_scale: 0.0
+axis_tilt_penalty_weight: 0.10
+axis_tilt_recovery_scale: 0.0
+rotation_reward_scale: 160.0
+contact_reward_mode: discrete
+contact_reward_table:
+  0: -10.0
+  1: -1.0
+  2: 0.1
+  3: 10.0
+contact_force_threshold_n: 0.05
+domain_randomization: true
+resume: runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip
+steps: 25000
+checkpoint_freq: 5000
+seed: 0
+device: cpu
+algorithm: PPO
+learning_rate: 0.00001
+ent_coef: 0.0
+network: "pi=[512,512], vf=[512,512], 580627 parameters"
+optimizer: Adam
+batch_size: 128
+horizon: 1024
+number_of_environments: 1
+evaluation_protocol: "20 deterministic episodes, fixed seeds 0-19, every 5k checkpoint"
+baseline_run: 20260724-1718-stage2-discrete-contact-seed0
+change_from_baseline: "Only f2_j0 axis changes from local Z to local X; all training and evaluation settings fixed."
+success_criteria: "Rotation >180 deg, tip error <0.02 m, drop <=0.15; diagnostic support requires nonzero 3-contact step fraction and fewer than 20/20 axis-tilt terminations without force exploitation."

@@ -1,0 +1,12 @@
+[
+  {
+    "file": "runs/20260724-2100-spatial-finger2-retrain-seed0/videos/stage2_best_00_seed0_rot10deg.mp4",
+    "seed": 0,
+    "axis_rotation_deg": 9.93458706411919,
+    "peak_rotation_deg": 9.93458706411919,
+    "tip_error_m": 0.0029516662887210097,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 56
+  }
+]

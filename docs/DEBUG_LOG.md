@@ -1,5 +1,45 @@
 # Debug Log
 
+## DBG-20260724-002: Corrected finger contact remains outside reset exploration basin
+- Date: 2026-07-24
+- Status: investigating
+- Related runs: `20260724-2045-finger2-spatial-dof`, `20260724-2100-spatial-finger2-retrain-seed0`
+- Related files: `allegro_rod_mvp/env.py`, `models/three_finger_rod.xml`
+- Severity: high
+- First observed: EXP-20260724-006
+
+### Symptom
+Although three-contact grasps are now geometrically and dynamically reachable, corrected-geometry retraining never produces a two- or three-contact evaluation step. Only the middle fingertip contacts.
+
+### Expected Behavior
+The discrete reward should become observable after spatial finger 2 learns to approach the rod, leading to some nonzero multi-contact occupancy.
+
+### Evidence
+- EXP-005 found 87 geometric and three dynamically settled three-contact candidates.
+- EXP-006: every checkpoint has 0% two-/three-contact occupancy.
+- All checkpoints retain 20/20 axis-tilt terminations.
+- Mean contact reward remains approximately -8 per step.
+- Force penalty remains zero, confirming the policy does not touch with additional fingers.
+
+### Hypotheses
+1. The legacy reset grasp is outside the three-contact exploration basin.
+2. The discontinuous reward gives no directional signal for approaching with finger 2.
+3. The old parent policy strongly preserves its pre-geometry action pattern.
+
+### Root Cause
+Not yet confirmed. The immediate measured mechanism is failure to visit multi-contact states.
+
+### Resolution
+None. EXP-20260724-007 will test reset initialization as a single factor before changing reward smoothness or parent policy.
+
+### Prevention
+For newly reachable task states, validate that reset/exploration distributions actually visit the state before relying on sparse bonuses.
+
+### Lessons Learned
+Making a state reachable does not make a discontinuous reward learnable when the policy never enters that state.
+
+---
+
 ## DBG-20260724-001: Finger 2 motion plane cannot intersect the rod
 - Date: 2026-07-24
 - Status: resolved

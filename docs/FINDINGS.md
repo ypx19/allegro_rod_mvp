@@ -1,5 +1,24 @@
 # Findings
 
+## FIND-20260724-002: Geometry reachability alone does not overcome sparse contact exploration
+- Confidence: medium
+- Supporting runs: `20260724-2045-finger2-spatial-dof`, `20260724-2100-spatial-finger2-retrain-seed0`
+- Related debug issues: `DBG-20260724-002`
+- Applies to: corrected spatial finger geometry with legacy reset and discrete -10/-1/0.1/10 contact reward
+- Does not apply to: future three-contact initialization or dense approach shaping
+
+### Finding
+After finger 2 became geometrically reachable, a matched 25k retraining run still never produced a multi-contact evaluation step. Reachability was necessary but insufficient because the legacy reset and policy did not enter the three-contact basin.
+
+### Evidence
+EXP-005 dynamically verified three-contact grasps. EXP-006 evaluated zero two-/three-contact occupancy at all checkpoints, with 20/20 tilt terminations and best rotation 1.53°.
+
+### Implication
+Test reset/exploration coverage before further reward scaling. The next discriminating factor is three-contact initialization, not a larger contact bonus.
+
+### Caveats
+One training seed and a 25k adaptation budget. This does not prove that longer or from-scratch training can never discover contact.
+
 ## FIND-20260724-001: Finger 2 is kinematically excluded from rod contact
 - Confidence: high
 - Supporting runs: `20260724-1730-contact-reachability`

@@ -1,0 +1,8 @@
+seed=   0 rot=    9.9° peak=    9.9° tip=0.0030 success=False dropped=True
+seed=   1 rot=    3.4° peak=    3.4° tip=0.0035 success=False dropped=True
+seed=   2 rot=   -0.0° peak=   -0.0° tip=0.0050 success=False dropped=True
+seed=   3 rot=   -3.0° peak=   -3.0° tip=0.0066 success=False dropped=True
+seed=   4 rot=   -0.2° peak=   -0.2° tip=0.0053 success=False dropped=True
+No success/near-success found; exporting top rotations instead.
+wrote runs/20260724-2100-spatial-finger2-retrain-seed0/videos/stage2_best_00_seed0_rot10deg.mp4 (56 frames)
+manifest: runs/20260724-2100-spatial-finger2-retrain-seed0/videos/stage2_manifest.json

@@ -555,9 +555,9 @@ adopt
 Run EXP-20260724-006 as a separate corrected-geometry training experiment, tracking contact occupancy, per-finger forces, excessive-force penalty, rotation, and tilt terminations.
 
 ## EXP-20260724-006: Corrected-geometry discrete-contact retraining
-- Run ID: `planned-20260724-spatial-finger2-retrain`
+- Run ID: `20260724-2100-spatial-finger2-retrain-seed0`
 - Date: 2026-07-24
-- Status: planned
+- Status: completed (failed)
 - Parent checkpoint: `runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip`
 - Geometry baseline: `20260724-2045-finger2-spatial-dof`
 - Random seed: 0
@@ -574,3 +574,50 @@ Only the adopted finger-2 first-joint axis differs. Reward mapping, parent check
 
 ### Success Criteria
 Primary gate: rotation >180°, tip error <0.02 m, drop ≤0.15. Diagnostic support requires nonzero three-contact step fraction and fewer than 20/20 axis-tilt terminations. Reject force exploitation if excessive-force penalty or fingertip forces dominate while rotation does not improve.
+
+### Result
+Every periodic checkpoint and the final checkpoint retained 0% two-/three-contact occupancy and 20/20 axis-tilt terminations. Final rotation was 1.44°, and the best checkpoint reached 1.53°. The contact reward averaged approximately -8.1 to -8.3 per step; force penalty remained zero because the policy never reached additional contacts.
+
+### Key Metrics
+| Metric | Zero-shot | Best | Final |
+|---|---:|---:|---:|
+| Rotation | 1.26° | 1.53° | 1.44° |
+| Tip error | 4.55 mm | 4.11 mm | 3.98 mm |
+| Drop rate | 1.00 | 1.00 | 1.00 |
+| Three-contact fraction | 0 | 0 | 0 |
+| Axis-tilt terminations | 20/20 | 20/20 | 20/20 |
+
+### Visual Evidence
+- `runs/20260724-2100-spatial-finger2-retrain-seed0/plots/contact_occupancy.png`
+- `runs/20260724-2100-spatial-finger2-retrain-seed0/videos/stage2_best_00_seed0_rot10deg.mp4`
+
+### Interpretation
+Measured fact: finger 2 is reachable after EXP-005. Measured fact: PPO never visits any multi-contact state from the legacy reset distribution during fixed-seed evaluation. The evidence suggests an initialization/exploration failure rather than remaining geometric impossibility.
+
+### Decision
+reject checkpoints; retain corrected geometry
+
+### Next Step
+EXP-20260724-007: initialize from the verified moderate-force three-contact grasp as the only change, validate reset robustness first, then run a bounded training control if the smoke gate passes.
+
+## EXP-20260724-007: Three-contact reset initialization
+- Run ID: `planned-20260724-three-contact-reset`
+- Date: 2026-07-24
+- Status: planned
+- Parent: `20260724-2100-spatial-finger2-retrain-seed0`
+- Device: CPU
+
+### Question
+Is the corrected policy failing because the reset distribution starts outside the reachable three-contact basin?
+
+### Hypothesis
+Replacing only `_GRASP_QPOS` with the verified moderate-force seed-0 three-contact configuration will produce three-contact resets across randomized rod phases and make the discrete reward observable early enough for PPO to preserve contact.
+
+### Change from Baseline
+Reset joint configuration only. Keep corrected geometry, reward, observation, action space, Stage 2 dynamics, parent checkpoint, optimizer, and evaluation unchanged.
+
+### Pre-training Gate
+Across seeds 0–19 after settling: finite dynamics, all three forces >0.05 N in at least 90% of resets, median force below 50 N per finger, tip error <0.02 m, and no immediate tilt termination.
+
+### Training Success Criteria
+At least one checkpoint must show nonzero three-contact evaluation occupancy and fewer than 20/20 tilt terminations. Full task gate remains rotation >180°, tip error <0.02 m, drop ≤0.15.
