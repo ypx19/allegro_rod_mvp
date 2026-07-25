@@ -55,6 +55,8 @@ def search(seed: int, samples: int) -> dict:
         "distances_m": initial_distances.tolist(),
         "qpos": env.data.qpos[: env.nu].tolist(),
     }
+    best_shallow_three_contact: dict | None = None
+    three_contact_candidates: list[dict] = []
     reachable_counts = np.zeros(4, dtype=np.int64)
 
     for _ in range(samples):
@@ -67,6 +69,22 @@ def search(seed: int, samples: int) -> dict:
         distances = geom_distances(env)
         contact_count = int(np.sum(distances <= 0.0))
         reachable_counts[contact_count] += 1
+        if contact_count == 3:
+            # Prefer a physically plausible just-touching grasp over deep interpenetration.
+            target_penetration = -0.001
+            shallow_score = float(np.sum((distances - target_penetration) ** 2))
+            if (
+                best_shallow_three_contact is None
+                or shallow_score < best_shallow_three_contact["score"]
+            ):
+                best_shallow_three_contact = {
+                    "score": shallow_score,
+                    "distances_m": distances.tolist(),
+                    "qpos": q.tolist(),
+                }
+            three_contact_candidates.append(
+                {"distances_m": distances.tolist(), "qpos": q.tolist()}
+            )
         for i in range(3):
             if distances[i] < best_individual[i]["distance_m"]:
                 best_individual[i] = {
@@ -81,19 +99,39 @@ def search(seed: int, samples: int) -> dict:
                 "qpos": q.tolist(),
             }
 
-    # Replay the closest simultaneous configuration through forward dynamics.
-    best_q = np.asarray(best_simultaneous["qpos"], dtype=np.float64)
-    env.data.qpos[: env.nu] = best_q
-    env.data.qpos[env.nu :] = rod_qpos
-    env.data.qvel[:] = 0.0
-    env.data.ctrl[:] = best_q
-    mujoco.mj_forward(env.model, env.data)
-    static_distances = geom_distances(env)
-    for _ in range(100):
-        env._apply_axis_stabilizer()
-        mujoco.mj_step(env.model, env.data)
-    settled_forces = env._touch()
-    settled_distances = geom_distances(env)
+    # Dynamically replay every three-contact candidate and retain the strongest
+    # settled grasp. Fall back to the geometric minimax candidate if none exist.
+    replay_candidates = three_contact_candidates or [best_simultaneous]
+    best_dynamic: dict | None = None
+    for candidate in replay_candidates:
+        q = np.asarray(candidate["qpos"], dtype=np.float64)
+        env.data.qpos[: env.nu] = q
+        env.data.qpos[env.nu :] = rod_qpos
+        env.data.qvel[:] = 0.0
+        env.data.ctrl[:] = q
+        mujoco.mj_forward(env.model, env.data)
+        static_distances = geom_distances(env)
+        for _ in range(100):
+            env._apply_axis_stabilizer()
+            mujoco.mj_step(env.model, env.data)
+        settled_forces = env._touch()
+        settled_distances = geom_distances(env)
+        settled_count = int(np.sum(settled_forces > 0.05))
+        score = (
+            settled_count,
+            float(np.min(settled_forces)),
+            float(np.sum(np.minimum(settled_forces, 20.0))),
+        )
+        if best_dynamic is None or score > tuple(best_dynamic["score"]):
+            best_dynamic = {
+                "score": list(score),
+                "qpos": q.tolist(),
+                "static_distances_m": static_distances.tolist(),
+                "settled_distances_m": settled_distances.tolist(),
+                "settled_forces_n": settled_forces.tolist(),
+                "settled_contact_count": settled_count,
+            }
+    assert best_dynamic is not None
 
     result = {
         "seed": seed,
@@ -102,10 +140,13 @@ def search(seed: int, samples: int) -> dict:
         "initial_forces_n": initial_forces.tolist(),
         "best_individual": best_individual,
         "best_simultaneous": best_simultaneous,
-        "static_replay_distances_m": static_distances.tolist(),
-        "settled_distances_m": settled_distances.tolist(),
-        "settled_forces_n": settled_forces.tolist(),
-        "settled_contact_count": int(np.sum(settled_forces > 0.05)),
+        "best_shallow_three_contact": best_shallow_three_contact,
+        "dynamic_candidates_replayed": len(replay_candidates),
+        "best_dynamic_replay": best_dynamic,
+        "static_replay_distances_m": best_dynamic["static_distances_m"],
+        "settled_distances_m": best_dynamic["settled_distances_m"],
+        "settled_forces_n": best_dynamic["settled_forces_n"],
+        "settled_contact_count": best_dynamic["settled_contact_count"],
         "sample_contact_count_histogram": {
             str(count): int(reachable_counts[count]) for count in range(4)
         },

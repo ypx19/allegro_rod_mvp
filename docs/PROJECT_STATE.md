@@ -1,7 +1,7 @@
 # Project State
 
 ## Current Objective
-Correct finger 2's model geometry so its motion plane can intersect the rod, then revalidate three-fingertip reachability before training.
+Retrain Stage 2 with the adopted spatial finger-2 joint and discrete contact reward, then compare against EXP-20260724-003.
 
 ## Current Best Result
 Stage 1 with solref 0.10 / stabilizer 0.15 passed using the 2x512 policy: mean rotation 200.00°, tip error 12.15 mm, success 0.50, drop 0.10.
@@ -29,13 +29,13 @@ The dominant failure is a nonlinear curriculum cliff between stabilizer 0.10 and
 New ideas to test (recorded 2026-07-24, NOT yet verified):
 - H-A (single-finger cause): The policy may rotate the rod using effectively one finger, which pushes the rod off-axis and induces the Stage 2 axis tilt. Proposed fix: a reward requiring all three fingertips to hold positive contact simultaneously so the fingers work together. See EXP-20260724-001. Verify the single-finger premise on existing checkpoints (per-fingertip contact logging) before training.
 - H-B (stabilizer dependence / transfer value): Stage 1 uses the axis stabilizer but Stage 2 does not, so Stage 1 pretraining might teach reliance on external orientation torque and could be neutral or harmful for stabilizer-free Stage 2. Open question whether Stage 0/1 pretraining actually benefits Stage 2. Assumption only; deferred to later verification. See EXP-20260724-002.
-- H-C resolved: Three-finger contact is impossible in the current geometry. Finger 2 moves at fixed world Y=+0.04 m while the rod lies near Y=-0.05 m, leaving a ≥66.66 mm surface gap. Contact detection works for fingers 0 and 1. See DBG-20260724-001 and EXP-20260724-004.
+- H-C resolved and corrected: `f2_j0` now uses a nonparallel local-X axis before two distal local-Z axes. Finger 2 reaches the rod and settled three-contact grasps were verified on seeds 0–2. See DBG-20260724-001 and EXP-20260724-005.
 
 ## Most Recent Experiment
-EXP-20260724-004 `20260724-1730-contact-reachability`: 60,000 configurations found 4,166 two-contact states, zero three-contact states, and a best finger-2 gap of 66.66–68.27 mm. Geometry root cause confirmed.
+EXP-20260724-005 `20260724-2045-finger2-spatial-dof`: the nonparallel first joint produced 87 geometric three-contact configurations and settled three-contact force on all three seeds. Adopted, with excessive-force caveat for seed 2.
 
 ## Next Recommended Experiment
-Run EXP-20260724-005: change only finger-2 base placement/orientation so its motion plane intersects the rod, then repeat the identical reachability and dynamic-settling verification. Do not resume reward training until all three contacts are reproducible.
+Run EXP-20260724-006: repeat the EXP-20260724-003 training configuration with only the corrected finger-2 joint axis changed. Evaluate all checkpoints on fixed seeds and explicitly monitor three-contact occupancy and excessive force.
 
 Queued ideas (unverified, recorded 2026-07-24):
 1. Diagnose per-fingertip contact on existing checkpoints to confirm/refute the single-finger premise, then add a three-finger simultaneous-contact reward (EXP-20260724-001).

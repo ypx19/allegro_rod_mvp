@@ -42,7 +42,8 @@
         </body>
       </body>
       <body name="finger2" pos="0 0.04 -0.045" euler="1.5708 0 0">
-        <joint name="f2_j0" axis="0 0 1" range="-1.2 1.2"/>
+        <!-- Spatial 3-DoF tip: nonparallel ab/adduction axis followed by two flexion axes. -->
+        <joint name="f2_j0" axis="1 0 0" range="-1.2 1.2"/>
         <geom type="capsule" fromto="0 0 0 0 -0.045 0" size="0.009" material="finger"/>
         <body pos="0 -0.045 0"><joint name="f2_j1" axis="0 0 1" range="-1.5 1.2"/>
           <geom type="capsule" fromto="0 0 0 0 -0.04 0" size="0.008" material="finger"/>

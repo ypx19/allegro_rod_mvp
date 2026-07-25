@@ -503,9 +503,9 @@ Investigate and correct the model geometry. Do not train another three-contact r
 EXP-20260724-005: change only finger-2 placement/orientation so its motion plane intersects the rod, then rerun the identical no-learning reachability test.
 
 ## EXP-20260724-005: Correct finger-2 contact geometry
-- Run ID: `planned-20260724-finger2-geometry-fix`
+- Run ID: `20260724-2045-finger2-spatial-dof`
 - Date: 2026-07-24
-- Status: planned
+- Status: completed (adopt)
 - Parent or baseline run: `20260724-1730-contact-reachability`
 - Device: CPU
 
@@ -526,3 +526,51 @@ Geometry only: adjust finger 2's base Y coordinate and/or orientation. Do not ch
 
 ### Next Step if Successful
 Establish a corrected-geometry baseline before deciding whether gradual per-finger contact shaping is still needed.
+
+### Change Implemented
+Changed only `f2_j0` axis from local Z (`0 0 1`) to local X (`1 0 0`). The two distal axes remain local Z, creating one nonparallel abduction/adduction axis followed by two flexion axes.
+
+### Result
+Finger 2 minimum signed distance improved from +66.66–68.27 mm to -14.96–15.21 mm. The 60,000-sample search found 87 geometric three-contact configurations. Exhaustive dynamic replay of those candidates found a settled three-contact grasp for every seed.
+
+### Key Metrics
+| Metric | Seed 0 | Seed 1 | Seed 2 |
+|---|---:|---:|---:|
+| Three-contact samples | 28 | 33 | 26 |
+| Settled contact count | 3 | 3 | 3 |
+| Finger 0 force | 33.52 N | 43.58 N | 240.06 N |
+| Finger 1 force | 37.17 N | 38.62 N | 228.06 N |
+| Finger 2 force | 9.50 N | 7.35 N | 8.39 N |
+
+### Visual Evidence
+- `runs/20260724-2045-finger2-spatial-dof/images/spatial_finger2_three_contact.png`
+
+### Interpretation
+The geometry correction succeeds. Seed 2 has excessive force, so the result is reachability evidence rather than an acceptable initialization. The moderate-force seed-0 candidate is suitable as a reference.
+
+### Decision
+adopt
+
+### Next Step
+Run EXP-20260724-006 as a separate corrected-geometry training experiment, tracking contact occupancy, per-finger forces, excessive-force penalty, rotation, and tilt terminations.
+
+## EXP-20260724-006: Corrected-geometry discrete-contact retraining
+- Run ID: `planned-20260724-spatial-finger2-retrain`
+- Date: 2026-07-24
+- Status: planned
+- Parent checkpoint: `runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip`
+- Geometry baseline: `20260724-2045-finger2-spatial-dof`
+- Random seed: 0
+- Device: CPU
+
+### Question
+With finger 2 now spatially capable of contact, can the discrete contact reward produce sustained three-finger contact and reduce Stage 2 axis-tilt terminations?
+
+### Hypothesis
+The corrected geometry will yield nonzero three-contact occupancy during training/evaluation, unlike EXP-20260724-003, and reduce axis-tilt terminations below 20/20 while retaining positive rotation.
+
+### Change from EXP-20260724-003
+Only the adopted finger-2 first-joint axis differs. Reward mapping, parent checkpoint, Stage 2 environment, tip joint, stabilizer 0, randomization, network, optimizer, learning rate, checkpoint frequency, and fixed evaluation seeds remain unchanged.
+
+### Success Criteria
+Primary gate: rotation >180°, tip error <0.02 m, drop ≤0.15. Diagnostic support requires nonzero three-contact step fraction and fewer than 20/20 axis-tilt terminations. Reject force exploitation if excessive-force penalty or fingertip forces dominate while rotation does not improve.

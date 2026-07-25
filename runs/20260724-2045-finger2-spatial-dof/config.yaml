@@ -1,0 +1,30 @@
+run_id: 20260724-2045-finger2-spatial-dof
+experiment: EXP-20260724-005
+change:
+  file: models/three_finger_rod.xml
+  joint: f2_j0
+  axis_before: [0, 0, 1]
+  axis_after: [1, 0, 0]
+  unchanged:
+    - finger2_base_position
+    - finger2_base_orientation
+    - f2_j1_axis
+    - f2_j2_axis
+    - all_joint_ranges
+    - actuators
+    - solver
+    - rod_geometry
+    - rewards
+validation:
+  algorithm: bounded_uniform_joint_space_search
+  samples_per_seed: 20000
+  seeds: [0, 1, 2]
+  total_samples: 60000
+  contact_definition: "exact signed geom distance <= 0; dynamic verification force > 0.05 N"
+success_criteria:
+  - "finger2 individual minimum signed distance <= 0 on seeds 0-2"
+  - "at least one simultaneous three-contact geometric configuration"
+  - "dynamically settled all-three forces > 0.05 N across seeds 0-2"
+  - "environment checks remain finite"
+baseline_run: 20260724-1730-contact-reachability
+baseline_commit: 0a3c17e

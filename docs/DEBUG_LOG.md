@@ -2,7 +2,7 @@
 
 ## DBG-20260724-001: Finger 2 motion plane cannot intersect the rod
 - Date: 2026-07-24
-- Status: open
+- Status: resolved
 - Related runs: `20260724-1718-stage2-discrete-contact-seed0`, `20260724-1730-contact-reachability`, `20260723-1200-stage2-tip-joint-no-axis-stabilizer`
 - Related files: `allegro_rod_mvp/env.py`, `models/three_finger_rod.xml`, `scripts/eval_policy.py`
 - Severity: high
@@ -44,13 +44,16 @@ python scripts/eval_policy.py runs/20260723-1045-capacity512-stab012-denseckpt-s
 Confirmed geometry error. Finger 2 is based at world `y=+0.04 m` and its `euler="1.5708 0 0"` orientation makes the planar chain move in XZ at fixed Y. The rod is centered near `y=-0.05 m`. The 90 mm plane separation exceeds the 24 mm combined collision radii, so finger 2 cannot contact the rod at any joint angles.
 
 ### Resolution
-Not yet implemented. EXP-20260724-005 will change only finger-2 placement/orientation and rerun the same reachability protocol before training.
+Changed `f2_j0` from local Z to local X, creating a nonparallel spatial axis before the two distal Z flexion axes. No other geometry, actuator, solver, observation, or reward changed.
 
 ### Verification
 - Search results: `runs/20260724-1730-contact-reachability/reachability.json`
 - Metrics: `runs/20260724-1730-contact-reachability/metrics.csv`
 - Visual evidence: `runs/20260724-1730-contact-reachability/images/contact_reachability_comparison.png`
 - Repeated over reset seeds 0, 1, and 2.
+- Corrected run: `runs/20260724-2045-finger2-spatial-dof/`.
+- Finger 2 reached -14.96 to -15.21 mm signed distance.
+- Dynamic replay found settled three-contact force on all three seeds.
 
 ### Prevention
 Do not define future success rewards around simultaneous three-finger contact until reachability and detection are verified.
