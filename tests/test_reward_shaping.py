@@ -48,6 +48,12 @@ class ContactRewardTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             RodRotationEnv._contact_reward(4, "discrete")
 
+    def test_configurable_three_contact_reward(self):
+        self.assertEqual(
+            RodRotationEnv._contact_reward(3, "discrete", three_contact_reward=30.0),
+            30.0,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

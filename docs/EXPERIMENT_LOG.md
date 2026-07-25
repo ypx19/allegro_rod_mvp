@@ -665,3 +665,25 @@ Adopt the 65,600-step checkpoint for assisted Stage 1 demonstrations; reject lat
 
 ### Next Step
 Use the verified three-contact reset initialization if the next objective remains coordinated contact. Treat this checkpoint as assisted and do not compare it directly with stabilizer-free Stage 2.
+## EXP-20260724-009: Stage 0 simultaneous-contact reward +30
+- Run ID: `20260724-2200-stage0-contact30-seed0`
+- Date: 2026-07-24
+- Status: completed (failed)
+- Parent: none; fresh PPO
+- Random seed: 0
+- Device: CPU
+
+### Question
+Does increasing only the three-contact reward from +10 to +30 cause a fresh Stage 0 policy to discover simultaneous three-finger contact?
+
+### Success Criteria
+Nonzero three-contact occupancy and the standard task gate: rotation >180°, tip error <0.02 m, drop ≤0.15.
+
+### Result
+No evaluated checkpoint produced a three-contact step. The best success checkpoint reached 107.9° rotation, success 0.15, and drop 0.85. The 15k checkpoint reached 226.0° but dropped in all episodes.
+
+### Decision
+reject; activate the predefined 20-step rolling contact gate in EXP-20260724-010
+
+### Next Step
+Terminate when the rolling 20-step accumulated contact reward is below +5, and require the same gate for success.

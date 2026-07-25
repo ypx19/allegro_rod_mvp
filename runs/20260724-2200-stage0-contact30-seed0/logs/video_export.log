@@ -1,0 +1,5 @@
+seed=   0 rot=   86.9° peak=   86.9° tip=0.0013 success=False dropped=True
+seed=   1 rot=   98.8° peak=   98.8° tip=0.0018 success=False dropped=True
+seed=   2 rot=  222.2° peak=  238.3° tip=0.0011 success=True dropped=False
+wrote runs/20260724-2200-stage0-contact30-seed0/videos/stage0_success_00_seed2_rot222deg.mp4 (301 frames)
+manifest: runs/20260724-2200-stage0-contact30-seed0/videos/stage0_manifest.json

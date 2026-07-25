@@ -1,7 +1,7 @@
 # Project State
 
 ## Current Objective
-Validate a verified moderate-force three-contact reset initialization while retaining the new assisted Stage 1 checkpoint.
+Train and evaluate Stage 0 with the requested 20-step rolling contact-support termination and success gate.
 
 ## Current Best Result
 Assisted Stage 1 with stabilizer 1.0 and spatial finger 2: 269.30° rotation, 18.86 mm tip error, success 0.90, drop 0.05.
@@ -33,10 +33,10 @@ New ideas to test (recorded 2026-07-24, NOT yet verified):
 - H-C resolved and corrected: `f2_j0` now uses a nonparallel local-X axis before two distal local-Z axes. Finger 2 reaches the rod and settled three-contact grasps were verified on seeds 0–2. See DBG-20260724-001 and EXP-20260724-005.
 
 ## Most Recent Experiment
-EXP-20260724-008 `20260724-2130-spatial-stage1-stabilizer1-train-seed0`: selected post-training checkpoint passed at 269.30° rotation, 18.86 mm tip error, success 0.90, and drop 0.05. No three-contact occupancy; assisted result only.
+EXP-20260724-009 `20260724-2200-stage0-contact30-seed0`: increasing the three-contact reward to +30 still produced 0% three-contact occupancy; best success was 0.15 and drop 0.85.
 
 ## Next Recommended Experiment
-Run EXP-20260724-007: replace only the reset joint pose with the verified moderate-force three-contact configuration. Require robust three-contact resets and bounded forces on seeds 0–19 before launching another training run.
+Run EXP-20260724-010: rolling 20-step contact reward must be ≥+5; otherwise terminate with `contact_support`. Require the same gate for trajectory success.
 
 Queued ideas (unverified, recorded 2026-07-24):
 1. Diagnose per-fingertip contact on existing checkpoints to confirm/refute the single-finger premise, then add a three-finger simultaneous-contact reward (EXP-20260724-001).

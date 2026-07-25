@@ -43,6 +43,7 @@ class RodRotationEnv(gym.Env):
         axis_tilt_recovery_scale: float = 0.0,
         rotation_reward_scale: float = 16.0,
         contact_reward_mode: str = "linear",
+        three_contact_reward: float = 10.0,
     ) -> None:
         super().__init__()
         root = Path(__file__).resolve().parents[1]
@@ -62,6 +63,7 @@ class RodRotationEnv(gym.Env):
         if contact_reward_mode not in {"linear", "discrete"}:
             raise ValueError("contact_reward_mode must be 'linear' or 'discrete'")
         self.contact_reward_mode = contact_reward_mode
+        self.three_contact_reward = float(three_contact_reward)
         self.frame_skip = max(1, round(1.0 / (policy_hz * self.model.opt.timestep)))
         self.max_steps = int(episode_seconds * policy_hz)
         self.step_count = 0
@@ -145,14 +147,18 @@ class RodRotationEnv(gym.Env):
         return float(np.clip((previous - current) * scale, -2.0, 2.0))
 
     @staticmethod
-    def _contact_reward(contact_count: int, mode: str) -> float:
+    def _contact_reward(
+        contact_count: int,
+        mode: str,
+        three_contact_reward: float = 10.0,
+    ) -> float:
         """Return the legacy linear reward or the EXP-20260724-003 discrete ladder."""
         if contact_count not in (0, 1, 2, 3):
             raise ValueError("contact_count must be between 0 and 3")
         if mode == "linear":
             return 0.25 * contact_count + (0.2 if contact_count >= 2 else 0.0)
         if mode == "discrete":
-            return (-10.0, -1.0, 0.1, 10.0)[contact_count]
+            return (-10.0, -1.0, 0.1, float(three_contact_reward))[contact_count]
         raise ValueError("mode must be 'linear' or 'discrete'")
 
     def _axis_rotation_increment(self) -> float:
@@ -379,7 +385,11 @@ class RodRotationEnv(gym.Env):
         )
         self.prev_axis_tilt = axis_tilt
         lateral_omega_penalty = float(np.clip(0.03 * lateral_omega ** 2, 0.0, 10.0))
-        contact_bonus = self._contact_reward(contact_count, self.contact_reward_mode)
+        contact_bonus = self._contact_reward(
+            contact_count,
+            self.contact_reward_mode,
+            self.three_contact_reward,
+        )
         # Encourage staying near the rod when contact is lost.
         dists = self._tip_rod_distances()
         proximity = float(np.clip(0.04 - float(np.mean(dists[:2])), 0.0, 0.04)) * 8.0

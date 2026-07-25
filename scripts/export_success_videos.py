@@ -80,6 +80,7 @@ def main() -> int:
         choices=["linear", "discrete"],
         default="linear",
     )
+    parser.add_argument("--three-contact-reward", type=float, default=10.0)
     parser.add_argument("--fps", type=int, default=25)
     parser.add_argument(
         "--min-rotation-deg",
@@ -103,6 +104,7 @@ def main() -> int:
         axis_tilt_recovery_scale=args.axis_tilt_recovery_scale,
         rotation_reward_scale=args.rotation_reward_scale,
         contact_reward_mode=args.contact_reward_mode,
+        three_contact_reward=args.three_contact_reward,
     )
     model = PPO.load(args.model, device="cpu")
 
@@ -157,6 +159,7 @@ def main() -> int:
             axis_tilt_recovery_scale=args.axis_tilt_recovery_scale,
             rotation_reward_scale=args.rotation_reward_scale,
             contact_reward_mode=args.contact_reward_mode,
+            three_contact_reward=args.three_contact_reward,
         )
         ranked: list[dict] = []
         for i in range(min(args.search_episodes, 40)):

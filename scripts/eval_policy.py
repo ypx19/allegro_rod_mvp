@@ -28,6 +28,7 @@ def evaluate(
     axis_tilt_recovery_scale: float = 0.0,
     rotation_reward_scale: float = 16.0,
     contact_reward_mode: str = "linear",
+    three_contact_reward: float = 10.0,
 ) -> dict:
     env = RodRotationEnv(
         render_mode=None,
@@ -40,6 +41,7 @@ def evaluate(
         axis_tilt_recovery_scale=axis_tilt_recovery_scale,
         rotation_reward_scale=rotation_reward_scale,
         contact_reward_mode=contact_reward_mode,
+        three_contact_reward=three_contact_reward,
     )
     model = PPO.load(model_path, device="cpu")
 
@@ -119,6 +121,7 @@ def evaluate(
         "axis_tilt_recovery_scale": axis_tilt_recovery_scale,
         "rotation_reward_scale": rotation_reward_scale,
         "contact_reward_mode": contact_reward_mode,
+        "three_contact_reward": three_contact_reward,
         "axis_rotation_deg_mean": float(rotations_arr.mean()),
         "axis_rotation_deg_std": float(rotations_arr.std()),
         "tip_error_m_mean": float(tip_arr.mean()),
@@ -172,6 +175,7 @@ def main() -> int:
         choices=["linear", "discrete"],
         default="linear",
     )
+    parser.add_argument("--three-contact-reward", type=float, default=10.0)
     parser.add_argument("--out", type=str, default=None, help="Optional JSON metrics path")
     args = parser.parse_args()
 
@@ -188,6 +192,7 @@ def main() -> int:
         args.axis_tilt_recovery_scale,
         args.rotation_reward_scale,
         args.contact_reward_mode,
+        args.three_contact_reward,
     )
     print(json.dumps(metrics, indent=2))
 
