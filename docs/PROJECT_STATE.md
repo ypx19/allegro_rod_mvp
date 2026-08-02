@@ -39,6 +39,8 @@ EXP-20260724-010 `20260724-2230-stage0-contact-gate-seed0`: the 20-step/+5 gate 
 ## Next Recommended Experiment
 Initialize Stage 0 from the verified settled three-contact grasp and delay gate activation with an explicit grace period. Keep the +30 reward and 20-step/+5 gate fixed so initialization is the only important factor changed.
 
+Reference methods note (2026-07-30): DexScrew cloned to `references/dexscrew/` (gitignored). Comparison: `reports/comparisons/dexscrew_vs_allegro_rod_mvp.md`. Their sim rotation uses a hard revolute joint; headline real results are BC+tactile, not free-object RL (FIND-20260730-001). Optional later ablation: MuJoCo revolute-rod vs tip-connect Stage 0.
+
 Queued ideas (unverified, recorded 2026-07-24):
 1. Diagnose per-fingertip contact on existing checkpoints to confirm/refute the single-finger premise, then add a three-finger simultaneous-contact reward (EXP-20260724-001).
 2. Compare stabilizer-pretrained vs less-/non-stabilizer Stage 2 to test whether Stage 0/1 pretraining helps Stage 2 (EXP-20260724-002).

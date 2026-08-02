@@ -1,5 +1,24 @@
 # Findings
 
+## FIND-20260730-001: DexScrew “good rotation” is revolute-constrained sim + real BC, not free-object RL
+- Confidence: high
+- Supporting runs: literature / code review of `references/dexscrew` (arXiv 2512.02011)
+- Related debug issues: Stage 2 stabilizer cliff (PROJECT_STATE)
+- Applies to: curriculum design for tip-connect / axis assists; interpreting external screwdriving RL claims
+- Does not apply to: claiming our Stage 1 degrees equal their real progress ratios
+
+### Finding
+DexScrew trains sim rotation on a **fixed base + revolute joint** (threads omitted), distills a proprio student, then finishes screwdriving with **real tactile + history behavior cloning** (~95% progress). Direct sim2real of their rotation policy is only ~42% progress and never completes. Their published success does not imply free-object Stage 2 PPO should work.
+
+### Evidence
+Paper §§III–IV and configs in `configs/task/XHandHoraScrewDriver.yaml`; reward on nut DOF ω in `dexscrew/tasks/xhand_hora.py`. Full write-up: `reports/comparisons/dexscrew_vs_allegro_rod_mvp.md`.
+
+### Implication
+Treat tip-connect / hinge-style constraints as Stage-A skill learning (closer to DexScrew), not a temporary crutch to delete before gaits are solid. Optional ablations: true revolute rod; pose-diff/work penalties.
+
+### Caveats
+Different hand, simulator, and task; comparison is methodological, not a matched eval.
+
 ## FIND-20260724-002: Geometry reachability alone does not overcome sparse contact exploration
 - Confidence: medium
 - Supporting runs: `20260724-2045-finger2-spatial-dof`, `20260724-2100-spatial-finger2-retrain-seed0`
