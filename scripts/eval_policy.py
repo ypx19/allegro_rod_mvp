@@ -41,6 +41,9 @@ def evaluate(
     rod_mass_scale: float = 1.0,
     rod_friction_cap: float = 4.0,
     tilt_terminate_rad: float = 0.7,
+    tip_anchor: str = "top",
+    dexscrew_tip_penalty_scale: float = 0.5,
+    dexscrew_tip_sigma: float = 0.025,
     vecnormalize: str | None = None,
 ) -> dict:
     def _make_env() -> RodRotationEnv:
@@ -64,9 +67,12 @@ def evaluate(
             omega_success_threshold=omega_success_threshold,
             omega_success_hold_seconds=omega_success_hold_seconds,
             dexscrew_tilt_scale=dexscrew_tilt_scale,
+            dexscrew_tip_penalty_scale=dexscrew_tip_penalty_scale,
+            dexscrew_tip_sigma=dexscrew_tip_sigma,
             rod_mass_scale=rod_mass_scale,
             rod_friction_cap=rod_friction_cap,
             tilt_terminate_rad=tilt_terminate_rad,
+            tip_anchor=tip_anchor,
         )
 
     env = _make_env()
@@ -175,6 +181,8 @@ def evaluate(
         "rod_mass_scale": rod_mass_scale,
         "rod_friction_cap": rod_friction_cap,
         "tilt_terminate_rad": tilt_terminate_rad,
+        "tip_anchor": tip_anchor,
+        "dexscrew_tip_penalty_scale": dexscrew_tip_penalty_scale,
         "vecnormalize": vecnormalize,
         "axis_rotation_deg_mean": float(rotations_arr.mean()),
         "axis_rotation_deg_std": float(rotations_arr.std()),
@@ -256,6 +264,9 @@ def main() -> int:
     parser.add_argument("--rod-mass-scale", type=float, default=1.0)
     parser.add_argument("--rod-friction-cap", type=float, default=4.0)
     parser.add_argument("--tilt-terminate-rad", type=float, default=0.7)
+    parser.add_argument("--tip-anchor", choices=["top", "bottom"], default="top")
+    parser.add_argument("--dexscrew-tip-penalty-scale", type=float, default=0.5)
+    parser.add_argument("--dexscrew-tip-sigma", type=float, default=0.025)
     parser.add_argument(
         "--vecnormalize",
         type=str,
@@ -290,6 +301,9 @@ def main() -> int:
         rod_mass_scale=args.rod_mass_scale,
         rod_friction_cap=args.rod_friction_cap,
         tilt_terminate_rad=args.tilt_terminate_rad,
+        tip_anchor=args.tip_anchor,
+        dexscrew_tip_penalty_scale=args.dexscrew_tip_penalty_scale,
+        dexscrew_tip_sigma=args.dexscrew_tip_sigma,
         vecnormalize=args.vecnormalize,
     )
     print(json.dumps(metrics, indent=2))

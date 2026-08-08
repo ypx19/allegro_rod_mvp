@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Auto-gated mass–friction curriculum: heavy revolute → heavy tip-connect → anneal s→1.
+"""Auto-gated mass–friction curriculum with optional bottom tip + free-tip C5.
 
-C0/C1 start at s=400 (mass, inertia, μ coupled). Tip-connect stages resume prior ckpt
-with fresh VecNormalize. Scale only drops when online+eval gates pass.
+C0 revolute @s0 → C1 hard tip-connect @s0 → retries → (pass) → C5 free tip
+(no equality; tip-error reward) → optional anneal s→1 under free tip.
 """
 
 from __future__ import annotations
@@ -50,6 +50,10 @@ def run_train(
     notes: str,
     friction_cap: float = 4.0,
     tilt_terminate_rad: float = 0.7,
+    tip_anchor: str = "bottom",
+    tip_hard_constraint: bool = True,
+    tip_penalty_scale: float = 0.5,
+    tip_sigma: float = 0.025,
 ) -> Path:
     cmd = [
         str(PY),
@@ -68,6 +72,12 @@ def run_train(
         str(friction_cap),
         "--tilt-terminate-rad",
         str(tilt_terminate_rad),
+        "--tip-anchor",
+        tip_anchor,
+        "--dexscrew-tip-penalty-scale",
+        str(tip_penalty_scale),
+        "--dexscrew-tip-sigma",
+        str(tip_sigma),
         "--omega-success-threshold",
         "0.5",
         "--omega-success-hold-seconds",
@@ -93,11 +103,18 @@ def run_train(
     ]
     if physics == "revolute":
         cmd += ["--no-tip-connect", "--dexscrew-tilt-scale", "0"]
-    else:
+    elif tip_hard_constraint:
         cmd += [
             "--tip-connect",
             "--tip-connect-solref",
             "0.008",
+            "--dexscrew-tilt-scale",
+            "1.0",
+        ]
+    else:
+        # C5+: free tip, soft tip-error reward keeps tip near reset target.
+        cmd += [
+            "--no-tip-connect",
             "--dexscrew-tilt-scale",
             "1.0",
         ]
@@ -132,13 +149,12 @@ def online_stats(run_dir: Path, last_n: int = 8) -> dict:
                     stds.append(float(v))
                 except ValueError:
                     pass
-    out = {
+    return {
         "ep_len_mean": float(sum(lens) / len(lens)) if lens else 0.0,
         "ep_rew_mean": float(sum(rews) / len(rews)) if rews else 0.0,
         "train_std_mean": float(sum(stds) / len(stds)) if stds else float("nan"),
         "n_rows": len(rows),
     }
-    return out
 
 
 def eval_gate(
@@ -151,6 +167,10 @@ def eval_gate(
     out: Path,
     friction_cap: float = 4.0,
     tilt_terminate_rad: float = 1.2,
+    tip_anchor: str = "bottom",
+    tip_hard_constraint: bool = True,
+    tip_penalty_scale: float = 0.5,
+    tip_sigma: float = 0.025,
 ) -> dict:
     vn = model.parent / "vecnormalize.pkl"
     cmd = [
@@ -169,6 +189,12 @@ def eval_gate(
         str(friction_cap),
         "--tilt-terminate-rad",
         str(tilt_terminate_rad),
+        "--tip-anchor",
+        tip_anchor,
+        "--dexscrew-tip-penalty-scale",
+        str(tip_penalty_scale),
+        "--dexscrew-tip-sigma",
+        str(tip_sigma),
         "--omega-success-threshold",
         "0.5",
         "--omega-success-hold-seconds",
@@ -186,7 +212,7 @@ def eval_gate(
         cmd += ["--vecnormalize", str(vn)]
     if physics == "revolute":
         cmd += ["--no-tip-connect", "--dexscrew-tilt-scale", "0"]
-    else:
+    elif tip_hard_constraint:
         cmd += [
             "--tip-connect",
             "--tip-connect-solref",
@@ -194,7 +220,8 @@ def eval_gate(
             "--dexscrew-tilt-scale",
             "1.0",
         ]
-    # eval returns 1 on fail; we still want the JSON
+    else:
+        cmd += ["--no-tip-connect", "--dexscrew-tilt-scale", "1.0"]
     subprocess.run(cmd, cwd=str(ROOT), check=False)
     return json.loads(out.read_text())
 
@@ -205,7 +232,13 @@ def tip_tilt_fraction(metrics: dict) -> float:
     return float(terms.get("axis_tilt", 0)) / float(total)
 
 
-def gate_pass(online: dict, metrics: dict, *, min_ep_len: float) -> tuple[bool, str]:
+def tip_error_fail_fraction(metrics: dict) -> float:
+    terms = metrics.get("termination_reasons") or {}
+    total = sum(int(v) for v in terms.values()) or 1
+    return float(terms.get("tip_error", 0)) / float(total)
+
+
+def gate_pass(online: dict, metrics: dict, *, min_ep_len: float, free_tip: bool = False) -> tuple[bool, str]:
     reasons = []
     ok = True
     ep_len = float(online.get("ep_len_mean", 0.0))
@@ -219,6 +252,15 @@ def gate_pass(online: dict, metrics: dict, *, min_ep_len: float) -> tuple[bool, 
         if tilt_frac > 0.40:
             ok = False
             reasons.append(f"tilt_term_frac {tilt_frac:.2f} > 0.40")
+    if free_tip:
+        tip_fail = tip_error_fail_fraction(metrics)
+        tip_err = float(metrics.get("tip_error_m_mean", 1.0))
+        if tip_fail > 0.40:
+            ok = False
+            reasons.append(f"tip_error_term_frac {tip_fail:.2f} > 0.40")
+        if tip_err > 0.03:
+            ok = False
+            reasons.append(f"tip_error_m_mean {tip_err:.4f} > 0.03")
     sr = float(metrics.get("success_rate", 0.0))
     hold = float(metrics.get("omega_hold_seconds_max_mean", 0.0))
     if sr < 0.20 and hold < 2.0:
@@ -246,6 +288,20 @@ def main() -> int:
         default=1.2,
         help="Tip-connect hard tilt kill threshold during curriculum (default 1.2; revolute ignores).",
     )
+    parser.add_argument(
+        "--tip-anchor",
+        choices=["top", "bottom"],
+        default="bottom",
+        help="Tip / hinge location (default bottom for this ladder).",
+    )
+    parser.add_argument("--c5-tip-penalty-scale", type=float, default=8.0)
+    parser.add_argument("--c5-tip-sigma", type=float, default=0.015)
+    parser.add_argument("--c5-steps", type=int, default=1_000_000)
+    parser.add_argument(
+        "--stop-after-c5",
+        action="store_true",
+        help="Stop after free-tip C5 passes (skip mass anneal).",
+    )
     parser.add_argument("--gamma", type=float, default=math.sqrt(2.0))
     parser.add_argument("--c0-steps", type=int, default=1_000_000)
     parser.add_argument("--c1-steps", type=int, default=1_000_000)
@@ -264,25 +320,35 @@ def main() -> int:
     if args.smoke:
         args.c0_steps = min(args.c0_steps, 200_000)
         args.c1_steps = min(args.c1_steps, 200_000)
+        args.c5_steps = min(args.c5_steps, 200_000)
         args.chunk_steps = min(args.chunk_steps, 100_000)
         args.num_envs = min(args.num_envs, 8)
         args.min_ep_len = min(args.min_ep_len, 40.0)
         args.eval_episodes = min(args.eval_episodes, 10)
+        args.stop_after_c5 = True
 
-    cid = args.curriculum_id or f"{now_stamp()}-massfric-s{args.start_scale:g}"
+    cid = args.curriculum_id or f"{now_stamp()}-massfric-s{args.start_scale:g}-{args.tip_anchor}"
     curr_dir = ROOT / "runs" / "curricula" / cid
     curr_dir.mkdir(parents=True, exist_ok=True)
     state_path = curr_dir / "state.json"
     write_progress(
         curr_dir,
         f"# Curriculum {cid}\n"
-        f"- start_scale={args.start_scale} friction_cap={args.friction_cap} "
-        f"tilt_term={args.tilt_terminate_rad} gamma={args.gamma:.4f} smoke={args.smoke}\n"
-        f"- C0 revolute → C1 tip@s → auto anneal to s=1 (μ capped; tip solref ∝ 1/√s)\n"
+        f"- start_scale={args.start_scale} tip_anchor={args.tip_anchor} "
+        f"friction_cap={args.friction_cap} tilt_term={args.tilt_terminate_rad} "
+        f"gamma={args.gamma:.4f} smoke={args.smoke} stop_after_c5={args.stop_after_c5}\n"
+        f"- C0 revolute → C1 hard tip@s → (retries) → C5 free tip + tip-error reward"
+        f"{'' if args.stop_after_c5 else ' → anneal free tip to s=1'}\n"
         f"- Started {datetime.now().isoformat(timespec='seconds')}",
     )
 
     s0 = float(args.start_scale)
+    tip_kwargs = dict(
+        friction_cap=args.friction_cap,
+        tilt_terminate_rad=args.tilt_terminate_rad,
+        tip_anchor=args.tip_anchor,
+    )
+
     # ---- C0: heavy revolute ----
     if args.skip_c0 and args.c0_ckpt:
         c0_ckpt = Path(args.c0_ckpt)
@@ -290,7 +356,7 @@ def main() -> int:
         write_progress(curr_dir, f"## C0 skipped\nUsing `{c0_ckpt}`")
     else:
         c0_id = f"{cid}-C0-revolute-s{s0:g}-subproc{args.num_envs}"
-        write_progress(curr_dir, f"## C0 revolute s={s0:g}\nTraining `{c0_id}` …")
+        write_progress(curr_dir, f"## C0 revolute s={s0:g} tip={args.tip_anchor}\nTraining `{c0_id}` …")
         c0_dir = run_train(
             run_id=c0_id,
             physics="revolute",
@@ -301,9 +367,9 @@ def main() -> int:
             device=args.device,
             seed=args.seed,
             checkpoint_freq=max(50_000, args.c0_steps // 5),
-            notes=f"C0 heavy revolute s={s0} friction_cap={args.friction_cap} curriculum {cid}",
-            friction_cap=args.friction_cap,
-            tilt_terminate_rad=args.tilt_terminate_rad,
+            notes=f"C0 heavy revolute s={s0} tip={args.tip_anchor} curriculum {cid}",
+            tip_hard_constraint=False,
+            **tip_kwargs,
         )
         c0_ckpt = c0_dir / "checkpoints" / "final_model.zip"
         c0_eval = eval_gate(
@@ -313,6 +379,8 @@ def main() -> int:
             episodes=args.eval_episodes,
             seed=args.seed,
             out=curr_dir / "C0_eval.json",
+            tip_hard_constraint=False,
+            **tip_kwargs,
         )
         write_progress(
             curr_dir,
@@ -320,9 +388,9 @@ def main() -> int:
             f"rot={c0_eval.get('axis_rotation_deg_mean')}",
         )
 
-    # ---- C1: tip-connect at same heavy s ----
-    c1_id = f"{cid}-C1-tip-s{s0:g}-subproc{args.num_envs}"
-    write_progress(curr_dir, f"## C1 tip-connect s={s0:g}\nResume C0 → `{c1_id}` …")
+    # ---- C1: hard tip-connect at same heavy s ----
+    c1_id = f"{cid}-C1-tipHard-s{s0:g}-subproc{args.num_envs}"
+    write_progress(curr_dir, f"## C1 tip-connect (hard) s={s0:g}\nResume C0 → `{c1_id}` …")
     c1_dir = run_train(
         run_id=c1_id,
         physics="tip_connect",
@@ -333,25 +401,32 @@ def main() -> int:
         device=args.device,
         seed=args.seed,
         checkpoint_freq=max(50_000, args.c1_steps // 5),
-        notes=f"C1 tip-connect s={s0} friction_cap={args.friction_cap} from C0; curriculum {cid}",
-        friction_cap=args.friction_cap,
-        tilt_terminate_rad=args.tilt_terminate_rad,
+        notes=f"C1 hard tip s={s0} tip={args.tip_anchor} from C0; curriculum {cid}",
+        tip_hard_constraint=True,
+        tip_penalty_scale=0.5,
+        **tip_kwargs,
     )
     prev_ckpt = c1_dir / "checkpoints" / "final_model.zip"
     s = s0
     retries = 0
     stage_idx = 1
+    free_tip = False
+    tip_penalty = 0.5
+    tip_sigma = 0.025
+    c5_done = False
 
     state = {
         "curriculum_id": cid,
         "scale": s,
         "last_ckpt": str(prev_ckpt),
         "stage": "C1_done",
+        "tip_anchor": args.tip_anchor,
+        "free_tip": False,
     }
     state_path.write_text(json.dumps(state, indent=2))
 
-    # ---- Auto anneal ----
-    while s > 1.0 + 1e-9:
+    # ---- Gate / retry / C5 / anneal ----
+    while True:
         online = online_stats(Path(prev_ckpt).parent.parent)
         metrics = eval_gate(
             model=prev_ckpt,
@@ -359,28 +434,41 @@ def main() -> int:
             rod_mass_scale=s,
             episodes=args.eval_episodes,
             seed=args.seed + stage_idx,
-            out=curr_dir / f"eval_s{s:g}_r{retries}.json",
+            out=curr_dir / f"eval_s{s:g}_{'free' if free_tip else 'hard'}_r{retries}.json",
+            tip_hard_constraint=not free_tip,
+            tip_penalty_scale=tip_penalty,
+            tip_sigma=tip_sigma,
+            **tip_kwargs,
         )
-        passed, detail = gate_pass(online, metrics, min_ep_len=args.min_ep_len)
-        # For tip-connect also use eval drop/tilt as tilt fraction proxy if online len weak
+        passed, detail = gate_pass(
+            online, metrics, min_ep_len=args.min_ep_len, free_tip=free_tip
+        )
         tilt_frac = tip_tilt_fraction(metrics)
         write_progress(
             curr_dir,
-            f"### Gate at s={s:g} (retries={retries})\n"
+            f"### Gate at s={s:g} free_tip={free_tip} (retries={retries})\n"
             f"- online={online}\n"
             f"- success={metrics.get('success_rate')} hold_max={metrics.get('omega_hold_seconds_max_mean')} "
-            f"tilt_frac={tilt_frac:.2f} drop={metrics.get('drop_rate')}\n"
+            f"tilt_frac={tilt_frac:.2f} tip_err={metrics.get('tip_error_m_mean')} "
+            f"drop={metrics.get('drop_rate')}\n"
             f"- result: {'PASS' if passed else 'FAIL'} — {detail}",
         )
-        if passed:
-            s_next = next_scale(s, args.gamma)
-            if s_next >= s - 1e-9 and s > 1.0:
-                s_next = 1.0
-            write_progress(curr_dir, f"Advance s {s:g} → {s_next:g}")
-            s = s_next
-            retries = 0
+
+        if not passed:
+            retries += 1
+            if retries > args.max_retries:
+                write_progress(
+                    curr_dir,
+                    f"## ABORT at s={s:g} free_tip={free_tip}\n"
+                    f"Exceeded max_retries={args.max_retries}. last_ckpt=`{prev_ckpt}`",
+                )
+                state["aborted"] = True
+                state_path.write_text(json.dumps(state, indent=2))
+                return 2
             stage_idx += 1
-            run_id = f"{cid}-C{stage_idx}-tip-s{s:g}-subproc{args.num_envs}"
+            tag = "freeTip" if free_tip else "tipHard"
+            run_id = f"{cid}-C{stage_idx}-retry{retries}-{tag}-s{s:g}-subproc{args.num_envs}"
+            write_progress(curr_dir, f"Retry {retries} → `{run_id}`")
             run_dir = run_train(
                 run_id=run_id,
                 physics="tip_connect",
@@ -391,27 +479,109 @@ def main() -> int:
                 device=args.device,
                 seed=args.seed,
                 checkpoint_freq=max(50_000, args.chunk_steps // 2),
-                notes=f"Annealed tip-connect s={s} curriculum {cid}",
-                friction_cap=args.friction_cap,
-                tilt_terminate_rad=args.tilt_terminate_rad,
+                notes=f"Retry {'free' if free_tip else 'hard'} tip s={s} curriculum {cid}",
+                tip_hard_constraint=not free_tip,
+                tip_penalty_scale=tip_penalty,
+                tip_sigma=tip_sigma,
+                **tip_kwargs,
             )
             prev_ckpt = run_dir / "checkpoints" / "final_model.zip"
-            state = {"curriculum_id": cid, "scale": s, "last_ckpt": str(prev_ckpt), "stage": run_id}
+            state = {
+                "curriculum_id": cid,
+                "scale": s,
+                "last_ckpt": str(prev_ckpt),
+                "stage": run_id,
+                "retries": retries,
+                "free_tip": free_tip,
+            }
             state_path.write_text(json.dumps(state, indent=2))
             continue
 
-        retries += 1
-        if retries > args.max_retries:
+        # Passed gate.
+        retries = 0
+        if not free_tip and not c5_done:
+            # ---- C5: drop hard tip, strengthen tip-error reward ----
+            stage_idx += 1
+            c5_id = f"{cid}-C5-freeTip-s{s:g}-subproc{args.num_envs}"
             write_progress(
                 curr_dir,
-                f"## ABORT at s={s:g}\nExceeded max_retries={args.max_retries}. last_ckpt=`{prev_ckpt}`",
+                f"## C5 free tip (no equality) s={s:g}\n"
+                f"tip_penalty_scale={args.c5_tip_penalty_scale} tip_sigma={args.c5_tip_sigma}\n"
+                f"Resume hard-tip → `{c5_id}` …",
             )
-            state["aborted"] = True
+            free_tip = True
+            tip_penalty = float(args.c5_tip_penalty_scale)
+            tip_sigma = float(args.c5_tip_sigma)
+            c5_dir = run_train(
+                run_id=c5_id,
+                physics="tip_connect",
+                rod_mass_scale=s,
+                steps=args.c5_steps,
+                num_envs=args.num_envs,
+                resume=str(prev_ckpt),
+                device=args.device,
+                seed=args.seed,
+                checkpoint_freq=max(50_000, args.c5_steps // 5),
+                notes=f"C5 free tip + tip-error reward s={s} curriculum {cid}",
+                tip_hard_constraint=False,
+                tip_penalty_scale=tip_penalty,
+                tip_sigma=tip_sigma,
+                **tip_kwargs,
+            )
+            prev_ckpt = c5_dir / "checkpoints" / "final_model.zip"
+            c5_done = True
+            state = {
+                "curriculum_id": cid,
+                "scale": s,
+                "last_ckpt": str(prev_ckpt),
+                "stage": c5_id,
+                "free_tip": True,
+            }
             state_path.write_text(json.dumps(state, indent=2))
-            return 2
+            continue  # gate C5 next iteration
+
+        if free_tip and args.stop_after_c5:
+            write_progress(
+                curr_dir,
+                f"## DONE after C5 (stop_after_c5)\n- ckpt=`{prev_ckpt}`\n"
+                f"- eval={json.dumps({k: metrics.get(k) for k in ['success_rate','drop_rate','axis_rotation_deg_mean','tip_error_m_mean','omega_hold_satisfied_rate','termination_reasons','passed']})}",
+            )
+            state = {
+                "curriculum_id": cid,
+                "scale": s,
+                "last_ckpt": str(prev_ckpt),
+                "stage": "complete_c5",
+                "free_tip": True,
+                "final_eval": metrics,
+            }
+            state_path.write_text(json.dumps(state, indent=2))
+            return 0
+
+        if s <= 1.0 + 1e-9:
+            write_progress(
+                curr_dir,
+                f"## DONE s=1.0 free_tip={free_tip}\n- ckpt=`{prev_ckpt}`\n"
+                f"- eval={json.dumps({k: metrics.get(k) for k in ['success_rate','drop_rate','axis_rotation_deg_mean','tip_error_m_mean','omega_hold_satisfied_rate','termination_reasons','passed']})}",
+            )
+            state = {
+                "curriculum_id": cid,
+                "scale": 1.0,
+                "last_ckpt": str(prev_ckpt),
+                "stage": "complete",
+                "free_tip": free_tip,
+                "final_eval": metrics,
+            }
+            state_path.write_text(json.dumps(state, indent=2))
+            return 0
+
+        # Anneal mass under free tip (after C5).
+        s_next = next_scale(s, args.gamma)
+        if s_next >= s - 1e-9 and s > 1.0:
+            s_next = 1.0
+        write_progress(curr_dir, f"Advance s {s:g} → {s_next:g} (free_tip={free_tip})")
+        s = s_next
         stage_idx += 1
-        run_id = f"{cid}-C{stage_idx}-retry{retries}-tip-s{s:g}-subproc{args.num_envs}"
-        write_progress(curr_dir, f"Retry {retries} at s={s:g} → `{run_id}`")
+        run_id = f"{cid}-C{stage_idx}-freeTip-s{s:g}-subproc{args.num_envs}"
         run_dir = run_train(
             run_id=run_id,
             physics="tip_connect",
@@ -422,9 +592,11 @@ def main() -> int:
             device=args.device,
             seed=args.seed,
             checkpoint_freq=max(50_000, args.chunk_steps // 2),
-            notes=f"Retry tip-connect s={s} curriculum {cid}",
-            friction_cap=args.friction_cap,
-            tilt_terminate_rad=args.tilt_terminate_rad,
+            notes=f"Annealed free tip s={s} curriculum {cid}",
+            tip_hard_constraint=False,
+            tip_penalty_scale=tip_penalty,
+            tip_sigma=tip_sigma,
+            **tip_kwargs,
         )
         prev_ckpt = run_dir / "checkpoints" / "final_model.zip"
         state = {
@@ -432,35 +604,9 @@ def main() -> int:
             "scale": s,
             "last_ckpt": str(prev_ckpt),
             "stage": run_id,
-            "retries": retries,
+            "free_tip": True,
         }
         state_path.write_text(json.dumps(state, indent=2))
-
-    # Final hold / eval at s=1
-    final_metrics = eval_gate(
-        model=prev_ckpt,
-        physics="tip_connect",
-        rod_mass_scale=1.0,
-        episodes=max(args.eval_episodes, 20),
-        seed=args.seed + 99,
-        out=curr_dir / "final_s1_eval.json",
-    )
-    write_progress(
-        curr_dir,
-        f"## DONE s=1.0\n"
-        f"- ckpt=`{prev_ckpt}`\n"
-        f"- eval={json.dumps({k: final_metrics.get(k) for k in ['success_rate','drop_rate','axis_rotation_deg_mean','omega_hold_satisfied_rate','termination_reasons','passed']})}",
-    )
-    state = {
-        "curriculum_id": cid,
-        "scale": 1.0,
-        "last_ckpt": str(prev_ckpt),
-        "stage": "complete",
-        "final_eval": final_metrics,
-    }
-    state_path.write_text(json.dumps(state, indent=2))
-    (curr_dir / "latest_ckpt.txt").write_text(str(prev_ckpt) + "\n")
-    return 0 if final_metrics.get("passed") else 1
 
 
 if __name__ == "__main__":

@@ -64,6 +64,8 @@ def make_env(
     rod_mass_scale: float = 1.0,
     rod_friction_cap: float = 4.0,
     tilt_terminate_rad: float = 0.7,
+    tip_anchor: str = "top",
+    dexscrew_tip_sigma: float = 0.025,
     rank: int = 0,
     seed: int = 0,
 ) -> gym.Env:
@@ -102,6 +104,8 @@ def make_env(
             rod_mass_scale=rod_mass_scale,
             rod_friction_cap=rod_friction_cap,
             tilt_terminate_rad=tilt_terminate_rad,
+            tip_anchor=tip_anchor,
+            dexscrew_tip_sigma=dexscrew_tip_sigma,
         )
     )
     env.reset(seed=seed + rank)
@@ -292,6 +296,8 @@ def build_vec_env(
             rod_mass_scale=args.rod_mass_scale,
             rod_friction_cap=args.rod_friction_cap,
             tilt_terminate_rad=args.tilt_terminate_rad,
+            tip_anchor=args.tip_anchor,
+            dexscrew_tip_sigma=args.dexscrew_tip_sigma,
             rank=rank,
             seed=args.seed,
         )
@@ -381,6 +387,9 @@ def write_run_artifacts(
         "rod_mass_scale": args.rod_mass_scale,
         "rod_friction_cap": args.rod_friction_cap,
         "tilt_terminate_rad": args.tilt_terminate_rad,
+        "tip_anchor": args.tip_anchor,
+        "dexscrew_tip_penalty_scale": args.dexscrew_tip_penalty_scale,
+        "dexscrew_tip_sigma": args.dexscrew_tip_sigma,
         "dexscrew_tilt_scale": (
             args.dexscrew_tilt_scale
             if args.dexscrew_tilt_scale is not None
@@ -528,6 +537,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=0.7,
         help="Tip-connect hard tilt termination threshold (rad).",
     )
+    parser.add_argument(
+        "--tip-anchor",
+        choices=["top", "bottom"],
+        default="top",
+        help="Rod tip / equality location: top hang (stable) or bottom support (inverted).",
+    )
+    parser.add_argument("--dexscrew-tip-sigma", type=float, default=0.025)
     parser.add_argument("--tip-connect-solref", type=float, default=None)
     parser.add_argument("--tip-connect", dest="tip_connect_enabled", action="store_true")
     parser.add_argument("--no-tip-connect", dest="tip_connect_enabled", action="store_false")

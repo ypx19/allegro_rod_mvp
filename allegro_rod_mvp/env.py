@@ -76,6 +76,8 @@ class RodRotationEnv(gym.Env):
         rod_friction_cap: float = 4.0,
         scale_tip_solref_with_mass: bool = True,
         tilt_terminate_rad: float = 0.7,
+        tip_anchor: str = "top",
+        dexscrew_tip_sigma: float = 0.025,
     ) -> None:
         super().__init__()
         root = Path(__file__).resolve().parents[1]
@@ -83,8 +85,11 @@ class RodRotationEnv(gym.Env):
             raise ValueError("physics_mode must be 'tip_connect' or 'revolute'")
         if reward_style not in {"stage", "dexscrew"}:
             raise ValueError("reward_style must be 'stage' or 'dexscrew'")
+        if tip_anchor not in {"top", "bottom"}:
+            raise ValueError("tip_anchor must be 'top' or 'bottom'")
         self.physics_mode = physics_mode
         self.reward_style = reward_style
+        self.tip_anchor = tip_anchor
         self.privileged_obs = bool(privileged_obs)
         # Tip-connect (Arm B): tilt is a required punishment; revolute has no tilt DoF.
         if dexscrew_tilt_scale is None:
@@ -128,6 +133,7 @@ class RodRotationEnv(gym.Env):
             excess_omega_scale=float(dexscrew_excess_scale),
             tilt_scale=float(dexscrew_tilt_scale),
             tip_penalty_scale=float(dexscrew_tip_penalty_scale),
+            tip_sigma=float(dexscrew_tip_sigma),
         )
         # Online 45/45 rot–tilt mass balancing (tip-connect + dexscrew only when enabled).
         adaptive_on = bool(adaptive_reward_mass) and reward_style == "dexscrew" and physics_mode == "tip_connect"
@@ -186,6 +192,7 @@ class RodRotationEnv(gym.Env):
         self.tip_site = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "rod_tip")
         self.tip_geom_ids = [mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_GEOM, f"tip{i}") for i in range(3)]
         self.touch_sensor_ids = [mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SENSOR, f"touch{i}") for i in range(3)]
+        self._configure_tip_anchor()
         self.baseline_rod_mass = float(self.model.body_mass[self.rod_body])
         self.baseline_rod_inertia = self.model.body_inertia[self.rod_body].copy()
         self.baseline_rod_friction = float(self.model.geom_friction[self.rod_geom, 0])
@@ -221,6 +228,32 @@ class RodRotationEnv(gym.Env):
         self._priv_dim = 3 + 1 + 2 + 1 + 3 + 3 if self.privileged_obs else 0
         obs_dim = self._base_obs_dim + self._priv_dim
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(obs_dim,), dtype=np.float32)
+
+    def _configure_tip_anchor(self) -> None:
+        """Place rod tip / equality / hinge at top (+Z hang) or bottom (−Z support).
+
+        XML default is top hang. Bottom tip is an inverted pendulum under gravity;
+        intended for heavy-mass curriculum then soft tip (C5) transfer.
+        """
+        local_x = -0.07 if self.tip_anchor == "top" else 0.07
+        world_z = 0.07 if self.tip_anchor == "top" else -0.07
+        tip_local = np.array([local_x, 0.0, 0.0], dtype=np.float64)
+        world_tip = np.array([0.0, -0.05, world_z], dtype=np.float64)
+
+        if self.tip_site >= 0:
+            self.model.site_pos[self.tip_site] = tip_local
+        tip_target = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "tip_target")
+        if tip_target >= 0:
+            self.model.site_pos[tip_target] = world_tip
+        if self.eq_id >= 0:
+            # connect: body1 anchor (local) then world/body2 attach point
+            self.model.eq_data[self.eq_id, 0:3] = tip_local
+            self.model.eq_data[self.eq_id, 3:6] = world_tip
+        if self.hinge_id >= 0:
+            self.model.jnt_pos[self.hinge_id] = tip_local
+            mount = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "rod_mount")
+            if mount >= 0:
+                self.model.body_pos[mount] = world_tip
 
     def _friction_scale(self) -> float:
         return min(float(self.rod_mass_scale), float(self.rod_friction_cap))
@@ -784,6 +817,7 @@ class RodRotationEnv(gym.Env):
             "rod_friction_scale": float(self._friction_scale()),
             "rod_mass": float(self.model.body_mass[self.rod_body]),
             "rod_friction": float(self.model.geom_friction[self.rod_geom, 0]),
+            "tip_anchor": self.tip_anchor,
             "tip_solref0": (
                 float(self.model.eq_solref[self.eq_id, 0]) if self.eq_id >= 0 else float("nan")
             ),

@@ -1,11 +1,20 @@
 # Experiment Log
 
-## EXP-20260808-002 / Mass–friction curriculum start s=400
+## EXP-20260808-003 / Bottom-tip C0–C5 (hard tip → free tip reward)
 - Progress: `runs/curricula/*/CURRICULUM_PROGRESS.md`
 - Date: 2026-08-08
 - Status: **running**
+- Change: `--tip-anchor bottom` for C0–C4 hard tip; **C5** disables tip equality and raises DexScrew tip-error penalty (`scale=8`, `sigma=0.015`)
+- Smoke: s=400, soft tilt 1.2, stop after C5
+- Motivation: user wants support-tip skill then soft fixed tip without hard constraint
+
+## EXP-20260808-002 / Mass–friction curriculum start s=400
+- Progress: `runs/curricula/*/CURRICULUM_PROGRESS.md`
+- Date: 2026-08-08
+- Status: **smoke tip PASS with VN** (driver aborted on pre-fix eval)
 - Change: C0/C1 `--start-scale 400` (was 40); keep μ_cap=4, tilt_term=1.2, tip solref/√s
 - Motivation: videos at s=40 still look under-damped / force-dominated; heavier rod to buy episode length
+- Result: top-hang C4 tip@400 **success=1.0** with VecNormalize; preferred two-finger cooperating gait
 
 ## EXP-20260808-001 / Mass–friction curriculum (s=40 → auto)
 - Progress: `runs/curricula/*/CURRICULUM_PROGRESS.md`
