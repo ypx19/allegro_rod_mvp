@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Headless policy evaluation with stage success gates."""
+"""Headless policy evaluation with stage / DexScrew success gates."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from pathlib import Path
 
 import numpy as np
 from stable_baselines3 import PPO
+from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 from allegro_rod_mvp import RodRotationEnv
 
@@ -31,23 +32,51 @@ def evaluate(
     three_contact_reward: float = 10.0,
     contact_window_steps: int = 0,
     contact_window_threshold: float = 0.0,
+    physics_mode: str = "tip_connect",
+    reward_style: str = "stage",
+    privileged_obs: bool = False,
+    omega_success_threshold: float = 0.5,
+    omega_success_hold_seconds: float = 10.0,
+    dexscrew_tilt_scale: float | None = None,
+    rod_mass_scale: float = 1.0,
+    rod_friction_cap: float = 4.0,
+    tilt_terminate_rad: float = 0.7,
+    vecnormalize: str | None = None,
 ) -> dict:
-    env = RodRotationEnv(
-        render_mode=None,
-        curriculum_stage=stage,
-        episode_seconds=episode_seconds,
-        tip_connect_solref=tip_connect_solref,
-        tip_connect_enabled=tip_connect_enabled,
-        axis_stabilizer_scale=axis_stabilizer_scale,
-        axis_tilt_penalty_weight=axis_tilt_penalty_weight,
-        axis_tilt_recovery_scale=axis_tilt_recovery_scale,
-        rotation_reward_scale=rotation_reward_scale,
-        contact_reward_mode=contact_reward_mode,
-        three_contact_reward=three_contact_reward,
-        contact_window_steps=contact_window_steps,
-        contact_window_threshold=contact_window_threshold,
-    )
+    def _make_env() -> RodRotationEnv:
+        return RodRotationEnv(
+            render_mode=None,
+            curriculum_stage=stage,
+            episode_seconds=episode_seconds,
+            tip_connect_solref=tip_connect_solref,
+            tip_connect_enabled=tip_connect_enabled,
+            axis_stabilizer_scale=axis_stabilizer_scale,
+            axis_tilt_penalty_weight=axis_tilt_penalty_weight,
+            axis_tilt_recovery_scale=axis_tilt_recovery_scale,
+            rotation_reward_scale=rotation_reward_scale,
+            contact_reward_mode=contact_reward_mode,
+            three_contact_reward=three_contact_reward,
+            contact_window_steps=contact_window_steps,
+            contact_window_threshold=contact_window_threshold,
+            physics_mode=physics_mode,
+            reward_style=reward_style,
+            privileged_obs=privileged_obs,
+            omega_success_threshold=omega_success_threshold,
+            omega_success_hold_seconds=omega_success_hold_seconds,
+            dexscrew_tilt_scale=dexscrew_tilt_scale,
+            rod_mass_scale=rod_mass_scale,
+            rod_friction_cap=rod_friction_cap,
+            tilt_terminate_rad=tilt_terminate_rad,
+        )
+
+    env = _make_env()
     model = PPO.load(model_path, device="cpu")
+    vecnorm: VecNormalize | None = None
+    if vecnormalize:
+        dummy = DummyVecEnv([_make_env])
+        vecnorm = VecNormalize.load(vecnormalize, dummy)
+        vecnorm.training = False
+        vecnorm.norm_reward = False
 
     rotations = []
     tip_errors = []
@@ -58,6 +87,8 @@ def evaluate(
     successes = []
     drops = []
     final_axis_tilts = []
+    omega_hold_satisfied = []
+    max_omega_hold_seconds = []
     episode_torque_means = []
     episode_torque_maxes = []
     termination_reasons: Counter[str] = Counter()
@@ -82,14 +113,21 @@ def evaluate(
         info: dict = {}
         torque_values = []
         reward_values = {key: [] for key in reward_keys}
+        ep_max_hold = 0.0
         while not (terminated or truncated):
-            action, _ = model.predict(obs, deterministic=True)
+            model_obs = obs
+            if vecnorm is not None:
+                model_obs = vecnorm.normalize_obs(
+                    np.asarray(obs, dtype=np.float32).reshape(1, -1)
+                )[0]
+            action, _ = model.predict(model_obs, deterministic=True)
             obs, _, terminated, truncated, info = env.step(action)
             count = int(info.get("contact_count", 0))
             contact_step_counts[count] += 1
             finger_contact_steps += np.asarray(info.get("finger_contacts", [0, 0, 0]), dtype=np.int64)
             total_contact_steps += 1
             torque_values.append(float(info.get("stabilizer_torque_norm", 0.0)))
+            ep_max_hold = max(ep_max_hold, float(info.get("omega_hold_seconds", 0.0)))
             for key in reward_keys:
                 reward_values[key].append(float(info.get(key, 0.0)))
 
@@ -97,6 +135,8 @@ def evaluate(
         tip_errors.append(float(info.get("tip_error_m", 0.0)))
         contacts.append(float(info.get("contact_count", 0.0)))
         successes.append(bool(info.get("is_success", False)))
+        omega_hold_satisfied.append(bool(info.get("omega_hold_satisfied", False)))
+        max_omega_hold_seconds.append(ep_max_hold)
         # Drop if terminated early for tip/rod failure (not time truncation).
         drops.append(bool(terminated))
         final_axis_tilts.append(float(info.get("axis_tilt_deg", 0.0)))
@@ -118,6 +158,8 @@ def evaluate(
         "model": model_path,
         "stage": stage,
         "episodes": episodes,
+        "physics_mode": physics_mode,
+        "reward_style": reward_style,
         "tip_connect_solref": tip_connect_solref,
         "tip_connect_enabled": tip_connect_enabled,
         "axis_stabilizer_scale": axis_stabilizer_scale,
@@ -128,6 +170,12 @@ def evaluate(
         "three_contact_reward": three_contact_reward,
         "contact_window_steps": contact_window_steps,
         "contact_window_threshold": contact_window_threshold,
+        "omega_success_threshold": omega_success_threshold,
+        "omega_success_hold_seconds": omega_success_hold_seconds,
+        "rod_mass_scale": rod_mass_scale,
+        "rod_friction_cap": rod_friction_cap,
+        "tilt_terminate_rad": tilt_terminate_rad,
+        "vecnormalize": vecnormalize,
         "axis_rotation_deg_mean": float(rotations_arr.mean()),
         "axis_rotation_deg_std": float(rotations_arr.std()),
         "tip_error_m_mean": float(tip_arr.mean()),
@@ -141,6 +189,8 @@ def evaluate(
             finger_contact_steps / max(total_contact_steps, 1)
         ).tolist(),
         "final_axis_tilt_deg_mean": float(np.mean(final_axis_tilts)),
+        "omega_hold_satisfied_rate": float(np.mean(omega_hold_satisfied)),
+        "omega_hold_seconds_max_mean": float(np.mean(max_omega_hold_seconds)),
         "stabilizer_torque_mean": float(np.mean(episode_torque_means)),
         "stabilizer_torque_max_mean": float(np.mean(episode_torque_maxes)),
         "termination_reasons": dict(termination_reasons),
@@ -152,12 +202,20 @@ def evaluate(
         "passed": False,
     }
 
-    # Gate: mean rotation > 180°, mean tip error < 0.02 m, drop rate near 0.
-    metrics["passed"] = bool(
-        metrics["axis_rotation_deg_mean"] > 180.0
-        and metrics["tip_error_m_mean"] < 0.02
-        and metrics["drop_rate"] <= 0.15
-    )
+    if reward_style == "dexscrew":
+        # Gate: sustained-ω success rate, tip, drop (angle is metric only).
+        metrics["passed"] = bool(
+            metrics["success_rate"] >= 0.5
+            and metrics["tip_error_m_mean"] < 0.02
+            and metrics["drop_rate"] <= 0.15
+        )
+    else:
+        # Legacy gate: mean rotation > 180°, tip, drop.
+        metrics["passed"] = bool(
+            metrics["axis_rotation_deg_mean"] > 180.0
+            and metrics["tip_error_m_mean"] < 0.02
+            and metrics["drop_rate"] <= 0.15
+        )
     return metrics
 
 
@@ -167,7 +225,7 @@ def main() -> int:
     parser.add_argument("--stage", type=int, default=0, choices=[0, 1, 2])
     parser.add_argument("--episodes", type=int, default=20)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--episode-seconds", type=float, default=12.0)
+    parser.add_argument("--episode-seconds", type=float, default=20.0)
     parser.add_argument("--tip-connect-solref", type=float, default=None)
     parser.add_argument("--tip-connect", dest="tip_connect_enabled", action="store_true")
     parser.add_argument("--no-tip-connect", dest="tip_connect_enabled", action="store_false")
@@ -184,6 +242,26 @@ def main() -> int:
     parser.add_argument("--three-contact-reward", type=float, default=10.0)
     parser.add_argument("--contact-window-steps", type=int, default=0)
     parser.add_argument("--contact-window-threshold", type=float, default=0.0)
+    parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
+    parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
+    parser.add_argument("--privileged-obs", action="store_true")
+    parser.add_argument("--omega-success-threshold", type=float, default=0.5)
+    parser.add_argument("--omega-success-hold-seconds", type=float, default=10.0)
+    parser.add_argument(
+        "--dexscrew-tilt-scale",
+        type=float,
+        default=None,
+        help="Default: 1.0 for tip_connect+dexscrew, else 0.0.",
+    )
+    parser.add_argument("--rod-mass-scale", type=float, default=1.0)
+    parser.add_argument("--rod-friction-cap", type=float, default=4.0)
+    parser.add_argument("--tilt-terminate-rad", type=float, default=0.7)
+    parser.add_argument(
+        "--vecnormalize",
+        type=str,
+        default=None,
+        help="VecNormalize .pkl from training (required for fair transfer eval).",
+    )
     parser.add_argument("--out", type=str, default=None, help="Optional JSON metrics path")
     args = parser.parse_args()
 
@@ -203,6 +281,16 @@ def main() -> int:
         args.three_contact_reward,
         args.contact_window_steps,
         args.contact_window_threshold,
+        physics_mode=args.physics,
+        reward_style=args.reward_style,
+        privileged_obs=args.privileged_obs,
+        omega_success_threshold=args.omega_success_threshold,
+        omega_success_hold_seconds=args.omega_success_hold_seconds,
+        dexscrew_tilt_scale=args.dexscrew_tilt_scale,
+        rod_mass_scale=args.rod_mass_scale,
+        rod_friction_cap=args.rod_friction_cap,
+        tilt_terminate_rad=args.tilt_terminate_rad,
+        vecnormalize=args.vecnormalize,
     )
     print(json.dumps(metrics, indent=2))
 

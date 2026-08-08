@@ -1,5 +1,59 @@
 # Debug Log
 
+## DBG-20260802-001: PPO action std explosion → NaN on long Stage 0 parallel run
+- Date: 2026-08-02
+- Status: open
+- Related runs: `20260802-0220-exp-infra-subproc64-1e9-seed0` (EXP-20260802-002)
+- Related files: `scripts/train_parallel.py`, SB3 `PPO` / `ActorCriticPolicy` (`log_std`)
+- Severity: high
+- First observed: EXP-20260802-002 crash at ~3.17e7 env-steps
+
+### Symptom
+Long 1e9-budget Stage 0 job crashed in `PPO.train()` with `ValueError`: Gaussian action `loc` is all-NaN. Online logs show policy `std` growing without bound (≈1 → 32 at 5e6 → 6e4 at 1e7 → 1e18 at crash). After ~5e6 steps, `success_rate` fell from ~0.93 to 0 and return collapsed.
+
+### Expected Behavior
+Extended training should keep finite parameters; success either improve or plateau without NaNs. Checkpoints past peak quality should remain loadable for eval.
+
+### Reproduction
+```bash
+CUDA_VISIBLE_DEVICES=5 .venv/bin/python scripts/train_parallel.py \
+  --stage 0 --num-envs 64 --device cuda --net-arch 512,256,128 \
+  --n-steps 128 --batch-size 512 --steps 1000000000 --seed 0 \
+  --checkpoint-freq 5000000 \
+  --run-id 20260802-0220-exp-infra-subproc64-1e9-seed0
+```
+(Reproduced once on this seed/config; expect failure after O(1e7) steps when `std` ≫ 1e3.)
+
+### Evidence
+- Console: `runs/20260802-0220-exp-infra-subproc64-1e9-seed0/logs/console.log`
+- Metrics: `metrics.csv` through step 31719424
+- Checkpoints: 5e6 (pre-collapse) through 3e7 (post-collapse); no `final_model` / `vecnormalize.pkl`
+
+### Hypotheses
+1. Default `ent_coef=0.01` encourages unbounded `log_std` growth on this task/horizon.
+2. VecNormalize reward scaling + large parallel batch amplifies unstable policy updates (`approx_kl` ≫ clip).
+3. Missing `log_std` clip / target-KL early stopping allows irreversible divergence after a good policy is found.
+
+### Investigation
+- Check performed: milestone scrape of console `std` / `success_rate` / `ep_rew_mean`.
+- Result: clear success peak ~5e6 then monotonic std blow-up.
+- Interpretation: failure mode is optimization instability, not “Stage 0 unlearnable.”
+
+### Root Cause
+Unknown (not yet ablated). Leading mechanism: unconstrained Gaussian `std` growth under continued PPO updates.
+
+### Resolution
+None yet. Mitigations to try: `ent_coef=0`, clip `log_std`, reduce LR, stop/select at best checkpoint, save VecNormalize every checkpoint.
+
+### Verification
+Pending mitigation run.
+
+### Prevention
+Save VecNormalize alongside every CheckpointCallback dump; log/alert when `std` exceeds a threshold; prefer `ent_coef=0` for long DexScrew-style runs (plan already suggested migrating toward it).
+
+### Lessons Learned
+Longer budgets can find Stage 0 success and then destroy it. Always keep dense mid-run checkpoints and stabilize entropy/`log_std` before multi-day jobs.
+
 ## DBG-20260724-002: Corrected finger contact remains outside reset exploration basin
 - Date: 2026-07-24
 - Status: investigating

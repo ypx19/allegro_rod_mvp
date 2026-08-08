@@ -1,17 +1,34 @@
 # Metrics Reference
 
 ## Gate used by `scripts/eval_policy.py`
+
+### `reward_style=stage` (legacy curriculum)
 Passed iff all hold on the eval set mean/rate:
 - `axis_rotation_deg_mean > 180`
 - `tip_error_m_mean < 0.02`
 - `drop_rate <= 0.15`
 
-Episode `is_success` (env info) additionally requires:
+Episode `is_success` requires:
 - `unwrapped_angle > π`
 - `tip_error < 0.02`
-- `axis_tilt < 0.25` rad
+- `axis_tilt < 0.25` rad (skipped for `physics_mode=revolute`)
 - not dropped / not unstable
 - when configured, the rolling contact-support gate is satisfied
+
+### `reward_style=dexscrew`
+Reward uses **axial ω** (`clip(ω)·scale`); unwrapped angle is logging/metric only.
+On `physics_mode=tip_connect`, **axis tilt is punished** by default (`dexscrew_tilt_scale=1.0`, σ≈0.15 rad); revolute keeps tilt_scale=0.
+
+Episode `is_success` requires:
+- sustain `axial_omega > omega_success_threshold` (default **0.5 rad/s**) for **`omega_success_hold_seconds`** consecutive seconds (default **10.0 s** → 250 steps at 25 Hz; episode default 20 s)
+- `tip_error < 0.02`
+- `axis_tilt < 0.25` rad (skipped for revolute)
+- not dropped; contact gate if configured
+
+Eval `passed` iff:
+- `success_rate >= 0.5`
+- `tip_error_m_mean < 0.02`
+- `drop_rate <= 0.15`
 
 ## Latest hanging-tip curriculum snapshot (2026-07-23)
 
@@ -25,6 +42,21 @@ Episode `is_success` (env info) additionally requires:
 - `rollout/ep_rew_mean`, `success_rate`
 - `train/value_loss`, `entropy_loss`, policy `std` (late explosion correlates with poor Stage 1/2)
 - Env info: `axis_tilt_deg`, `unstable`, `contact_count`
+
+## Parallel training stack (EXP-infra, 2026-08-02)
+Definition:
+DexScrew-style track trainer `scripts/train_parallel.py` uses `SubprocVecEnv`, CUDA policy device, `net_arch` `[512,256,128]`, and `VecNormalize` (obs + reward, `clip_obs=10`).
+Unit:
+Env steps are total across workers (`num_envs * env.step` calls).
+Aggregation:
+`runs/<run_id>/metrics.csv` logs per-rollout `step`, `wall_time`, episode return/length when available, and SB3 `train_*` scalars. Save `checkpoints/vecnormalize.pkl` with every final model.
+Success threshold (infra):
+Finite rewards/losses; `num_envs ≥ 8`; checkpoint + VecNormalize reload.
+Reference runs:
+- EXP-20260802-001 / `20260802-0217-exp-infra-subproc8-cuda-seed0` (8 envs, 2e5 steps, ~939 fps; infra passed, Stage 0 success_rate=0).
+- EXP-20260802-002 / `20260802-0220-exp-infra-subproc64-1e9-seed0` (64 envs, 1e9 steps, running; see FIND-20260802-001).
+Code modification:
+New file only: `scripts/train_parallel.py`. Legacy `scripts/train.py` defaults unchanged.
 
 ## Axis Stabilizer Torque
 Definition: Euclidean norm of the externally applied orientation-stabilizer torque.

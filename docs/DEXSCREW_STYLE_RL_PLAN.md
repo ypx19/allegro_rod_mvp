@@ -1,6 +1,6 @@
 # DexScrew-Style RL Exploration (MuJoCo + SB3)
 
-**Status:** planned (not yet implemented)  
+**Status:** Arm A (revolute+ω) working; Arm B tip-connect+tilt failed gate at 1e6 (tilt terminations)  
 **Decisions:** stack **1A** (MuJoCo + SB3 `SubprocVecEnv`); physics ablation **2C** (revolute first, then tip-connect + tilt penalty)  
 **Overview:** New exploration track that imitates DexScrew’s RL recipe (ω reward, privileged obs, 3-layer MLP, parallel envs) without leaving the current stack. Use the 8-GPU server for multi-seed / multi-config jobs, not Isaac Gym.
 
@@ -8,11 +8,11 @@
 
 | ID | Task | Status |
 |---|---|---|
-| infra-parallel | Add `SubprocVecEnv` + CUDA + `net_arch [512,256,128]` + `VecNormalize`; 8-env smoke on current Stage 0 | pending |
-| reward-core | DexScrew-style reward module (ω, proximity, pose anchor, energy, excess ω) with component logging | pending |
-| arm-a-revolute | Revolute MJCF + `physics_mode`; hinge ω reward; privileged obs concat; smoke EXP-A0/A1 | pending |
-| scale-train | Scale to 64/256 envs and 1e7+ steps; 8-GPU multi-seed fan-out scripts | pending |
-| arm-b-tipconnect | Tip-connect arm with shared reward + tilt penalty, stabilizer 0; matched-budget EXP-B0 | pending |
+| infra-parallel | Add `SubprocVecEnv` + CUDA + `net_arch [512,256,128]` + `VecNormalize`; 8-env smoke on current Stage 0 | done (`20260802-0217-…`, EXP-20260802-001) |
+| reward-core | DexScrew-style reward module (ω, proximity, pose anchor, energy, excess ω) with component logging | done (`rewards_dexscrew.py`) |
+| arm-a-revolute | Revolute MJCF + `physics_mode`; hinge ω reward; privileged obs concat; smoke EXP-A0/A1 | done A0 (`20260802-1250-…`); A1 priv optional |
+| scale-train | Scale to 64/256 envs and 1e7+ steps; 8-GPU multi-seed fan-out scripts | blocked on std stability (EXP-20260802-002 peak 5e6 / crash ~3e7; see DBG-20260802-001) |
+| arm-b-tipconnect | Tip-connect arm with shared reward + tilt penalty, stabilizer 0; matched-budget EXP-B0 | attempted (`20260802-1305-…`, failed tilt gate) |
 | compare-docs | Eval vs Stage 0/1 baseline; update METRICS / EXPERIMENT_LOG / PROJECT_STATE; comparison report | pending |
 
 ## Decisions (locked)
@@ -49,6 +49,8 @@ Port DexScrew terms into our units (see [`references/dexscrew/dexscrew/tasks/xha
 | **Tilt (Arm B only)** | `-w_tilt * (tilt/σ)²` clipped | User-required; Arm A has none |
 
 Keep logging of unwrapped angle / tip error / tilt as **metrics**, not primary reward (Arm A angle is hinge angle).
+
+**Observation:** shared fixed layout (dim 42) across revolute and tip-connect so Arm A checkpoints can initialize Arm B (`hand q/v`, contacts, tip error, ω features, rod axis, tilt, linvel).
 
 Config defaults start near DexScrew screwdriver: `rotate_scale≈2.5`, `prox≈2.0`, `pose≈0.1`, mild energy; then one-factor retune only if smoke fails.
 
@@ -89,7 +91,8 @@ MuJoCo `SubprocVecEnv` is **CPU-bound**. Use GPUs for the **policy**; use cores 
 - New MJCF e.g. [`models/three_finger_rod_revolute.xml`](../models/three_finger_rod_revolute.xml): rod constrained by **hinge** about longitudinal axis; tip/base fixed appropriately.
 - Env flag `physics_mode=revolute` in [`allegro_rod_mvp/env.py`](../allegro_rod_mvp/env.py) or a thin subclass to avoid breaking Stage 0–2 defaults.
 - Reward: shared core **without** tilt term.
-- Success: sustained positive mean ω; large cumulative hinge angle; low drop/separation terminations.
+- Success: sustain `axial_omega > 0.5 rad/s` for **10.0 s** consecutive (configurable); tip/tilt/drop gates. Angle is metric only — not reward, not success.
+- **Arm B mass balance (B2):** online EMA adapts `rotate_scale` / `tilt_scale` so `|rot|` and `|tilt|` each ≈45% of Σ\|reward terms\| (`--adaptive-reward-mass`). PPO itself already updates every `n_steps` rollout (not per-episode).
 
 ### Arm B — Tip-connect + tilt penalty
 

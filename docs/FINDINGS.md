@@ -1,5 +1,43 @@
 # Findings
 
+## FIND-20260802-002: Unconstrained long PPO blows up `std` after Stage 0 success peak
+- Confidence: high
+- Supporting runs: `20260802-0220-exp-infra-subproc64-1e9-seed0` (EXP-20260802-002)
+- Related debug issues: `DBG-20260802-001`
+- Applies to: long SB3 PPO runs with default `ent_coef=0.01` and unclipped `log_std` on this Stage 0 stack
+- Does not apply to: claiming Stage 0 cannot reach ~0.9 success; Arm A reward changes
+
+### Finding
+Scaling to 1e9 steps **did** produce high online Stage 0 success (~0.88 at 1e6, ~0.93 at 5e6), then policy `std` exploded (→1e18) and training crashed with NaN action means at ~3.17e7 steps. Pure “train longer” without entropy/`log_std` control is unsafe.
+
+### Evidence
+Console milestones in EXP-20260802-002; crash traceback in `logs/console.log`; best ckpt `ppo_rod_5000000_steps.zip`.
+
+### Implication
+Use dense checkpoints, early-stop/select peak policies, set `ent_coef→0` and/or clip `log_std`, and save VecNormalize every checkpoint before multi-day jobs. Then resume Arm A.
+
+### Caveats
+Single seed; online success not yet confirmed with `eval_policy.py`. Peak may shift with different hyperparams.
+
+## FIND-20260802-001: Parallel CUDA stack works; 2e5 Stage 0 steps insufficient for success under new net
+- Confidence: medium (updated by FIND-20260802-002)
+- Supporting runs: `20260802-0216-exp-infra-plumbing-check-seed0`, `20260802-0217-exp-infra-subproc8-cuda-seed0` (EXP-20260802-001); follow-up `20260802-0220-exp-infra-subproc64-1e9-seed0` (EXP-20260802-002, failed after peak)
+- Related debug issues: `DBG-20260802-001` (post-peak divergence)
+- Applies to: DexScrew-style MuJoCo+SB3 parallel training on Stage 0 with `[512,256,128]` + VecNormalize
+- Does not apply to: claiming Stage 0 is unlearnable; Arm A revolute/ω reward; legacy CPU `train.py` Stage 0 quality
+
+### Finding
+`scripts/train_parallel.py` (SubprocVecEnv + CUDA + 3-layer MLP + VecNormalize) trains and reloads. Under unchanged Stage 0 reward, **2e5** total env-steps left **`success_rate=0`**, but longer training later reached ~0.9 online success by ~5e6 (then diverged — FIND-20260802-002).
+
+### Evidence
+EXP-20260802-001 metrics/TB/load smoke; EXP-20260802-002 console milestones.
+
+### Implication
+Adopt the parallel stack. Treat short smokes as infra gates only. Prefer ~5e6–1e7 budgets with std control over unconstrained 1e9.
+
+### Caveats
+Single seed; formal 20-episode eval of the 5e6 ckpt still pending.
+
 ## FIND-20260730-001: DexScrew “good rotation” is revolute-constrained sim + real BC, not free-object RL
 - Confidence: high
 - Supporting runs: literature / code review of `references/dexscrew` (arXiv 2512.02011)

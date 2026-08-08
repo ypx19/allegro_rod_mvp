@@ -1,0 +1,29 @@
+# EXP-B0: Arm B tip-connect + DexScrew reward + tilt penalty; stabilizer 0
+run_template: arm_b_tipconnect
+physics: tip_connect
+reward_style: dexscrew
+privileged_obs: false
+stage: 0
+tip_connect_enabled: true
+tip_connect_solref: 0.008
+axis_stabilizer_scale: 0
+dexscrew:
+  rotate_scale: 2.5
+  prox_scale: 2.0
+  pose_scale: 0.1
+  energy_scale: 0.05
+  excess_scale: 0.1
+  # Required for tip-connect: axis tilt punishment (env default 1.0 if unset)
+  tilt_scale: 1.0
+  tip_penalty_scale: 0.5
+success:
+  omega_threshold: 0.5   # rad/s
+  hold_seconds: 10.0
+train:
+  num_envs: 8
+  n_steps: 256
+  batch_size: 256
+  steps: 200000
+  ent_coef: 0.0
+  net_arch: [512, 256, 128]
+  device: cuda

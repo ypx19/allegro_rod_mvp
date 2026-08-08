@@ -1,5 +1,357 @@
 # Experiment Log
 
+## EXP-20260808-002 / Mass–friction curriculum start s=400
+- Progress: `runs/curricula/*/CURRICULUM_PROGRESS.md`
+- Date: 2026-08-08
+- Status: **running**
+- Change: C0/C1 `--start-scale 400` (was 40); keep μ_cap=4, tilt_term=1.2, tip solref/√s
+- Motivation: videos at s=40 still look under-damped / force-dominated; heavier rod to buy episode length
+
+## EXP-20260808-001 / Mass–friction curriculum (s=40 → auto)
+- Progress: `runs/curricula/*/CURRICULUM_PROGRESS.md`
+- Date: 2026-08-08
+- Status: **aborted at s=40**
+- Script: `scripts/run_mass_friction_curriculum.py`
+
+### Findings so far
+- **C0 revolute @s=40:** works (ep_len=500). Ckpt: `.../20260808-0052-...-C0-.../final_model.zip`
+- **C1 tip @s=40, μ×40:** worse than B1 (ep_len~10, all tilt kills)
+- **C1 tip @s=40, μ_cap=4 + tip solref/√s:** still ep_len~7–12 under policy
+- **Random probe:** s=1 and s=40 both ~40-step mean under random actions — mass alone ≠ free episode length
+- **C1 + tilt_terminate=1.2:** early online ep_len ~50–90 then collapsed; gate failed (tilt_frac=1); videos ~22–34 steps, ~110° rot then axis_tilt ~70°
+- **Qualitative (video):** C4 gait is **more like the target** than prior B1/B2 — **two fingers cooperating**. Keep mass curriculum as preferred path despite failed numeric gates; raise start mass (EXP-002).
+
+### Design updates mid-flight
+μ capped (`--rod-friction-cap 4`); tip solref /= √s; curriculum tip kill default **1.2 rad**.
+
+### Result
+s=40 insufficient for tip-connect *survival*, but gait style is preferred over previous transfer curriculums → try s=400 (EXP-002).
+
+## EXP-20260802-007 / EXP-A1→B1: revolute then tip-connect+tilt transfer
+- A1: `20260802-1439-exp-a1-revolute-sharedObs-omegaHold10-subproc64-1e6-seed0` (**passed** online; videos at `videos/ckpt_800k/`)
+- B1: `20260802-1439-exp-b1-from-a1-tipconnect-tilt-subproc64-1e6-seed0` (**failed** task gate)
+- First A1 stamp `20260802-1323-…` aborted at ~33k; relaunched via `setsid`.
+- Date: 2026-08-02
+- Status: completed
+- Device: CUDA GPU5, 64 envs × 1e6 each, `ent_coef=0`
+- Script: `scripts/run_revolute_then_tilt_curriculum.sh`
+
+### Change from prior Arm A/B
+1. Shared obs layout (dim **42**) — hand q/v + contacts + tip/ω/axis/tilt/linvel so PPO weights transfer.
+2. Success = sustain `ω > 0.5` for **10 s** (episode 20 s); angle metric only.
+3. Tip-connect tilt punishment `dexscrew_tilt_scale=1.0`; B1 resumes A1 with **fresh VecNormalize**.
+
+### Question
+Does revolute gait transfer to tip-connect+tilt better than training tip-connect from scratch (EXP-B0)?
+
+### Result
+**A1 yes / B1 no.** B1 online end: `ep_len≈18.8`, success≈0. Eval@final (20 eps): success=0, drop=1.0, all `axis_tilt` terminations, tilt≈43.9°, ω-hold=0. Component probe @600k: |rot|≈67%, |tilt|≈29% of Σ|terms|. Transfer alone does not fix tip-connect tilt collapse.
+
+### Decision
+Keep A1; next EXP-B2 adds online EMA mass balancing targeting 45% rot / 45% tilt (still hard tilt term).
+
+## EXP-20260802-008 / EXP-B2: adaptive 45/45 rot–tilt mass
+- Smoke: `20260802-1542-exp-b2-smoke-adaptiveMass-subproc8-2e5-seed0` — **infra pass**; mass/rot 0.81→0.45, mass/tilt 0.18→0.45.
+- Full: `20260802-1555-exp-b2-from-a1-adaptiveMass45-subproc64-1e6-seed0`
+- Change: [`allegro_rod_mvp/adaptive_mass.py`](../allegro_rod_mvp/adaptive_mass.py) EMA balancer; `--adaptive-reward-mass`; TB `mass/*`.
+- Date: 2026-08-02
+- Status: completed (mass targets hit; **task gate failed**)
+
+### Question
+Does online 45/45 rot–tilt mass balancing fix tip-connect tilt collapse vs B1?
+
+### Result
+**Mass yes, task no.** Training TB: mass/rot 0.80→0.45, mass/tilt 0.18→0.48; tilt_scale floored at 0.5. Online `ep_len` worsened (~18→12). Eval@final+VecNorm (20 eps): success=0, drop=1.0, all `axis_tilt`, tilt≈44.7°, rot≈74°. Videos: `.../videos/final/`. Vs B1: same failure mode; mass rebalancing alone insufficient under hard tilt termination.
+
+### Decision
+Next one-factor: soften/remove hard `axis_tilt > 0.7` termination (keep tilt reward); keep adaptive mass.
+
+## EXP-20260802-005 / EXP-A0: Arm A revolute + DexScrew ω reward
+- Run ID: `20260802-1250-exp-a0-revolute-dexscrew-subproc8-seed0`
+- Date: 2026-08-02
+- Status: completed (strong)
+- Device: CUDA GPU5, 8 envs, 2e5 steps, ent_coef=0
+
+### Question
+Does revolute hinge + DexScrew ω/prox/pose/energy reward learn axial gait quickly?
+
+### Result
+**Yes.** Online success≈0.99; deterministic eval 20 seeds: rot≈366°, success≈0.85. Policy std stayed ~0.7.
+
+### Artifacts
+- Ckpt: `runs/20260802-1250-exp-a0-revolute-dexscrew-subproc8-seed0/checkpoints/final_model.zip`
+- Videos: `.../videos/revolute_ep*_rot*.mp4`
+
+### Decision
+Adopt Arm A recipe as DexScrew-track baseline.
+
+## EXP-20260802-006 / EXP-B0: Arm B tip-connect + DexScrew + tilt (ω sign fix)
+- Run ID: `20260802-1305-exp-b0-tipconnect-dexscrew-tilt-omegaSignFix-subproc64-1e6-seed0`
+- Date: 2026-08-02
+- Status: completed (failed task gate; stress-test result)
+- Parent: first B0 attempt `20260802-1255-...` had inverted ω sign (negative rotation); fixed then rerun.
+
+### Question
+Does the shared DexScrew reward + tilt penalty transfer to tip-connect with stabilizer 0?
+
+### Result
+**Not at this budget/config.** Final eval: rot≈-1.3°, success=0.00, tilt≈36.2°, terms={'none': 14, 'axis_tilt': 6}. Episodes stay short (tilt terminations dominate). Arm A succeeds; Arm B remains the free-orientation stress test (matches plan claim bar).
+
+### Decision
+Keep Arm A; revise Arm B (tilt scale / tip solref / mild stab) or accept as negative result vs revolute.
+
+### Next Step
+Compare report; optional B0 retune tilt_scale or tip stiffness one-factor.
+
+## EXP-20260802-003: Stage0→1 transfer from 5e6 parallel ckpt (1e6 steps)
+- Run ID: `20260802-1225-stage1-from-s0-5e6-subproc64-1e6-seed0`
+- Date: 2026-08-02
+- Status: completed (passed eval gate)
+- Parent or baseline run: `20260802-0220-exp-infra-subproc64-1e9-seed0` / `ppo_rod_5000000_steps.zip`
+- Git commit: dirty tree (`scripts/train_parallel.py` + docs)
+- Git branch: `main`
+- Random seed: 0
+- Device: CUDA GPU5, 64 envs
+- Duration: ~310 s (~3253 fps)
+- Checkpoint: `runs/20260802-1225-stage1-from-s0-5e6-subproc64-1e6-seed0/checkpoints/final_model.zip` (+ `vecnormalize.pkl`)
+
+### Question
+Does the strong Stage 0 parallel policy (~0.9 online SR at 5e6) transfer into Stage 1 (softer tip spring, stab 0.15, tilt w=0.10, rot scale 160) after 1e6 additional parallel env-steps?
+
+### Hypothesis
+With `ent_coef=0` (DBG-20260802-001 mitigation) and Stage 1 assists, the policy retains rotation and meets the eval gate (rot>180°, tip<0.02 m, drop≤0.15).
+
+### Change from Baseline
+Resume `ppo_rod_5000000_steps.zip` into Stage 1 config; 1e6 steps; 64 envs; `ent_coef=0`; fresh VecNormalize (parent stats missing); VecNormalize saved every checkpoint.
+
+### Configuration
+- Algorithm: SB3 PPO resume
+- Stage: 1; tip-connect on; solref=0.10; stabilizer=0.15; tilt_w=0.10; rot_scale=160
+- Network: [512,256,128]; n_envs=64; n_steps=128; batch=512; steps=1e6; ent_coef=0
+- Evaluation: 20-seed `eval_policy.py` after training
+
+### Success Criteria
+Eval gate pass on Stage 1; finite losses; no std explosion; VecNormalize artifacts saved.
+
+### Result
+**Passed** Stage 1 eval gate (20 seeds). rot_mean=1019.3°, tip=0.0183 m, success=0.55, drop=0.05, terminations={'none': 19, 'axis_tilt': 1}. Online end success≈0.37, std≈32.5 (no NaN). Fresh VecNormalize + ent_coef=0.
+
+### Key Metrics
+| Metric | Value |
+|---|---:|
+| Success rate | 0.55 |
+| Rotation deg mean | 1019.3 |
+| Tip error m | 0.0183 |
+| Drop rate | 0.05 |
+| Passed gate | True |
+
+### Visual Evidence
+- Videos: `runs/20260802-1225-stage1-from-s0-5e6-subproc64-1e6-seed0/videos/`
+- Eval: `eval_final.json`
+
+### Decision
+Adopt; proceed to Stage 2.
+
+### Next Step
+EXP-20260802-004.
+
+## EXP-20260802-004: Stage1→2 transfer (stab 0, 1e6 parallel steps)
+- Run ID: `20260802-1231-stage2-from-s1-subproc64-1e6-seed0`
+- Date: 2026-08-02
+- Status: completed (failed eval gate)
+- Parent or baseline run: `20260802-1225-stage1-from-s0-5e6-subproc64-1e6-seed0`
+- Random seed: 0
+- Device: CUDA GPU5, 64 envs
+- Duration: ~256 s (~3926 fps)
+- Checkpoint: final + mid `ppo_rod_200000_steps.zip`
+
+### Question
+Does the Stage 1 parallel policy survive Stage 2 (tip-connect, stab 0) after 1e6 steps?
+
+### Hypothesis
+ent_coef=0 + Stage1 VecNormalize keeps rot>180° and drop≤0.15 with fewer than 20/20 tilt terminations.
+
+### Change from Baseline
+Stage 1→2, stabilizer 0; resume Stage1 final+vecnormalize; 1e6 steps; ent_coef=0.
+
+### Result
+**Failed gate.** Final: rot=155.1°, tip=0.0136, success=0.05, drop=0.65, terms={'axis_tilt': 13, 'none': 7}, mean_tilt=32.9°.
+200k: rot=590.7°, tip=0.0216, drop=0.70, terms={'axis_tilt': 14, 'none': 6}.
+
+### Key Metrics
+| Ckpt | rot° | tip m | success | drop | tilt/20 | passed |
+|---|---:|---:|---:|---:|---:|:---:|
+| 200k | 590.7 | 0.0216 | 0.05 | 0.70 | 14 | no |
+| final | 155.1 | 0.0136 | 0.05 | 0.65 | 13 | no |
+
+### Visual Evidence
+- `runs/20260802-1231-stage2-from-s1-subproc64-1e6-seed0/videos/final/`
+- `runs/20260802-1231-stage2-from-s1-subproc64-1e6-seed0/videos/ckpt_200k/`
+
+### Interpretation
+Stage0→1 works. Stage2 stab=0 still tilt/drop limited; more steps from 200k→1e6 hurt rotation.
+
+### Decision
+Reject Stage2 final. Keep Stage1 + Stage2-200k diagnostics. Prefer Arm A / tilt-aware next.
+
+### Next Step
+EXP-A0 revolute+ω, or Stage2 tilt single-factor ablation.
+
+## EXP-20260802-002: Scale Stage 0 parallel budget to 1e9 env-steps
+- Run ID: `20260802-0220-exp-infra-subproc64-1e9-seed0`
+- Date: 2026-08-02
+- Status: failed (NaN / std explosion at ~3.17e7 steps; did not reach 1e9)
+- Parent or baseline run: `20260802-0217-exp-infra-subproc8-cuda-seed0`
+- Git commit: `057f5e3` (dirty: uncommitted `scripts/train_parallel.py` + docs)
+- Git branch: `main`
+- Random seed: 0
+- Device: CUDA (`CUDA_VISIBLE_DEVICES=5`, RTX 3090), host `batiquitos.ucsd.edu`
+- Duration: ~2.8 h (~3362 fps); wall ~10140 s until crash
+- Checkpoint: best pre-collapse `checkpoints/ppo_rod_5000000_steps.zip` (also 10M–30M post-collapse)
+
+### Question
+Does a much larger interaction budget (**1e9** total env-steps across parallel workers) produce Stage 0 success under the EXP-infra stack when 2e5 steps only moved return from ~-200 to ~-5 with `success_rate=0`?
+
+### Hypothesis
+The 2e5 smoke was too short for the 3-layer CUDA policy + VecNormalize to reach the existing Stage 0 success gate; scaling total steps to 1e9 will either yield sustained rotation success or show a clear plateau that justifies moving to Arm A (ω/revolute) instead of more Stage 0 wall-clock.
+
+### Change from Baseline
+Relative to `20260802-0217-exp-infra-subproc8-cuda-seed0` only:
+1. `total_timesteps`: 2e5 → **1e9** (SB3 sum across envs).
+2. Throughput: `num_envs` 8→64, `n_steps` 256→128, `batch_size` 256→512, `checkpoint_freq` 5e6.
+Unchanged: Stage 0 reward/physics, `net_arch [512,256,128]`, VecNormalize, CUDA PPO, `scripts/train_parallel.py`.
+
+### Configuration
+- Algorithm: SB3 PPO (`MlpPolicy`)
+- Environment: `RodRotationEnv` Stage 0 (tip connect default, axis stabilizer default)
+- Reward terms: unchanged Stage 0 (rotation, tip, tilt, contact, proximity, force, action-rate)
+- Observation space: unchanged (48-D)
+- Action space: 9-D joint position targets in [-1, 1]
+- Network: `pi`/`vf` `[512, 256, 128]`
+- Optimizer: Adam (SB3 default)
+- Learning rate: 3e-4
+- Batch size: 512
+- Horizon: `n_steps=128` per env (rollout = 64×128 = 8192)
+- Number of environments: 64 (`SubprocVecEnv`)
+- Training steps: 1_000_000_000 (actual ~31_719_424 before crash)
+- Domain randomization: off (Stage 0)
+- Curriculum stage: 0
+- Evaluation protocol: online `ep_rew_mean` / `success_rate`; formal eval pending on 5e6 ckpt
+- Code entrypoint: `scripts/train_parallel.py`
+
+### Success Criteria
+- Rising `ep_rew_mean`, nonzero success during training, finite losses.
+- At ≥1e7 / 5e7 / 1e8 checkpoints: rotation/tip/drop competitive with legacy Stage 0 when evaluated, or a documented plateau with success≈0.
+- Infra remains stable (no NaNs; checkpoints + VecNormalize load).
+
+### Result
+**Rejected as a pure long-budget strategy.** Training briefly succeeded then diverged:
+- ~1e6 steps: `ep_rew_mean≈105`, `success_rate≈0.88`, `std≈1.4`
+- ~5e6 steps: `ep_rew_mean≈277`, `success_rate≈0.93`, `std≈32`
+- ~1e7+: success→0, return negative, `std` → 1e4…1e18
+- Crash: `ValueError` NaN in Gaussian action `loc` during `PPO.train()` (~3.17e7 steps)
+No `final_model` / `vecnormalize.pkl` saved (exception path). Last checkpoint on disk: `ppo_rod_30000000_steps.zip` (post-collapse).
+
+### Key Metrics
+| Metric | Baseline (0217 @2e5) | Best (~5e6) | At crash (~3.17e7) |
+|---|---:|---:|---:|
+| Success rate | 0 | **0.93** | 0 |
+| Mean return | ~-5.4 | **~277** | ~-172 |
+| Policy std | ~1.2 | ~32 | ~1e18 |
+| Episode length | ~268 | (longer while succeeding) | ~47 |
+
+### Visual Evidence
+- Training curve: `runs/20260802-0220-exp-infra-subproc64-1e9-seed0/tb/`
+- Metrics CSV: `runs/20260802-0220-exp-infra-subproc64-1e9-seed0/metrics.csv`
+- Console log: `runs/20260802-0220-exp-infra-subproc64-1e9-seed0/logs/console.log`
+- Summary: `runs/20260802-0220-exp-infra-subproc64-1e9-seed0/summary.md`
+- Evaluation video: pending (recommend eval of 5e6 ckpt)
+
+### Interpretation
+**Fact:** longer training *did* reach high online Stage 0 success by ~5e6 steps — the 2e5 smoke was too short. **Fact:** without entropy/`log_std` control, continued training destroyed the policy via std explosion → NaNs. **Hypothesis:** budget alone is insufficient; need stability knobs (e.g. `ent_coef=0`, std clip) or stop at best checkpoint.
+
+### Decision
+Reject unconstrained 1e9 continuation. Revise: stabilize PPO std or early-stop/select mid checkpoints; then Arm A.
+
+### Next Step
+1. `eval_policy.py` on `ppo_rod_5000000_steps.zip` (and note missing VecNormalize at crash — may need matching norm stats from TB/run or re-eval carefully).
+2. Optional short rerun with `ent_coef=0` / capped `log_std`.
+3. Or proceed to EXP-A0 with lessons from DBG-20260802-001.
+
+### Code Modification (this track)
+New file `scripts/train_parallel.py` (not yet committed): SubprocVecEnv factory, CUDA device, configurable `net_arch`, VecNormalize save/load, run artifacts (`config.yaml`, `metadata.json`, `metrics.csv`, `summary.md`), stub `--reward-style` / `--physics`. Left `scripts/train.py` unchanged for legacy CPU recipes.
+
+## EXP-20260802-001: SubprocVecEnv + CUDA + 3-layer MLP + VecNormalize (Stage 0 stack only)
+- Run ID: `20260802-0217-exp-infra-subproc8-cuda-seed0`
+- Date: 2026-08-02
+- Status: completed (infra passed; task learning weak at 2e5)
+- Parent or baseline run: `scripts/train.py` DummyVecEnv + CPU + `net_arch [256,256]`
+- Git commit: `057f5e3` (dirty: uncommitted `scripts/train_parallel.py` + docs)
+- Git branch: `main`
+- Random seed: 0
+- Device: CUDA (RTX 3090), 8 parallel envs
+- Duration: ~214 s (~939 fps)
+- Checkpoint: `runs/20260802-0217-exp-infra-subproc8-cuda-seed0/checkpoints/final_model.zip` (+ `vecnormalize.pkl`)
+- Plumbing check: `20260802-0216-exp-infra-plumbing-check-seed0` (4096 steps)
+
+### Question
+Does `SubprocVecEnv` + CUDA + `net_arch [512,256,128]` + `VecNormalize` train Stage 0 without NaNs and produce a loadable checkpoint + normalization stats?
+
+### Hypothesis
+Only the training stack changes; Stage 0 reward/physics stay fixed. Parallel MuJoCo workers plus a CUDA MLP should complete a 2e5-step smoke with finite losses and reloadable artifacts.
+
+### Change from Baseline
+New trainer `scripts/train_parallel.py`: 8× `SubprocVecEnv`, `device=cuda`, `net_arch [512,256,128]`, VecNormalize (obs+reward, clip_obs=10), `n_steps=256`, `batch_size=256`. Stage 0 reward/physics unchanged. `scripts/train.py` untouched.
+
+### Configuration
+- Algorithm: SB3 PPO (`MlpPolicy`)
+- Environment: `RodRotationEnv` Stage 0
+- Reward terms: unchanged Stage 0 defaults (`rotation_reward_scale=16`, tilt weight 1.0, linear contact)
+- Observation space: 48-D
+- Action space: 9-D
+- Network: `pi`/`vf` `[512, 256, 128]`
+- Optimizer: Adam
+- Learning rate: 3e-4
+- Batch size: 256
+- Horizon: `n_steps=256` (rollout = 8×256 = 2048)
+- Number of environments: 8
+- Training steps: 200_000 (actual 200_704)
+- Domain randomization: off
+- Curriculum stage: 0
+- Evaluation protocol: in-trainer load smoke (5 steps); no 20-seed eval (infra gate only)
+
+### Success Criteria
+No NaNs; `n_envs≥8` trains; checkpoint and `vecnormalize.pkl` load and take steps.
+
+### Result
+Infra criteria **passed**. 200704 env steps; 97 finite `metrics.csv` rows; `train_value_loss` ~1e-4 at end; load smoke OK. Task signal weak: `ep_rew_mean` improved ~-204→~-5.4 but `success_rate` stayed 0 (informational; not the infra gate).
+
+### Key Metrics
+| Metric | Baseline (random / early) | Current (@2e5) | Change |
+|---|---:|---:|---:|
+| Success rate | 0 | 0 | none |
+| Mean return | ~-204 | ~-5.4 | improved, still negative |
+| Position error | n/a | n/a | no formal eval |
+| Rotation progress | n/a | n/a | no formal eval |
+| Episode length | ~56 | ~268 | longer episodes |
+| Constraint violation rate | n/a | n/a | — |
+
+### Visual Evidence
+- Training curve: `runs/20260802-0217-exp-infra-subproc8-cuda-seed0/tb/`
+- Metrics CSV: `runs/20260802-0217-exp-infra-subproc8-cuda-seed0/metrics.csv`
+- Console/log: `runs/20260802-0217-exp-infra-subproc8-cuda-seed0/logs/`
+- Summary: `runs/20260802-0217-exp-infra-subproc8-cuda-seed0/summary.md`
+- Evaluation video: not generated (infra-only)
+
+### Interpretation
+**Fact:** parallel CUDA plumbing works and is reproducible via saved VecNormalize. **Fact:** at 2e5 steps this config did not reach Stage 0 success. **Hypothesis (tested in EXP-20260802-002):** budget, not plumbing, is the bottleneck for Stage 0 under the new net.
+
+### Decision
+Adopt infra stack. Revise next step: scale budget (EXP-20260802-002) before Arm A.
+
+### Next Step
+EXP-20260802-002 (1e9 total steps, 64 envs). Arm A remains queued after scale evidence.
+
 ## EXP-20260724-002: Does Stage 0/1 pretraining help or hurt Stage 2? (idea, unverified)
 - Run ID: TBD
 - Date: 2026-07-24

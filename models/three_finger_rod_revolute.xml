@@ -1,0 +1,82 @@
+<mujoco model="three_finger_rod_revolute">
+  <!-- Arm A: rod spins on a hard hinge about its long axis; tip fixed in world. -->
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" integrator="implicitfast" iterations="80" ls_iterations="40" cone="elliptic" gravity="0 0 -9.81"/>
+  <size njmax="1000" nconmax="200"/>
+  <default>
+    <joint damping="0.15" armature="0.01"/>
+    <geom friction="1.8 0.05 0.001" condim="4" solref="0.008 1" solimp="0.95 0.99 0.001"/>
+    <position kp="28" kv="2.5" ctrllimited="true" ctrlrange="-1.5 1.5"/>
+  </default>
+  <asset>
+    <material name="rodmat" rgba="0.75 0.25 0.12 1"/>
+    <material name="finger" rgba="0.25 0.45 0.75 1"/>
+    <material name="tip" rgba="0.15 0.8 0.35 1"/>
+  </asset>
+  <worldbody>
+    <light pos="0 -0.5 0.8" dir="0 0.4 -1" diffuse="0.8 0.8 0.8"/>
+    <geom name="floor" type="plane" size="1 1 0.1" pos="0 0 -0.20" rgba="0.9 0.9 0.9 1"/>
+    <body name="palm" pos="0 0 0">
+      <geom type="box" size="0.055 0.02 0.055" pos="0 0.055 0" rgba="0.2 0.2 0.25 1" contype="0" conaffinity="0"/>
+      <body name="finger0" pos="-0.045 0.03 0.035" euler="0 0 0.15">
+        <joint name="f0_j0" axis="0 0 1" range="-1.2 1.2"/>
+        <geom type="capsule" fromto="0 0 0 0 -0.045 0" size="0.009" material="finger"/>
+        <body pos="0 -0.045 0"><joint name="f0_j1" axis="0 0 1" range="-1.5 1.2"/>
+          <geom type="capsule" fromto="0 0 0 0 -0.04 0" size="0.008" material="finger"/>
+          <body pos="0 -0.04 0"><joint name="f0_j2" axis="0 0 1" range="-1.5 1.2"/>
+            <geom name="tip0" type="capsule" fromto="0 0 0 0 -0.035 0" size="0.014" material="tip"/>
+            <site name="tip0_site" pos="0 -0.035 0" size="0.004"/>
+          </body>
+        </body>
+      </body>
+      <body name="finger1" pos="0.045 0.03 0.035" euler="0 0 -0.15">
+        <joint name="f1_j0" axis="0 0 1" range="-1.2 1.2"/>
+        <geom type="capsule" fromto="0 0 0 0 -0.045 0" size="0.009" material="finger"/>
+        <body pos="0 -0.045 0"><joint name="f1_j1" axis="0 0 1" range="-1.5 1.2"/>
+          <geom type="capsule" fromto="0 0 0 0 -0.04 0" size="0.008" material="finger"/>
+          <body pos="0 -0.04 0"><joint name="f1_j2" axis="0 0 1" range="-1.5 1.2"/>
+            <geom name="tip1" type="capsule" fromto="0 0 0 0 -0.035 0" size="0.014" material="tip"/>
+            <site name="tip1_site" pos="0 -0.035 0" size="0.004"/>
+          </body>
+        </body>
+      </body>
+      <body name="finger2" pos="0 0.04 -0.045" euler="1.5708 0 0">
+        <joint name="f2_j0" axis="1 0 0" range="-1.2 1.2"/>
+        <geom type="capsule" fromto="0 0 0 0 -0.045 0" size="0.009" material="finger"/>
+        <body pos="0 -0.045 0"><joint name="f2_j1" axis="0 0 1" range="-1.5 1.2"/>
+          <geom type="capsule" fromto="0 0 0 0 -0.04 0" size="0.008" material="finger"/>
+          <body pos="0 -0.04 0"><joint name="f2_j2" axis="0 0 1" range="-1.5 1.2"/>
+            <geom name="tip2" type="capsule" fromto="0 0 0 0 -0.035 0" size="0.014" material="tip"/>
+            <site name="tip2_site" pos="0 -0.035 0" size="0.004"/>
+          </body>
+        </body>
+      </body>
+    </body>
+    <!-- Mount at hang tip; hinge axis world -Z = rod long axis after Ry90. -->
+    <body name="rod_mount" pos="0 -0.05 0.07">
+      <geom type="sphere" size="0.004" rgba="0.4 0.4 0.4 0.3" contype="0" conaffinity="0"/>
+      <body name="rod" pos="0 0 0" quat="0.7071068 0 0.7071068 0">
+        <!-- Local +x is rod long axis; hinge at tip (local -x). -->
+        <joint name="rod_hinge" type="hinge" pos="-0.07 0 0" axis="1 0 0" damping="0.02" armature="0.001"/>
+        <geom name="rod_geom" type="capsule" fromto="-0.07 0 0 0.07 0 0" size="0.01" density="350" material="rodmat"/>
+        <site name="rod_tip" pos="-0.07 0 0" size="0.005" rgba="1 1 0 1"/>
+        <site name="rod_axis_mark" pos="0 0.009 0" size="0.004" rgba="0 0 0 1"/>
+      </body>
+    </body>
+    <site name="tip_target" pos="0 -0.05 0.07" size="0.007" rgba="1 0 1 0.45"/>
+  </worldbody>
+  <actuator>
+    <position name="a0" joint="f0_j0"/><position name="a1" joint="f0_j1"/><position name="a2" joint="f0_j2"/>
+    <position name="a3" joint="f1_j0"/><position name="a4" joint="f1_j1"/><position name="a5" joint="f1_j2"/>
+    <position name="a6" joint="f2_j0"/><position name="a7" joint="f2_j1"/><position name="a8" joint="f2_j2"/>
+  </actuator>
+  <sensor>
+    <touch name="touch0" site="tip0_site"/><touch name="touch1" site="tip1_site"/><touch name="touch2" site="tip2_site"/>
+    <framepos name="rod_tip_pos" objtype="site" objname="rod_tip"/>
+    <framequat name="rod_quat" objtype="body" objname="rod"/>
+    <framelinvel name="rod_linvel" objtype="body" objname="rod"/>
+    <frameangvel name="rod_angvel" objtype="body" objname="rod"/>
+    <jointpos name="rod_hinge_pos" joint="rod_hinge"/>
+    <jointvel name="rod_hinge_vel" joint="rod_hinge"/>
+  </sensor>
+</mujoco>

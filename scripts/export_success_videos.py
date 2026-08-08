@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 from stable_baselines3 import PPO
+from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 from allegro_rod_mvp import RodRotationEnv
 
@@ -29,7 +30,33 @@ def _write_mp4(path: Path, frames: list[np.ndarray], fps: int) -> None:
         print(f"mp4 encode failed; wrote {gif_path} instead")
 
 
-def rollout_episode(model: PPO, env: RodRotationEnv, seed: int) -> dict:
+def _make_env(args: argparse.Namespace) -> RodRotationEnv:
+    return RodRotationEnv(
+        render_mode="rgb_array",
+        curriculum_stage=args.stage,
+        episode_seconds=args.episode_seconds,
+        tip_connect_solref=args.tip_connect_solref,
+        tip_connect_enabled=args.tip_connect_enabled,
+        axis_stabilizer_scale=args.axis_stabilizer_scale,
+        axis_tilt_penalty_weight=args.axis_tilt_penalty_weight,
+        axis_tilt_recovery_scale=args.axis_tilt_recovery_scale,
+        rotation_reward_scale=args.rotation_reward_scale,
+        contact_reward_mode=args.contact_reward_mode,
+        three_contact_reward=args.three_contact_reward,
+        contact_window_steps=args.contact_window_steps,
+        contact_window_threshold=args.contact_window_threshold,
+        physics_mode=args.physics,
+        reward_style=args.reward_style,
+        omega_success_threshold=args.omega_success_threshold,
+        omega_success_hold_seconds=args.omega_success_hold_seconds,
+        dexscrew_tilt_scale=args.dexscrew_tilt_scale,
+        rod_mass_scale=args.rod_mass_scale,
+        rod_friction_cap=args.rod_friction_cap,
+        tilt_terminate_rad=args.tilt_terminate_rad,
+    )
+
+
+def rollout_episode(model: PPO, env: RodRotationEnv, seed: int, vecnorm: VecNormalize | None = None) -> dict:
     obs, _ = env.reset(seed=seed)
     frames: list[np.ndarray] = []
     infos: list[dict] = []
@@ -39,7 +66,10 @@ def rollout_episode(model: PPO, env: RodRotationEnv, seed: int) -> dict:
         frame = env.render()
         if frame is not None:
             frames.append(np.asarray(frame))
-        action, _ = model.predict(obs, deterministic=True)
+        model_obs = obs
+        if vecnorm is not None:
+            model_obs = vecnorm.normalize_obs(np.asarray(obs, dtype=np.float32).reshape(1, -1))[0]
+        action, _ = model.predict(model_obs, deterministic=True)
         obs, _, terminated, truncated, info = env.step(action)
         infos.append(info)
     # Final frame.
@@ -52,8 +82,12 @@ def rollout_episode(model: PPO, env: RodRotationEnv, seed: int) -> dict:
         "info": info,
         "axis_rotation_deg": float(info.get("axis_rotation_deg", 0.0)),
         "tip_error_m": float(info.get("tip_error_m", 0.0)),
+        "omega_hold_satisfied": bool(info.get("omega_hold_satisfied", False)),
         "is_success": bool(info.get("is_success", False)),
         "dropped": bool(terminated),
+        "termination_reason": str(info.get("termination_reason", "none")),
+        "axis_tilt_deg": float(info.get("axis_tilt_deg", 0.0)),
+        "num_steps": len(infos),
         "peak_rotation_deg": float(max((i.get("axis_rotation_deg", 0.0) for i in infos), default=0.0)),
     }
 
@@ -84,6 +118,20 @@ def main() -> int:
     parser.add_argument("--contact-window-steps", type=int, default=0)
     parser.add_argument("--contact-window-threshold", type=float, default=0.0)
     parser.add_argument("--fps", type=int, default=25)
+    parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
+    parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
+    parser.add_argument("--omega-success-threshold", type=float, default=0.5)
+    parser.add_argument("--omega-success-hold-seconds", type=float, default=10.0)
+    parser.add_argument("--dexscrew-tilt-scale", type=float, default=None)
+    parser.add_argument("--rod-mass-scale", type=float, default=1.0)
+    parser.add_argument("--rod-friction-cap", type=float, default=4.0)
+    parser.add_argument("--tilt-terminate-rad", type=float, default=0.7)
+    parser.add_argument(
+        "--vecnormalize",
+        type=str,
+        default=None,
+        help="Optional VecNormalize .pkl used during training.",
+    )
     parser.add_argument(
         "--min-rotation-deg",
         type=float,
@@ -95,35 +143,28 @@ def main() -> int:
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    env = RodRotationEnv(
-        render_mode="rgb_array",
-        curriculum_stage=args.stage,
-        episode_seconds=args.episode_seconds,
-        tip_connect_solref=args.tip_connect_solref,
-        tip_connect_enabled=args.tip_connect_enabled,
-        axis_stabilizer_scale=args.axis_stabilizer_scale,
-        axis_tilt_penalty_weight=args.axis_tilt_penalty_weight,
-        axis_tilt_recovery_scale=args.axis_tilt_recovery_scale,
-        rotation_reward_scale=args.rotation_reward_scale,
-        contact_reward_mode=args.contact_reward_mode,
-        three_contact_reward=args.three_contact_reward,
-        contact_window_steps=args.contact_window_steps,
-        contact_window_threshold=args.contact_window_threshold,
-    )
+    env = _make_env(args)
     model = PPO.load(args.model, device="cpu")
+    vecnorm: VecNormalize | None = None
+    if args.vecnormalize:
+        dummy = DummyVecEnv([lambda: _make_env(args)])
+        vecnorm = VecNormalize.load(args.vecnormalize, dummy)
+        vecnorm.training = False
+        vecnorm.norm_reward = False
 
     successes: list[dict] = []
     candidates: list[dict] = []
 
     for i in range(args.search_episodes):
         seed = args.seed + i
-        ep = rollout_episode(model, env, seed)
+        ep = rollout_episode(model, env, seed, vecnorm=vecnorm)
         # Drop heavy frame payload from candidate ranking copies later.
         meta = {k: v for k, v in ep.items() if k != "frames"}
         print(
             f"seed={seed:4d} rot={meta['axis_rotation_deg']:7.1f}° "
             f"peak={meta['peak_rotation_deg']:7.1f}° tip={meta['tip_error_m']:.4f} "
-            f"success={meta['is_success']} dropped={meta['dropped']}",
+            f"hold={meta['omega_hold_satisfied']} success={meta['is_success']} "
+            f"dropped={meta['dropped']}",
             flush=True,
         )
         if meta["is_success"]:
@@ -150,26 +191,10 @@ def main() -> int:
     if not selected:
         # Absolute fallback: best rotations regardless of tip threshold.
         print("No success/near-success found; exporting top rotations instead.", flush=True)
-        # Re-roll a small set keeping frames — search already discarded non-selected frames.
-        # Re-run ranked by a fresh sweep storing only top-k frames.
-        env = RodRotationEnv(
-            render_mode="rgb_array",
-            curriculum_stage=args.stage,
-            episode_seconds=args.episode_seconds,
-            tip_connect_solref=args.tip_connect_solref,
-            tip_connect_enabled=args.tip_connect_enabled,
-            axis_stabilizer_scale=args.axis_stabilizer_scale,
-            axis_tilt_penalty_weight=args.axis_tilt_penalty_weight,
-            axis_tilt_recovery_scale=args.axis_tilt_recovery_scale,
-            rotation_reward_scale=args.rotation_reward_scale,
-            contact_reward_mode=args.contact_reward_mode,
-            three_contact_reward=args.three_contact_reward,
-            contact_window_steps=args.contact_window_steps,
-            contact_window_threshold=args.contact_window_threshold,
-        )
+        env = _make_env(args)
         ranked: list[dict] = []
         for i in range(min(args.search_episodes, 40)):
-            ep = rollout_episode(model, env, args.seed + i)
+            ep = rollout_episode(model, env, args.seed + i, vecnorm=vecnorm)
             ranked.append(ep)
         env.close()
         ranked.sort(key=lambda e: e["axis_rotation_deg"], reverse=True)
@@ -178,7 +203,13 @@ def main() -> int:
     manifest = []
     for idx, ep in enumerate(selected):
         tag = "success" if ep["is_success"] else "best"
-        fname = f"stage{args.stage}_{tag}_{idx:02d}_seed{ep['seed']}_rot{ep['axis_rotation_deg']:.0f}deg.mp4"
+        fname = (
+            f"{args.physics}_{tag}_{idx:02d}_seed{ep['seed']}"
+            f"_rot{ep['axis_rotation_deg']:.0f}deg"
+            f"_tilt{ep.get('axis_tilt_deg', 0):.0f}deg"
+            f"_steps{ep.get('num_steps', 0)}"
+            f"_{ep.get('termination_reason', 'none')}.mp4"
+        )
         path = out_dir / fname
         _write_mp4(path, ep["frames"], fps=args.fps)
         entry = {
@@ -187,6 +218,7 @@ def main() -> int:
             "axis_rotation_deg": ep["axis_rotation_deg"],
             "peak_rotation_deg": ep["peak_rotation_deg"],
             "tip_error_m": ep["tip_error_m"],
+            "omega_hold_satisfied": ep.get("omega_hold_satisfied", False),
             "is_success": ep["is_success"],
             "dropped": ep["dropped"],
             "num_frames": len(ep["frames"]),

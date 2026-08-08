@@ -1,0 +1,26 @@
+# EXP-A0: Arm A revolute + DexScrew ω reward (no tilt term)
+run_template: arm_a_revolute
+physics: revolute
+reward_style: dexscrew
+privileged_obs: false
+axis_stabilizer_scale: 0
+tip_connect_enabled: false
+dexscrew:
+  rotate_scale: 2.5
+  prox_scale: 2.0
+  pose_scale: 0.1
+  energy_scale: 0.05
+  excess_scale: 0.1
+  tilt_scale: 0.0
+  tip_penalty_scale: 0.5
+success:
+  omega_threshold: 0.5   # rad/s
+  hold_seconds: 10.0
+train:
+  num_envs: 8
+  n_steps: 256
+  batch_size: 256
+  steps: 200000
+  ent_coef: 0.0
+  net_arch: [512, 256, 128]
+  device: cuda

@@ -1,56 +1,32 @@
 # Project State
 
 ## Current Objective
-Establish a learnable Stage 0 three-contact curriculum after the hard rolling contact gate failed from the current reset distribution.
+Mass–friction curriculum (s=400→1 auto). Hypothesis: s=40 still too light vs finger force; start heavier so tip-connect episodes survive long enough to learn tilt rejection.
 
-## Current Best Result
-Assisted Stage 1 with stabilizer 1.0 and spatial finger 2: 269.30° rotation, 18.86 mm tip error, success 0.90, drop 0.05.
+## Progress snapshot (2026-08-08)
+| Step | Status | Notes |
+|---|---|---|
+| Env `--rod-mass-scale` + μ×s | done | then capped via `--rod-friction-cap` (default 4) |
+| Tip solref ∝ 1/√s | done | stiffer tip when heavy |
+| Curriculum driver | done | `scripts/run_mass_friction_curriculum.py` |
+| C0/C1 s=40 soft tilt 1.2 | **fail gate** | ep_len~20–90 then collapse; videos all `axis_tilt` ~70° |
+| C0/C1 s=400 soft tilt 1.2 smoke | **running** | `20260808-0124-...` |
+
+## Qualitative preference (video inspect)
+Mass-curriculum tip gaits (esp. soft-tilt **C4** `20260808-0115-...-C4-retry3`) look **closer to the desired behavior** than prior Arm A→B / B2 transfers: **two fingers cooperating** on the rod, not a one-finger thrash. Prefer this curriculum path even though s=40 did not pass gates — next lever is **heavier start (s=400)** to keep that gait surviving longer.
 
 ## Best Checkpoint
-- Stage 1: `runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip`
-- Assisted Stage 1 spatial-finger: `runs/20260724-2130-spatial-stage1-stabilizer1-train-seed0/checkpoints/ppo_rod_65600_steps.zip`
-- Stage 2 baseline videos: `runs/20260723-1200-stage2-tip-joint-no-axis-stabilizer/videos/`
+- Qualitative ref videos: `runs/20260808-0115-massfric-s40-smoke-softTilt12-C4-retry3-tip-s40-subproc8/videos/final/`
+- Prior C0 s=40 (ladder obsolete): `runs/20260808-0052-massfric-s40-smoke-C0-revolute-s40-subproc8/checkpoints/final_model.zip`
+- Track: `runs/curricula/<id>/CURRICULUM_PROGRESS.md`
 
 ## Active Configuration
-- Stage 0: tip connect `solref=0.008` + axis stabilizer 1.0
-- Stage 1 best: tip connect on, `solref=0.10`, stabilizer 0.15, tilt weight 0.10, rotation scale 160, 2x512
-- Stage 2: tip connect on (`solref=0.10`, ball/universal joint), stabilizer 0, mass/friction randomization on
-
-## What Is Working
-Stage 0; Stage 1 assist fade through stabilizer 0.15; function-preserving 2x256→2x512 expansion; explicit tip-joint/stabilizer/reward CLI parameters; dense checkpoint selection; representative videos.
+- C0/C1 start **s=400**; anneal `s/=√2`; μ = min(s, 4)×baseline; tip solref /= √s
+- Tip curriculum default `--tilt-terminate-rad 1.2` (vs old 0.7)
+- DexScrew ω-hold; no adaptive reward-mass in this series
 
 ## Known Problems
-- The 20-step/+5 contact gate works mechanically, but fresh Stage 0 PPO never contacts with finger2 and terminates before discovering three-contact support.
-- Corrected Stage 2 baseline has 20/20 axis-tilt terminations, mean rotation 1.13°, mean tilt 41.32°, while endpoint error remains only 4.03 mm.
-- Under Stage 2 randomization, stabilizer 0.10 retains 176.55°/5.57 mm/drop 0, but 0.08 falls to 132.42°/13.31 mm/drop 0.40.
-- Continued training can regress; final checkpoint is not reliably best.
-
-## Current Hypotheses
-The dominant failure is a nonlinear curriculum cliff between stabilizer 0.10 and 0.08, not Stage 2 randomization. Stronger absolute tilt punishment and clipped local recovery shaping do not bridge it.
-
-New ideas to test (recorded 2026-07-24, NOT yet verified):
-- H-A (single-finger cause): The policy may rotate the rod using effectively one finger, which pushes the rod off-axis and induces the Stage 2 axis tilt. Proposed fix: a reward requiring all three fingertips to hold positive contact simultaneously so the fingers work together. See EXP-20260724-001. Verify the single-finger premise on existing checkpoints (per-fingertip contact logging) before training.
-- H-B (stabilizer dependence / transfer value): Stage 1 uses the axis stabilizer but Stage 2 does not, so Stage 1 pretraining might teach reliance on external orientation torque and could be neutral or harmful for stabilizer-free Stage 2. Open question whether Stage 0/1 pretraining actually benefits Stage 2. Assumption only; deferred to later verification. See EXP-20260724-002.
-- H-C resolved and corrected: `f2_j0` now uses a nonparallel local-X axis before two distal local-Z axes. Finger 2 reaches the rod and settled three-contact grasps were verified on seeds 0–2. See DBG-20260724-001 and EXP-20260724-005.
-
-## Most Recent Experiment
-EXP-20260724-010 `20260724-2230-stage0-contact-gate-seed0`: the 20-step/+5 gate produced 0% three-contact occupancy and 0% success at every checkpoint. The best checkpoint (20k) reached 149.93° with 17/20 contact-gate terminations.
+s=40 tip-connect still dies on hard tilt kill under transferred revolute policy; videos show brief spin then tip-over — but gait quality is encouraging.
 
 ## Next Recommended Experiment
-Initialize Stage 0 from the verified settled three-contact grasp and delay gate activation with an explicit grace period. Keep the +30 reward and 20-step/+5 gate fixed so initialization is the only important factor changed.
-
-Reference methods note (2026-07-30): DexScrew cloned to `references/dexscrew/` (gitignored). Comparison: `reports/comparisons/dexscrew_vs_allegro_rod_mvp.md`. Their sim rotation uses a hard revolute joint; headline real results are BC+tactile, not free-object RL (FIND-20260730-001). Optional later ablation: MuJoCo revolute-rod vs tip-connect Stage 0.
-
-Queued ideas (unverified, recorded 2026-07-24):
-1. Diagnose per-fingertip contact on existing checkpoints to confirm/refute the single-finger premise, then add a three-finger simultaneous-contact reward (EXP-20260724-001).
-2. Compare stabilizer-pretrained vs less-/non-stabilizer Stage 2 to test whether Stage 0/1 pretraining helps Stage 2 (EXP-20260724-002).
-
-## Blocked Items
-None.
-
-## Important Commands
-```bash
-source .venv/bin/activate
-python scripts/eval_policy.py checkpoints/stage0/final_model.zip --stage 0
-python scripts/eval_policy.py runs/20260723-0900-capacity512-stab015-tiltw010-rot160-seed0/checkpoints/final_model.zip --stage 2 --tip-connect --tip-connect-solref 0.10 --axis-stabilizer-scale 0 --axis-tilt-penalty-weight 0.10 --rotation-reward-scale 160
-```
+Smoke C0→C1 at s=400; if ep_len ≫ 40 and tilt_frac drops, run full auto ladder toward s=1.
