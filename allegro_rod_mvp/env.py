@@ -55,6 +55,7 @@ class RodRotationEnv(gym.Env):
         three_contact_reward: float = 10.0,
         contact_window_steps: int = 0,
         contact_window_threshold: float = 0.0,
+        three_contact_required: bool = False,
         physics_mode: str = "tip_connect",
         reward_style: str = "stage",
         privileged_obs: bool = False,
@@ -125,6 +126,7 @@ class RodRotationEnv(gym.Env):
         if self.contact_window_steps < 0:
             raise ValueError("contact_window_steps must be non-negative")
         self.contact_window_threshold = float(contact_window_threshold)
+        self.three_contact_required = bool(three_contact_required)
         self.dexscrew_cfg = DexScrewRewardConfig(
             rotate_scale=float(dexscrew_rotate_scale),
             prox_scale=float(dexscrew_prox_scale),
@@ -234,26 +236,40 @@ class RodRotationEnv(gym.Env):
 
         XML default is top hang. Bottom tip is an inverted pendulum under gravity;
         intended for heavy-mass curriculum then soft tip (C5) transfer.
+
+        Finger0/1 are planar (all joints about world Z) with tips fixed at z≈0.035.
+        Tip-connect bottom hangs tip at z=-0.07 so the rod spans [-0.07, +0.07] and
+        intersects that plane. Revolute mount must sit at the rod COM (not the tip)
+        so bottom revolute matches that span — mounting at the tip shoved the rod
+        entirely below z=0 and made finger0/1 unreachable.
         """
         local_x = -0.07 if self.tip_anchor == "top" else 0.07
-        world_z = 0.07 if self.tip_anchor == "top" else -0.07
+        # World-frame tip attach (tip-connect equality / tip_target marker).
+        tip_world_z = 0.07 if self.tip_anchor == "top" else -0.07
         tip_local = np.array([local_x, 0.0, 0.0], dtype=np.float64)
-        world_tip = np.array([0.0, -0.05, world_z], dtype=np.float64)
+        tip_world = np.array([0.0, -0.05, tip_world_z], dtype=np.float64)
+        # Local +x maps to world -Z under the scene Ry90 quat.
+        local_x_world = np.array([0.0, 0.0, -1.0], dtype=np.float64)
 
         if self.tip_site >= 0:
             self.model.site_pos[self.tip_site] = tip_local
         tip_target = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "tip_target")
         if tip_target >= 0:
-            self.model.site_pos[tip_target] = world_tip
+            self.model.site_pos[tip_target] = tip_world
         if self.eq_id >= 0:
-            # connect: body1 anchor (local) then world/body2 attach point
+            # connect: body1 anchor (local) then world attach point
             self.model.eq_data[self.eq_id, 0:3] = tip_local
-            self.model.eq_data[self.eq_id, 3:6] = world_tip
+            self.model.eq_data[self.eq_id, 3:6] = tip_world
         if self.hinge_id >= 0:
             self.model.jnt_pos[self.hinge_id] = tip_local
             mount = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "rod_mount")
             if mount >= 0:
-                self.model.body_pos[mount] = world_tip
+                if self.tip_anchor == "top":
+                    # Legacy: mount at tip_target; hinge tip lands above COM (z≈0.14).
+                    self.model.body_pos[mount] = tip_world
+                else:
+                    # tip_world = mount_pos + local_x * local_x_world  →  mount = tip - local_x*(-Z)
+                    self.model.body_pos[mount] = tip_world - local_x * local_x_world
 
     def _friction_scale(self) -> float:
         return min(float(self.rod_mass_scale), float(self.rod_friction_cap))
@@ -645,7 +661,12 @@ class RodRotationEnv(gym.Env):
             self.contact_reward_mode,
             self.three_contact_reward,
         )
-        self.contact_reward_history.append(contact_bonus)
+        # Hard support gate: with three_contact_required, track fraction of 3-contact steps;
+        # otherwise keep legacy rolling sum of contact-bonus values.
+        gate_sample = (
+            1.0 if contact_count >= 3 else 0.0
+        ) if self.three_contact_required else float(contact_bonus)
+        self.contact_reward_history.append(gate_sample)
         contact_gate_ready, contact_gate_satisfied, contact_reward_window_sum = (
             self._contact_gate_status(
                 self.contact_reward_history,
@@ -666,6 +687,13 @@ class RodRotationEnv(gym.Env):
                 axis_tilt=axis_tilt,
                 cfg=self.dexscrew_cfg,
             )
+            # Dense three-finger contact was never added into DexScrew reward before.
+            reward = float(reward + contact_bonus)
+            if self.three_contact_required and contact_count < 3:
+                # No rotation credit without a supporting three-finger grasp.
+                reward = float(reward - dex_comp["reward_rotation"])
+                dex_comp = dict(dex_comp)
+                dex_comp["reward_rotation"] = 0.0
             self._last_mass_stats = self.adaptive_mass.update(dex_comp, self.dexscrew_cfg)
             rotation_reward = dex_comp["reward_rotation"]
             tip_penalty = -dex_comp["reward_tip_penalty"]
@@ -680,6 +708,8 @@ class RodRotationEnv(gym.Env):
         else:
             # Positive axial progress dominates; tip drift and unstable actions are penalties.
             rotation_reward = np.clip(dtheta, 0.0, 0.25) * self.rotation_reward_scale
+            if self.three_contact_required and contact_count < 3:
+                rotation_reward = 0.0
             tip_sigma = [0.035, 0.022, 0.012][min(self.curriculum_stage, 2)]
             tip_penalty = float(np.clip((tip_error / tip_sigma) ** 2, 0.0, 25.0))
             axis_tilt_sigma = [0.20, 0.10, 0.06][min(self.curriculum_stage, 2)]  # rad
@@ -795,6 +825,7 @@ class RodRotationEnv(gym.Env):
             "reward_lateral_omega_penalty": float(-lateral_omega_penalty),
             "reward_contact_bonus": float(contact_bonus),
             "contact_reward_mode": self.contact_reward_mode,
+            "three_contact_required": self.three_contact_required,
             "contact_reward_window_sum": contact_reward_window_sum,
             "contact_gate_ready": contact_gate_ready,
             "contact_gate_satisfied": contact_gate_satisfied,

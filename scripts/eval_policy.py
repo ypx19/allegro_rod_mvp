@@ -32,6 +32,7 @@ def evaluate(
     three_contact_reward: float = 10.0,
     contact_window_steps: int = 0,
     contact_window_threshold: float = 0.0,
+    three_contact_required: bool = False,
     physics_mode: str = "tip_connect",
     reward_style: str = "stage",
     privileged_obs: bool = False,
@@ -61,6 +62,7 @@ def evaluate(
             three_contact_reward=three_contact_reward,
             contact_window_steps=contact_window_steps,
             contact_window_threshold=contact_window_threshold,
+            three_contact_required=three_contact_required,
             physics_mode=physics_mode,
             reward_style=reward_style,
             privileged_obs=privileged_obs,
@@ -250,6 +252,7 @@ def main() -> int:
     parser.add_argument("--three-contact-reward", type=float, default=10.0)
     parser.add_argument("--contact-window-steps", type=int, default=0)
     parser.add_argument("--contact-window-threshold", type=float, default=0.0)
+    parser.add_argument("--three-contact-required", action="store_true")
     parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
     parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
     parser.add_argument("--privileged-obs", action="store_true")
@@ -292,6 +295,7 @@ def main() -> int:
         args.three_contact_reward,
         args.contact_window_steps,
         args.contact_window_threshold,
+        three_contact_required=args.three_contact_required,
         physics_mode=args.physics,
         reward_style=args.reward_style,
         privileged_obs=args.privileged_obs,

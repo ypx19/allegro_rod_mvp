@@ -45,6 +45,7 @@ def _make_env(args: argparse.Namespace) -> RodRotationEnv:
         three_contact_reward=args.three_contact_reward,
         contact_window_steps=args.contact_window_steps,
         contact_window_threshold=args.contact_window_threshold,
+        three_contact_required=args.three_contact_required,
         physics_mode=args.physics,
         reward_style=args.reward_style,
         omega_success_threshold=args.omega_success_threshold,
@@ -120,6 +121,11 @@ def main() -> int:
     parser.add_argument("--three-contact-reward", type=float, default=10.0)
     parser.add_argument("--contact-window-steps", type=int, default=0)
     parser.add_argument("--contact-window-threshold", type=float, default=0.0)
+    parser.add_argument(
+        "--three-contact-required",
+        action="store_true",
+        help="Match training: no rotation credit and hard 3-contact window gate.",
+    )
     parser.add_argument("--fps", type=int, default=25)
     parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
     parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")

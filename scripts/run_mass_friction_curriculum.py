@@ -54,6 +54,11 @@ def run_train(
     tip_hard_constraint: bool = True,
     tip_penalty_scale: float = 0.5,
     tip_sigma: float = 0.025,
+    contact_reward_mode: str = "linear",
+    three_contact_reward: float = 10.0,
+    contact_window_steps: int = 0,
+    contact_window_threshold: float = 0.0,
+    three_contact_required: bool = False,
 ) -> Path:
     cmd = [
         str(PY),
@@ -78,6 +83,14 @@ def run_train(
         str(tip_penalty_scale),
         "--dexscrew-tip-sigma",
         str(tip_sigma),
+        "--contact-reward-mode",
+        contact_reward_mode,
+        "--three-contact-reward",
+        str(three_contact_reward),
+        "--contact-window-steps",
+        str(contact_window_steps),
+        "--contact-window-threshold",
+        str(contact_window_threshold),
         "--omega-success-threshold",
         "0.5",
         "--omega-success-hold-seconds",
@@ -101,6 +114,8 @@ def run_train(
         "--notes",
         notes,
     ]
+    if three_contact_required:
+        cmd += ["--three-contact-required"]
     if physics == "revolute":
         cmd += ["--no-tip-connect", "--dexscrew-tilt-scale", "0"]
     elif tip_hard_constraint:
@@ -171,6 +186,11 @@ def eval_gate(
     tip_hard_constraint: bool = True,
     tip_penalty_scale: float = 0.5,
     tip_sigma: float = 0.025,
+    contact_reward_mode: str = "linear",
+    three_contact_reward: float = 10.0,
+    contact_window_steps: int = 0,
+    contact_window_threshold: float = 0.0,
+    three_contact_required: bool = False,
 ) -> dict:
     vn = model.parent / "vecnormalize.pkl"
     cmd = [
@@ -195,6 +215,14 @@ def eval_gate(
         str(tip_penalty_scale),
         "--dexscrew-tip-sigma",
         str(tip_sigma),
+        "--contact-reward-mode",
+        contact_reward_mode,
+        "--three-contact-reward",
+        str(three_contact_reward),
+        "--contact-window-steps",
+        str(contact_window_steps),
+        "--contact-window-threshold",
+        str(contact_window_threshold),
         "--omega-success-threshold",
         "0.5",
         "--omega-success-hold-seconds",
@@ -208,6 +236,8 @@ def eval_gate(
         "--out",
         str(out),
     ]
+    if three_contact_required:
+        cmd += ["--three-contact-required"]
     if vn.exists():
         cmd += ["--vecnormalize", str(vn)]
     if physics == "revolute":
@@ -343,10 +373,36 @@ def main() -> int:
     )
 
     s0 = float(args.start_scale)
+    # Bottom tip is an inverted pendulum: enforce 3-finger contact (dense + hard window).
+    if args.tip_anchor == "bottom":
+        contact_kwargs = dict(
+            contact_reward_mode="discrete",
+            three_contact_reward=3.0,
+            contact_window_steps=25,  # 1 s @ 25 Hz
+            contact_window_threshold=18.0,  # ≥72% of window must be 3-contact
+            three_contact_required=True,
+        )
+    else:
+        contact_kwargs = dict(
+            contact_reward_mode="linear",
+            three_contact_reward=10.0,
+            contact_window_steps=0,
+            contact_window_threshold=0.0,
+            three_contact_required=False,
+        )
+    write_progress(
+        curr_dir,
+        f"- contact: mode={contact_kwargs['contact_reward_mode']} "
+        f"3touch_rew={contact_kwargs['three_contact_reward']} "
+        f"window={contact_kwargs['contact_window_steps']}/"
+        f"{contact_kwargs['contact_window_threshold']} "
+        f"three_contact_required={contact_kwargs['three_contact_required']}",
+    )
     tip_kwargs = dict(
         friction_cap=args.friction_cap,
         tilt_terminate_rad=args.tilt_terminate_rad,
         tip_anchor=args.tip_anchor,
+        **contact_kwargs,
     )
 
     # ---- C0: heavy revolute ----

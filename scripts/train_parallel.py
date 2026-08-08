@@ -44,6 +44,7 @@ def make_env(
     three_contact_reward: float,
     contact_window_steps: int,
     contact_window_threshold: float,
+    three_contact_required: bool = False,
     physics_mode: str = "tip_connect",
     reward_style: str = "stage",
     privileged_obs: bool = False,
@@ -84,6 +85,7 @@ def make_env(
             three_contact_reward=three_contact_reward,
             contact_window_steps=contact_window_steps,
             contact_window_threshold=contact_window_threshold,
+            three_contact_required=three_contact_required,
             physics_mode=physics_mode,
             reward_style=reward_style,
             privileged_obs=privileged_obs,
@@ -276,6 +278,7 @@ def build_vec_env(
             three_contact_reward=args.three_contact_reward,
             contact_window_steps=args.contact_window_steps,
             contact_window_threshold=args.contact_window_threshold,
+            three_contact_required=args.three_contact_required,
             physics_mode=args.physics,
             reward_style=args.reward_style,
             privileged_obs=args.privileged_obs,
@@ -377,6 +380,7 @@ def write_run_artifacts(
         "three_contact_reward": args.three_contact_reward,
         "contact_window_steps": args.contact_window_steps,
         "contact_window_threshold": args.contact_window_threshold,
+        "three_contact_required": args.three_contact_required,
         "omega_success_threshold": args.omega_success_threshold,
         "omega_success_hold_seconds": args.omega_success_hold_seconds,
         "adaptive_reward_mass": args.adaptive_reward_mass,
@@ -558,6 +562,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--three-contact-reward", type=float, default=10.0)
     parser.add_argument("--contact-window-steps", type=int, default=0)
     parser.add_argument("--contact-window-threshold", type=float, default=0.0)
+    parser.add_argument(
+        "--three-contact-required",
+        action="store_true",
+        help="Require 3-finger contact for rotation credit; hard-gate on a 3-contact window.",
+    )
     parser.add_argument("--learning-rate", type=float, default=None)
     parser.add_argument("--ent-coef", type=float, default=None)
     parser.add_argument("--checkpoint-freq", type=int, default=50_000)

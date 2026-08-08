@@ -1,24 +1,21 @@
 # Project State
 
 ## Current Objective
-Bottom-tip mass curriculum @s=400: C0 revolute → C1–C4 hard tip-connect → **C5 free tip + tip-error reward**. Smoke stops after C5.
+Bottom-tip s=400 smoke with **mandatory three-finger contact** (dense discrete bonus + hard 1s window + no ω credit without 3 contacts).
 
 ## Progress snapshot (2026-08-08)
 | Step | Status | Notes |
 |---|---|---|
-| Top-hang s=400 soft-tilt C4 | **pass (VN)** | success=1.0; preferred two-finger gait |
-| VecNormalize in curriculum eval | fixed | prior gates were false negatives |
-| `tip_anchor=bottom` | done | relocates site/equality/hinge at runtime |
-| C5 free tip + tip reward | done | `--no-tip-connect`, tip_penalty_scale=8, tip_sigma=0.015 |
-| Bottom-tip s=400 smoke C0→C5 | **running** | see `runs/curricula/` |
+| Bottom revolute reach fix | done | rod spans z∈[-0.07,+0.07]; all 3 fingers can touch |
+| C1 without 3-touch gate | **fail** | ep_len~34, tilt_frac=1 |
+| DexScrew contact bonus bug | fixed | bonus was computed but never added |
+| 3-touch required + hard gate | **running** | `20260808-0224-...-3touch-smoke` |
 
-## Active Configuration
-- Tip at **bottom** (inverted pendulum); μ_cap=4; tilt_term=1.2; start **s=400**
-- C5: hard equality off; tip-error reward carries fixed-tip skill
-- Smoke: `--stop-after-c5` (no mass anneal until C5 OK)
-
-## Known Problems
-Historical DBG-002: bottom tip collapses as inverted pendulum at light mass — heavy s + soft tilt kill is the hypothesized fix.
+## Active Configuration (bottom tip)
+- `contact_reward_mode=discrete`, `three_contact_reward=3.0`
+- window 25 / thresh 18 (≥72% 3-contact or `contact_support` kill)
+- `three_contact_required`: strip rotation reward if contacts < 3
+- C0→C1 hard tip → C5 free tip; smoke stops after C5
 
 ## Next Recommended Experiment
-If bottom C5 passes smoke, full budget + anneal free tip toward s=1.
+Watch whether C0 learns sustained 3-contact before tip transfer.
