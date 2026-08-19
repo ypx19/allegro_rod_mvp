@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rod Rotation MVP — Research Demo</title>
+  <meta name="description" content="DexScrew-style RL for three-finger rod rotation in MuJoCo: successes, failure modes, and ablations." />
+  <meta name="theme-color" content="#0c1218" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c1218;
+      --bg-elev: #141c26;
+      --bg-soft: #1a2533;
+      --ink: #e8eef4;
+      --muted: #8b9aab;
+      --line: rgba(232, 238, 244, 0.12);
+      --accent: #e8a54b;
+      --accent-dim: rgba(232, 165, 75, 0.16);
+      --ok: #5cb8a0;
+      --ok-dim: rgba(92, 184, 160, 0.14);
+      --bad: #c45c48;
+      --bad-dim: rgba(196, 92, 72, 0.14);
+      --warn: #d4a017;
+      --max: 1080px;
+      --radius: 14px;
+      --font-display: "Fraunces", Georgia, serif;
+      --font-body: "Sora", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(232, 165, 75, 0.12), transparent 55%),
+        radial-gradient(900px 500px at -10% 20%, rgba(92, 184, 160, 0.08), transparent 50%),
+        linear-gradient(180deg, #0a1016 0%, var(--bg) 40%, #0e1620 100%);
+      line-height: 1.55;
+      font-size: 16px;
+    }
+
+    a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { color: #f0c27a; }
+
+    .wrap { width: min(var(--max), calc(100% - 2.5rem)); margin-inline: auto; }
+
+    /* —— Hero —— */
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      align-content: end;
+      position: relative;
+      overflow: hidden;
+      padding: 1.25rem 0 3.5rem;
+    }
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .hero-media video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(0.92) contrast(1.05);
+      transform: scale(1.02);
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    .hero-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(12,18,24,0.35) 0%, rgba(12,18,24,0.55) 40%, rgba(12,18,24,0.92) 100%),
+        linear-gradient(90deg, rgba(12,18,24,0.75) 0%, transparent 55%);
+    }
+    @keyframes drift {
+      from { transform: scale(1.02) translateY(0); }
+      to { transform: scale(1.06) translateY(-1.5%); }
+    }
+
+    @media (max-width: 720px) {
+      .hero-media {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+    .brand {
+      font-family: var(--font-display);
+      font-size: clamp(2.6rem, 7vw, 4.6rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+      margin: 0 0 1rem;
+      max-width: 14ch;
+      animation: rise 0.9s ease both;
+    }
+    .hero h1 {
+      font-family: var(--font-body);
+      font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+      font-weight: 500;
+      margin: 0 0 0.75rem;
+      max-width: 36ch;
+      color: var(--ink);
+      animation: rise 0.9s ease 0.08s both;
+    }
+    .lede {
+      color: var(--muted);
+      max-width: 42ch;
+      margin: 0 0 1.5rem;
+      animation: rise 0.9s ease 0.16s both;
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      animation: rise 0.9s ease 0.24s both;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 0.72rem 1.15rem;
+      font: inherit;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #1a1208; }
+    .btn-primary:hover { background: #f0c27a; color: #1a1208; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    .btn-ghost:hover { border-color: var(--muted); color: var(--ink); }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* —— Chrome —— */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(12, 18, 24, 0.72);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.7rem 0;
+    }
+    .topbar .mark {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem 1.1rem;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+    .nav a { color: inherit; text-decoration: none; }
+    .nav a:hover { color: var(--accent); }
+
+    section {
+      padding: 4.25rem 0 1rem;
+      scroll-margin-top: 4rem;
+    }
+    section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 3.5vw, 2.25rem);
+      letter-spacing: -0.02em;
+      margin: 0 0 0.55rem;
+      font-weight: 700;
+    }
+    .section-lead {
+      color: var(--muted);
+      max-width: 62ch;
+      margin: 0 0 1.75rem;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* —— Cards / grids —— */
+    .grid-2 {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 820px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .nav { display: none; }
+    }
+
+    .callout {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.25rem;
+    }
+    .callout strong { color: var(--accent); }
+
+    .tldr {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .tldr article {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.15rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .tldr article::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--accent);
+    }
+    .tldr h3 {
+      margin: 0 0 0.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .tldr p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+    /* —— Pipeline —— */
+    .pipeline {
+      display: grid;
+      gap: 0.65rem;
+    }
+    .pipe-step {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.85rem;
+      align-items: center;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+    }
+    .pipe-id {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 2.2rem;
+    }
+    .pipe-step p { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.86rem; }
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.55rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .badge-ok { background: var(--ok-dim); color: var(--ok); }
+    .badge-bad { background: var(--bad-dim); color: #e08a7a; }
+    .badge-mid { background: rgba(212, 160, 23, 0.16); color: #e0be55; }
+
+    /* —— Gallery —— */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .chip {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 0.45rem 0.85rem;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .chip[aria-pressed="true"] {
+      background: var(--accent-dim);
+      border-color: rgba(232, 165, 75, 0.45);
+      color: var(--accent);
+    }
+
+    .gallery {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .clip {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .clip:hover { border-color: rgba(232, 165, 75, 0.35); transform: translateY(-2px); }
+    .clip[hidden] { display: none !important; }
+    .clip video {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      background: #000;
+      display: block;
+    }
+    .clip-body { padding: 0.95rem 1.05rem 1.15rem; flex: 1; }
+    .clip-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.45rem;
+    }
+    .clip h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+    .clip p { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.88rem; }
+
+    /* —— Tables —— */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--bg-elev);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      min-width: 640px;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 500;
+      background: rgba(255,255,255,0.02);
+    }
+    tr:last-child td { border-bottom: 0; }
+    td.ok { color: var(--ok); }
+    td.bad { color: #e08a7a; }
+    td.mid { color: #e0be55; }
+
+    /* —— Modes —— */
+    .modes { display: grid; gap: 0.85rem; }
+    .mode {
+      display: grid;
+      grid-template-columns: 7rem 1fr;
+      gap: 1rem;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+    }
+    @media (max-width: 640px) {
+      .mode { grid-template-columns: 1fr; }
+    }
+    .mode-tag {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--bad);
+    }
+    .mode h3 { margin: 0 0 0.3rem; font-size: 0.98rem; }
+    .mode p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+    .compare {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 820px) { .compare { grid-template-columns: 1fr; } }
+    .compare .panel {
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background: var(--bg-elev);
+    }
+    .compare .panel header {
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .panel.ok header { background: var(--ok-dim); color: var(--ok); }
+    .panel.bad header { background: var(--bad-dim); color: #e08a7a; }
+    .compare video {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+    .compare .panel p {
+      margin: 0;
+      padding: 0.85rem 1rem 1.05rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    footer {
+      margin-top: 3.5rem;
+      padding: 2rem 0 3rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+    footer .footer-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    /* —— Top-hang D0–D4 ladder —— */
+    .dof-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 720px) { .dof-banner { grid-template-columns: 1fr; } }
+    .dof-card {
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--bg-elev);
+      padding: 1.05rem 1.15rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .dof-card.high {
+      border-color: rgba(232, 165, 75, 0.45);
+      background:
+        linear-gradient(135deg, rgba(232,165,75,0.14), transparent 55%),
+        var(--bg-elev);
+      box-shadow: 0 0 0 1px rgba(232,165,75,0.08), 0 12px 40px rgba(0,0,0,0.25);
+    }
+    .dof-card .kicker {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 0.35rem;
+    }
+    .dof-card.high .kicker { color: var(--accent); }
+    .dof-card h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+    .dof-card p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+    .dof-pill {
+      display: inline-flex;
+      margin-top: 0.7rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.28rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      color: var(--ink);
+    }
+    .dof-card.high .dof-pill {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .stage-rail {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 900px) {
+      .stage-rail { grid-template-columns: repeat(5, minmax(4.5rem, 1fr)); overflow-x: auto; }
+    }
+    .stage-tab {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--bg-elev);
+      color: var(--muted);
+      border-radius: 12px;
+      padding: 0.7rem 0.45rem;
+      cursor: pointer;
+      font: inherit;
+      text-align: center;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    }
+    .stage-tab:hover { border-color: rgba(232,165,75,0.35); color: var(--ink); }
+    .stage-tab[aria-selected="true"] {
+      background: var(--accent-dim);
+      border-color: rgba(232,165,75,0.55);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .stage-tab .sid {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: inherit;
+      line-height: 1.1;
+    }
+    .stage-tab .sphys {
+      display: block;
+      font-size: 0.68rem;
+      margin-top: 0.25rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+    .stage-tab.tip-stage[aria-selected="true"] .sphys { color: var(--accent); }
+
+    .stage-stage {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    @media (max-width: 860px) { .stage-stage { grid-template-columns: 1fr; } }
+    .stage-player {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #000;
+      position: relative;
+    }
+    .stage-player video {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+    .stage-player .live-tag {
+      position: absolute;
+      top: 0.7rem;
+      left: 0.7rem;
+      z-index: 2;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(12,18,24,0.72);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      backdrop-filter: blur(8px);
+    }
+    .stage-player .live-tag.tip {
+      border-color: rgba(232,165,75,0.5);
+      color: var(--accent);
+    }
+    .stage-facts {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .stage-facts h3 { margin: 0; font-size: 1.15rem; }
+    .stage-facts .blurb { margin: 0; color: var(--muted); font-size: 0.9rem; }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+    }
+    .stat {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.55rem 0.65rem;
+    }
+    .stat .label {
+      display: block;
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+    .stat .val { font-weight: 600; font-size: 0.95rem; }
+    .stat .val.em { color: var(--accent); }
+    .evolve-note {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 0.75rem;
+    }
+    .evolve-track {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 1.1rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .evolve-track .dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: var(--line);
+    }
+    .evolve-track .dot.on { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+    .evolve-track .arr { opacity: 0.45; }
+
+    /* Embed mode for personal site iframe */
+    body.embed .hero { min-height: auto; padding-top: 2rem; padding-bottom: 2rem; }
+    body.embed .hero-media { display: none; }
+    body.embed .topbar { display: none; }
+    body.embed .brand { font-size: clamp(2rem, 5vw, 2.8rem); max-width: none; }
+    body.embed .cta-row .btn-ghost[href^="#"] { display: none; }
+  </style>
+</head>
+<body>
+  <header class="topbar" data-chrome>
+    <div class="wrap topbar-inner">
+      <a class="mark" href="#top">Rod Rotation MVP</a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#findings">Findings</a>
+        <a href="#stages">Curriculum</a>
+        <a href="#demos">Demos</a>
+        <a href="#ablations">Ablations</a>
+        <a href="#failures">Failures</a>
+        <a href="#open">Open</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="hero-media" aria-hidden="true">
+      <video autoplay muted loop playsinline poster="" aria-label="Cinematic screwdriver view">
+        <source src="media/cinematic-screwdriver.mp4" type="video/mp4" />
+      </video>
+      <video autoplay muted loop playsinline poster="" aria-label="Cinematic oval orbit view">
+        <source src="media/cinematic-screwdriver-oval.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div class="wrap hero-content">
+      <p class="brand">Rod Rotation MVP</p>
+      <h1>Three-finger axial twisting under tip constraints — what transferred, what cliffed.</h1>
+      <p class="lede">
+        MuJoCo + PPO study of DexScrew-style curricula: revolute skill → tip-connect → free tip.
+        Constraints teach gait; removing them without a bridge fails in predictable modes.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#stages">Curriculum ablation</a>
+        <a class="btn btn-ghost" href="#demos">Success &amp; failure</a>
+        <a class="btn btn-ghost" href="https://github.com/ypx19/allegro_rod_mvp" id="repo-link">Repository</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section id="findings">
+      <div class="wrap reveal">
+        <h2>What we found</h2>
+        <p class="section-lead">
+          High-confidence results from geometry audits, assist-fade runs, and mass–friction
+          curriculum smokes (Aug 2026). Full notes live in
+          <code>docs/FINDINGS.md</code> and <code>docs/EXPERIMENT_LOG.md</code>.
+        </p>
+        <div class="tldr">
+          <article>
+            <h3>Revolute / heavy tip works</h3>
+            <p>Hinge or top-hang tip-connect at high mass (s≈400) learns sustained axial twist and ω-hold. Stage 0 hanging tip also exceeds 180°.</p>
+          </article>
+          <article>
+            <h3>Assist cliffs are real</h3>
+            <p>Dropping the axis stabilizer or tip equality without a fade collapses to tilt / tip-error kills within a few steps—not a soft degrade.</p>
+          </article>
+          <article>
+            <h3>Top-hang prefers two fingers</h3>
+            <p>Best tip@s=400 policy is a cooperating two-finger gait, not three-finger surround—even when 3-contact is available.</p>
+          </article>
+          <article>
+            <h3>Bottom tip stands, rarely spins fast</h3>
+            <p>With 3-touch dense reward + hard window, bottom tip can stand for 20s and creep ~50–56°, but fails the ω-hold success gate; free tip (C5) died instantly.</p>
+          </article>
+          <article>
+            <h3>Eval needs VecNormalize</h3>
+            <p>Curriculum gates without loading <code>vecnormalize.pkl</code> were false negatives. Always pair checkpoints with VN stats.</p>
+          </article>
+          <article>
+            <h3>Contact bonus was a silent bug</h3>
+            <p>DexScrew path computed a three-finger contact term but never added it to reward until fixed—reward engineering had been flying blind.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="stages">
+      <div class="wrap reveal">
+        <h2>Curriculum ablation — can degrading s actually help?</h2>
+        <p class="section-lead">
+          We finally tested the question directly on the simplified Allegro MuJoCo setup:
+          same <strong>upper-tip revolute</strong> task, same <strong>1M PPO-step budget</strong>,
+          same final evaluation at <strong>s=1</strong>. One policy trains only at <strong>s=1</strong>.
+          The other starts at <strong>s=400</strong> and continuously anneals to <strong>s=1</strong>.
+        </p>
+
+        <div class="callout" style="margin-bottom: 1rem;">
+          <p style="margin:0;">
+            <strong>The story:</strong> a light rod is hard because the hand must discover
+            contact, twisting gait, and hold stability all at once. A heavy rod buys time.
+            Curriculum learning lets the policy discover the gait first, then carry it back
+            to the real target physics.
+          </p>
+        </div>
+
+        <div class="compare" style="margin-bottom: 1rem;">
+          <div class="panel bad">
+            <header>Without curriculum — trained only at s=1</header>
+            <video controls playsinline preload="metadata" src="media/ablation/without_curriculum_seed1.mp4"></video>
+            <p>
+              Same task and budget, but the hard setting from the beginning. It can spin,
+              yet the gait is less stable and on the representative seed-1 rollout it fails
+              the 10-second ω-hold criterion.
+            </p>
+          </div>
+          <div class="panel ok">
+            <header>With curriculum — trained from s=400 → 1</header>
+            <video controls playsinline preload="metadata" src="media/ablation/with_curriculum_seed1.mp4"></video>
+            <p>
+              The policy first learns the twisting gait in an easier heavy-rod world,
+              then adapts it down to s=1. On the same seed-1 eval, it keeps the hold and
+              finishes roughly 1,700° ahead.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-bottom: 1.25rem;">
+          <p style="margin:0;">
+            <strong>Best demo clip:</strong> the matched-seed side-by-side below is the cleanest contrast.
+            Left loses the sustained hold; right keeps it.
+          </p>
+        </div>
+
+        <div class="stage-player" style="margin-bottom: 1.25rem;">
+          <span class="live-tag tip">Seed 1 · eval at s=1 · side-by-side</span>
+          <video controls playsinline preload="metadata" src="media/ablation/side_by_side_seed1.mp4"></video>
+        </div>
+
+        <div class="table-wrap" style="margin-bottom: 1.25rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>Arm</th>
+                <th>Training path</th>
+                <th>Eval success @ s=1</th>
+                <th>Mean rotation</th>
+                <th>ω-hold summary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>No curriculum</strong></td>
+                <td>s=1 only</td>
+                <td class="bad">0.20</td>
+                <td>7424°</td>
+                <td>4 / 20 episodes</td>
+              </tr>
+              <tr>
+                <td><strong>Curriculum</strong></td>
+                <td>s=400 → 1</td>
+                <td class="ok">1.00</td>
+                <td>9281°</td>
+                <td>20 / 20 episodes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="gallery" style="margin-bottom: 1rem;">
+          <article class="clip">
+            <video controls playsinline preload="metadata" src="media/ablation/side_by_side_seed0.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta"><h3>Seed 0</h3><span class="badge badge-ok">both pass</span></div>
+              <p>Even when both succeed, curriculum still rotates faster: 7831° vs 9546°.</p>
+            </div>
+          </article>
+          <article class="clip">
+            <video controls playsinline preload="metadata" src="media/ablation/side_by_side_seed1.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta"><h3>Seed 1</h3><span class="badge badge-mid">clearest gap</span></div>
+              <p>No-curriculum fails ω-hold; curriculum passes and stays visibly tighter on the rod.</p>
+            </div>
+          </article>
+          <article class="clip">
+            <video controls playsinline preload="metadata" src="media/ablation/side_by_side_seed2.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta"><h3>Seed 2</h3><span class="badge badge-ok">both pass</span></div>
+              <p>Same pattern again: curriculum keeps a faster, more stable twist (7880° vs 9658°).</p>
+            </div>
+          </article>
+        </div>
+
+        <p class="section-lead" style="max-width: 70ch;">
+          So the answer is yes: for this revolute task, the curriculum is not just cosmetic.
+          Under a matched update budget, continuous <code>s=400 → 1</code> annealing produces a
+          much stronger final <code>s=1</code> policy than training on <code>s=1</code> from scratch.
+          This is still a single training seed and only for revolute, but it is the first controlled
+          evidence in this repo that degrading <code>s</code> itself matters.
+        </p>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <div class="wrap reveal">
+        <h2>Research arc</h2>
+        <p class="section-lead">From Stage 0 anchors to mass curriculum and bottom-tip 3-touch — each step isolates one transfer hypothesis.</p>
+        <div class="pipeline">
+          <div class="pipe-step">
+            <div class="pipe-id">01</div>
+            <div>
+              <strong>Geometry &amp; Stage 0</strong>
+              <p>Fix unreachable finger2; hanging tip + stabilizer → large rotation.</p>
+            </div>
+            <span class="badge badge-ok">worked</span>
+          </div>
+          <div class="pipe-step">
+            <div class="pipe-id">02</div>
+            <div>
+              <strong>Assist fade → Stage 2</strong>
+              <p>Stabilizer scale cliff ~0.10–0.08; tip-connect alone ≠ free object.</p>
+            </div>
+            <span class="badge badge-bad">cliff</span>
+          </div>
+          <div class="pipe-step">
+            <div class="pipe-id">03</div>
+            <div>
+              <strong>Arm A revolute (DexScrew-style)</strong>
+              <p>Shared obs + ω hold; strong A0/A1 policies.</p>
+            </div>
+            <span class="badge badge-ok">worked</span>
+          </div>
+          <div class="pipe-step">
+            <div class="pipe-id">04</div>
+            <div>
+              <strong>Arm B tip-connect + tilt</strong>
+              <p>Direct transfer / adaptive rot–tilt mass still axis_tilt death spiral.</p>
+            </div>
+            <span class="badge badge-bad">failed</span>
+          </div>
+          <div class="pipe-step">
+            <div class="pipe-id">05</div>
+            <div>
+              <strong>Mass–friction curriculum (top hang)</strong>
+              <p>s=40 tip fails survival; s=400 tip C4 success=1.0, two-finger gait.</p>
+            </div>
+            <span class="badge badge-ok">worked</span>
+          </div>
+          <div class="pipe-step">
+            <div class="pipe-id">06</div>
+            <div>
+              <strong>Bottom tip + 3-touch → free tip</strong>
+              <p>Revolute ok; hard tip stands; ω-hold missing; forced C5 free tip collapsed.</p>
+            </div>
+            <span class="badge badge-mid">partial</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demos">
+      <div class="wrap reveal">
+        <h2>Demo gallery</h2>
+        <p class="section-lead">Curated clips under <code>docs/media/</code>. Filter by outcome. Pair below is the cleanest success vs the free-tip collapse.</p>
+
+        <div class="compare" style="margin-bottom: 1.75rem;">
+          <div class="panel ok">
+            <header>Success — top tip @s=400 (C4)</header>
+            <video controls playsinline preload="metadata" src="media/success-top-tip-c4-twisting.mp4"></video>
+            <p>~5000° axial rotation, full episode, tip_err mm-scale. Preferred two-finger twisting gait under hard tip-connect.</p>
+          </div>
+          <div class="panel bad">
+            <header>Failure — free tip C5 from bottom hard tip</header>
+            <video controls playsinline preload="metadata" loop src="media/fail-free-tip-c5-collapse.mp4"></video>
+            <p>Hard equality removed; tip drifts ~12 cm and dies in ~6 steps (height / tip_error). Stance did not transfer.</p>
+          </div>
+        </div>
+
+        <div class="filters" role="group" aria-label="Filter demos">
+          <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
+          <button class="chip" type="button" data-filter="success" aria-pressed="false">Success</button>
+          <button class="chip" type="button" data-filter="partial" aria-pressed="false">Partial</button>
+          <button class="chip" type="button" data-filter="fail" aria-pressed="false">Failure</button>
+        </div>
+
+        <div class="gallery" id="gallery">
+          <article class="clip" data-tags="success">
+            <video controls playsinline preload="metadata" src="media/success-revolute-a1-omega-hold.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Revolute A1 — ω hold</h3>
+                <span class="badge badge-ok">success</span>
+              </div>
+              <p>Hinge-constrained rod; sustained high axial rate. DexScrew-track baseline that tip-connect should transfer from.</p>
+            </div>
+          </article>
+
+          <article class="clip" data-tags="success">
+            <video controls playsinline preload="metadata" src="media/success-stage0-hanging-tip.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Stage 0 hanging tip</h3>
+                <span class="badge badge-ok">success</span>
+              </div>
+              <p>Spherical tip connect above COM + early stabilizer stack. Shows large positive rotation is learnable under assist.</p>
+            </div>
+          </article>
+
+          <article class="clip" data-tags="success">
+            <video controls playsinline preload="metadata" src="media/success-bottom-revolute-3touch.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Bottom revolute + 3-touch</h3>
+                <span class="badge badge-ok">success</span>
+              </div>
+              <p>Raised mount so rod spans finger plane; dense discrete contact + hard window. Full 500-step episodes, ~500°.</p>
+            </div>
+          </article>
+
+          <article class="clip" data-tags="partial">
+            <video controls playsinline preload="metadata" src="media/partial-bottom-tip-c4-stand.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Bottom tip C4 — stand</h3>
+                <span class="badge badge-mid">partial</span>
+              </div>
+              <p>Survives 20s with low tilt (~2–4°) but only ~56° total spin. Numeric gate fails on ω-hold (success=0).</p>
+            </div>
+          </article>
+
+          <article class="clip" data-tags="fail">
+            <video controls playsinline preload="metadata" src="media/fail-tip-connect-tilt-cliff.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Tip-connect tilt cliff (B2)</h3>
+                <span class="badge badge-bad">failure</span>
+              </div>
+              <p>Adaptive 45/45 rot–tilt mass hit targets; episodes still die on axis_tilt. Reward mass ≠ mechanical stability.</p>
+            </div>
+          </article>
+
+          <article class="clip" data-tags="fail">
+            <video controls playsinline preload="metadata" src="media/fail-light-mass-s40-tilt.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Light mass tip @s=40</h3>
+                <span class="badge badge-bad">failure</span>
+              </div>
+              <p>Interesting early gait (~70° rotate) then tip becomes under-damped / force-dominated → axis_tilt ~70°.</p>
+            </div>
+          </article>
+
+          <article class="clip" data-tags="fail">
+            <video controls playsinline preload="metadata" src="media/fail-bottom-contact-support.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Contact support kill (C2)</h3>
+                <span class="badge badge-bad">failure</span>
+              </div>
+              <p>Hard 1s three-finger window. Losing multi-contact mid-episode terminates even if tip equality holds.</p>
+            </div>
+          </article>
+
+          <article class="clip" data-tags="fail">
+            <video controls playsinline preload="metadata" src="media/fail-stabilizer-assist-cliff.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Stabilizer assist cliff</h3>
+                <span class="badge badge-bad">failure</span>
+              </div>
+              <p>Stage 2 with tip joint but no external axis torque. Classic transfer cliff versus Scale ≥0.10 parents.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="ablations">
+      <div class="wrap reveal">
+        <h2>Ablation ledger</h2>
+        <p class="section-lead">One-factor (or nearly one-factor) contrasts. “Worked” means the measured question moved the intended way—not always task success.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Intervention</th>
+                <th>Outcome</th>
+                <th>Takeaway</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Is finger2 kinematically able to touch?</td>
+                <td>Reachability search on planar model</td>
+                <td class="bad">No (gap ≥66 mm)</td>
+                <td>Geometry before contact reward</td>
+              </tr>
+              <tr>
+                <td>Does spatial finger2 alone create 3-contact?</td>
+                <td>Retrain after DOF fix</td>
+                <td class="bad">Still 0% 3-contact</td>
+                <td>Reachability ≠ exploration basin</td>
+              </tr>
+              <tr>
+                <td>Hard 20-step contact gate from cold start?</td>
+                <td>Rolling +5 contact sum</td>
+                <td class="bad">All fails contact_support</td>
+                <td>Change init / curriculum first</td>
+              </tr>
+              <tr>
+                <td>Can Stage 0 learn big rotation?</td>
+                <td>Hanging tip + stabilizer</td>
+                <td class="ok">Yes (~0.9 SR / long runs)</td>
+                <td>Constraint + assist OK</td>
+              </tr>
+              <tr>
+                <td>Unconstrained PPO train forever?</td>
+                <td>1e9 steps, default ent_coef</td>
+                <td class="bad">std→1e18 / NaN</td>
+                <td>Clip entropy / early-stop peaks</td>
+              </tr>
+              <tr>
+                <td>Does stabilizer fade smoothly?</td>
+                <td>0.20 → 0.18 → 0</td>
+                <td class="bad">Sharp cliff</td>
+                <td>Measure assist dependence</td>
+              </tr>
+              <tr>
+                <td>Is Stage2 failure from mass rand?</td>
+                <td>Stab 0.12 + Stage2 rand</td>
+                <td class="ok">Transfers until ≤0.08</td>
+                <td>Assist cliff, not domain rand</td>
+              </tr>
+              <tr>
+                <td>More tilt penalty weight?</td>
+                <td>0.10 → 0.25</td>
+                <td class="bad">Still 20/20 tilt death</td>
+                <td>Larger penalty ≠ recovery skill</td>
+              </tr>
+              <tr>
+                <td>Revolute DexScrew recipe?</td>
+                <td>Arm A0 / A1</td>
+                <td class="ok">Strong ω gait</td>
+                <td>Keep as skill prior</td>
+              </tr>
+              <tr>
+                <td>Revolute → tip+tilt transfer?</td>
+                <td>B1 / B2 adaptive mass</td>
+                <td class="bad">drop=1, axis_tilt</td>
+                <td>Need heavier / softer tip path</td>
+              </tr>
+              <tr>
+                <td>Mass curriculum start s=40 tip?</td>
+                <td>C0 OK → C1 tip</td>
+                <td class="bad">ep_len~10–34, tilt</td>
+                <td>Mass alone ≠ tip survival</td>
+              </tr>
+              <tr>
+                <td>Start s=400 top tip?</td>
+                <td>Soft tilt kill 1.2 + VN eval</td>
+                <td class="ok">C4 success=1.0</td>
+                <td>Preferred path; 2-finger gait</td>
+              </tr>
+              <tr>
+                <td>Bottom tip without 3-touch?</td>
+                <td>Raised mount only</td>
+                <td class="bad">C1 collapses</td>
+                <td>Need contact shaping</td>
+              </tr>
+              <tr>
+                <td>Add dense contact + strip ω if &lt;3?</td>
+                <td>Bottom curriculum flags</td>
+                <td class="mid">Stand yes / ω-hold no</td>
+                <td>Support ≠ fast spin</td>
+              </tr>
+              <tr>
+                <td>Drop hard tip → tip-error reward (C5)?</td>
+                <td>Forced from C4 ckpt</td>
+                <td class="bad">6-step death</td>
+                <td>Need softer bridge / longer anneal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="failures">
+      <div class="wrap reveal">
+        <h2>Failure mode atlas</h2>
+        <p class="section-lead">Recurring kills. Naming them keeps ablations honest—spinning reward knobs rarely fixes a mechanical mode error.</p>
+        <div class="modes">
+          <div class="mode">
+            <div class="mode-tag">axis_tilt</div>
+            <div>
+              <h3>Orientation runaway under tip-connect</h3>
+              <p>Spherical tip equality leaves free orientation. Without hinge / stabilizer / enough inertia, axial twist couples into tip-over. Dominant Arm B / light-mass tip death.</p>
+            </div>
+          </div>
+          <div class="mode">
+            <div class="mode-tag">assist_cliff</div>
+            <div>
+              <h3>Nonlinear removal of axis torque</h3>
+              <p>Policies remain competent until stabilizer scale dips below ~0.10, then collapse. Intermediate checkpoints often beat <code>final_model</code>.</p>
+            </div>
+          </div>
+          <div class="mode">
+            <div class="mode-tag">contact_support</div>
+            <div>
+              <h3>Lost multi-finger window</h3>
+              <p>Hard rolling requirement for 3-contact (or bonus sum). Useful after a grasp exists; lethal from the wrong reset / during transfer stages.</p>
+            </div>
+          </div>
+          <div class="mode">
+            <div class="mode-tag">tip_error</div>
+            <div>
+              <h3>Free tip leaves the workspace</h3>
+              <p>C5: equality off + strong tip penalty still does not invent a fixed tip. Endpoint sails centimeters away; height terminations follow.</p>
+            </div>
+          </div>
+          <div class="mode">
+            <div class="mode-tag">std_blowup</div>
+            <div>
+              <h3>Long PPO entropy explosion</h3>
+              <p>Post-peak Stage 0 with default <code>ent_coef</code>: policy std → astronomical, NaN actions. Infrastructure finding, not task content.</p>
+            </div>
+          </div>
+          <div class="mode">
+            <div class="mode-tag">false_gate</div>
+            <div>
+              <h3>Eval without VecNormalize</h3>
+              <p>Curriculum thought top-hang tip failed until VN was loaded. Always treat metrics + videos as a pair.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top: 1.25rem;">
+          <strong>What this is not.</strong>
+          DexScrew’s published real-world finishes use revolute sim skill + tactile BC—not free-object PPO alone.
+          Our tip-connect successes should be read as constrained skill learning, not solved freestanding in-hand rotation.
+        </div>
+      </div>
+    </section>
+
+    <section id="open">
+      <div class="wrap reveal">
+        <h2>Open questions</h2>
+        <p class="section-lead">Highest-leverage next experiments given the ledger above.</p>
+        <div class="grid-2">
+          <div class="callout">
+            <strong>Bridge free tip slower.</strong>
+            Anneal tip equality / solref or tip-penalty rather than hard C5 drop. Test soft tip from top-hang C4 (known spinner) before bottom tip.
+          </div>
+          <div class="callout">
+            <strong>Reward spin under 3-touch.</strong>
+            Bottom C4 stands; ω-hold fails. Shape rotation only when contact_gate is green, with longer smoke budgets.
+          </div>
+          <div class="callout">
+            <strong>Accept 2-finger top gait?</strong>
+            If the scientific goal is free tip, top-hang two-finger may be the right prior—not forcing surround contact.
+          </div>
+          <div class="callout">
+            <strong>Allegro embodiment.</strong>
+            Mesh-free 9-DoF hand is still a stand-in. Re-run reachability + best curriculum on Menagerie Allegro once the stack is chosen.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-grid">
+      <div>
+        <div>Rod Rotation MVP · research demo</div>
+        <div>MuJoCo · Stable-Baselines3 PPO · DexScrew-inspired curricula</div>
+      </div>
+      <div>
+        Clip provenance: <a href="media/SOURCES.md">docs/media/SOURCES.md</a>
+        · Embed notes: <a href="EMBED.md">docs/EMBED.md</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      if (params.get("embed") === "1") document.body.classList.add("embed");
+
+      const repo = params.get("repo");
+      if (repo) {
+        const a = document.getElementById("repo-link");
+        a.href = repo;
+        a.hidden = false;
+        a.textContent = "Repository";
+      }
+
+      // Reveal on scroll
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) if (e.isIntersecting) e.target.classList.add("in");
+        },
+        { threshold: 0.12 }
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+      // Gallery filters
+      const chips = document.querySelectorAll(".chip[data-filter]");
+      const clips = document.querySelectorAll("#gallery .clip");
+      chips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const f = chip.getAttribute("data-filter");
+          chips.forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+          clips.forEach((clip) => {
+            const tags = clip.getAttribute("data-tags") || "";
+            clip.hidden = !(f === "all" || tags.includes(f));
+          });
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>
