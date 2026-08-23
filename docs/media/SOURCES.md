@@ -25,5 +25,7 @@
 
 | cinematic-screwdriver.mp4 | `20260818-2345-cinematic-c0-screwdriver-seed0` | Hero / homepage front clip |
 | cinematic-screwdriver-oval.mp4 | `20260818-2350-cinematic-c0-screwdriver-oval-seed0` | Hero / homepage front clip |
+| cinematic-isaacgym.mp4 | IsaacGym parallel cinematic | Hero / homepage right-half front clip |
+| front-demo.mp4 | hstack of screwdriver + isaacgym (1920×540) | README / GitHub repo front demo |
 
 Ablation clips live under `docs/media/ablation/` for GitHub Pages.

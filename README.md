@@ -1,5 +1,19 @@
 # Allegro-style tactile rod rotation MVP (MuJoCo + PPO)
 
+<p align="center">
+  <video src="https://github.com/ypx19/allegro_rod_mvp/releases/download/demo-front/front-demo.mp4" autoplay loop muted playsinline controls width="900">
+    Front demo — MuJoCo cinematic (left) and IsaacGym parallel envs (right).
+  </video>
+</p>
+<p align="center">
+  <em>Front demo — MuJoCo cinematic (left) · IsaacGym parallel envs (right)</em><br>
+  <a href="https://ypx19.github.io/allegro_rod_mvp/">Interactive demo</a>
+  ·
+  <a href="docs/media/cinematic-screwdriver.mp4">MuJoCo clip</a>
+  ·
+  <a href="docs/media/cinematic-isaacgym.mp4">IsaacGym clip</a>
+</p>
+
 This repository is a Mac-friendly **phase-0 smoke test** for the planned task:
 
 - Allegro-style joint-position control interface
