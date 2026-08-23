@@ -10,6 +10,11 @@ import mujoco
 import numpy as np
 
 from allegro_rod_mvp.adaptive_mass import AdaptiveMassBalancer, AdaptiveMassConfig
+from allegro_rod_mvp.hand_pose import (
+    apply_hand_pose,
+    load_hand_pose,
+    model_variant_for_physics,
+)
 from allegro_rod_mvp.rewards_dexscrew import DexScrewRewardConfig, compute_dexscrew_reward
 
 
@@ -29,9 +34,27 @@ class RodRotationEnv(gym.Env):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
-    # Contacting two-finger grasp for hanging-tip scene (low gravity tilt).
-    _GRASP_QPOS = np.array(
+    # Legacy 9-DoF surrogate reset retained for baseline reproduction.
+    _SURROGATE_GRASP_QPOS = np.array(
         [0.4830, -0.5181, 0.8549, -0.7273, 0.9422, 0.7105, 0.0298, 0.6038, -0.7947],
+        dtype=np.float64,
+    )
+    # Allegro index/middle/thumb shallow wrap and dynamically stable preload.
+    # Ordering is f0(index) j0..j3, f1(middle) j0..j3, f2(thumb) j0..j3.
+    _ALLEGRO_RESET_QPOS = np.array(
+        [
+            -0.01185294, 0.79398684, 0.82384282, 0.71325090,
+             0.06965541, 0.93442049, 0.89022726, 0.71822847,
+             0.92814034, 0.53843836, 0.94458733, 0.81375990,
+        ],
+        dtype=np.float64,
+    )
+    _ALLEGRO_GRASP_QPOS = np.array(
+        [
+            -0.14000000, 0.81227255, 0.83463606, 0.71621797,
+             0.17242762, 0.93530435, 0.88562056, 0.71457097,
+             0.93765753, 0.51544830, 0.98571988, 0.80006279,
+        ],
         dtype=np.float64,
     )
     # World-frame hanging equilibrium for the rod long axis (local +x -> world -Z).
@@ -79,6 +102,11 @@ class RodRotationEnv(gym.Env):
         tilt_terminate_rad: float = 0.7,
         tip_anchor: str = "top",
         dexscrew_tip_sigma: float = 0.025,
+        hand_model: str = "allegro",
+        hand_pose_config: str | None = None,
+        reset_joint_noise: float | None = None,
+        grasp_ramp_steps: int | None = None,
+        grasp_hold_steps: int | None = None,
     ) -> None:
         super().__init__()
         root = Path(__file__).resolve().parents[1]
@@ -88,9 +116,12 @@ class RodRotationEnv(gym.Env):
             raise ValueError("reward_style must be 'stage' or 'dexscrew'")
         if tip_anchor not in {"top", "bottom"}:
             raise ValueError("tip_anchor must be 'top' or 'bottom'")
+        if hand_model not in {"allegro", "surrogate"}:
+            raise ValueError("hand_model must be 'allegro' or 'surrogate'")
         self.physics_mode = physics_mode
         self.reward_style = reward_style
         self.tip_anchor = tip_anchor
+        self.hand_model = hand_model
         self.privileged_obs = bool(privileged_obs)
         # Tip-connect (Arm B): tilt is a required punishment; revolute has no tilt DoF.
         if dexscrew_tilt_scale is None:
@@ -98,15 +129,26 @@ class RodRotationEnv(gym.Env):
                 1.0 if (reward_style == "dexscrew" and physics_mode == "tip_connect") else 0.0
             )
         if xml_path is None:
-            xml_name = (
-                "three_finger_rod_revolute.xml"
-                if physics_mode == "revolute"
-                else "three_finger_rod.xml"
-            )
+            prefix = "allegro_three_finger_rod" if hand_model == "allegro" else "three_finger_rod"
+            xml_name = f"{prefix}_revolute.xml" if physics_mode == "revolute" else f"{prefix}.xml"
             self.xml_path = root / "models" / xml_name
         else:
             self.xml_path = Path(xml_path)
         self.model = mujoco.MjModel.from_xml_path(str(self.xml_path))
+        self.hand_pose_config_path: str | None = None
+        self.hand_pose_config_sha256: str | None = None
+        self.hand_pose_config_content: dict[str, Any] | None = None
+        if hand_pose_config is not None:
+            if hand_model != "allegro":
+                raise ValueError("hand_pose_config is only compatible with hand_model='allegro'")
+            pose, pose_path, pose_hash = load_hand_pose(
+                hand_pose_config,
+                expected_model_variant=model_variant_for_physics(physics_mode),
+            )
+            apply_hand_pose(self.model, pose)
+            self.hand_pose_config_path = str(pose_path)
+            self.hand_pose_config_sha256 = pose_hash
+            self.hand_pose_config_content = pose
         self.data = mujoco.MjData(self.model)
         self.render_mode = render_mode
         self.curriculum_stage = int(curriculum_stage)
@@ -175,6 +217,33 @@ class RodRotationEnv(gym.Env):
         self.renderer = None
 
         self.nu = self.model.nu
+        joints_per_finger = 4 if self.hand_model == "allegro" else 3
+        self.hand_joint_names = [
+            f"f{finger}_j{joint}"
+            for finger in range(3)
+            for joint in range(joints_per_finger)
+        ]
+        self.hand_joint_ids = np.asarray(
+            [
+                mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, name)
+                for name in self.hand_joint_names
+            ],
+            dtype=np.int32,
+        )
+        if np.any(self.hand_joint_ids < 0) or len(self.hand_joint_ids) != self.nu:
+            raise ValueError(
+                f"Model/action signature mismatch for {self.hand_model}: "
+                f"expected {len(self.hand_joint_names)} named joints, model.nu={self.nu}"
+            )
+        self.hand_qpos_adr = self.model.jnt_qposadr[self.hand_joint_ids].astype(np.int32)
+        self.hand_dof_adr = self.model.jnt_dofadr[self.hand_joint_ids].astype(np.int32)
+        actuator_joint_ids = self.model.actuator_trnid[:, 0].astype(np.int32)
+        if not np.array_equal(actuator_joint_ids, self.hand_joint_ids):
+            raise ValueError("Actuator ordering must exactly match hand joint ordering")
+        self.model_signature = (
+            f"{self.hand_model}:{self.physics_mode}:{self.nu}:"
+            + ",".join(self.hand_joint_names)
+        )
         self.action_space = spaces.Box(-1.0, 1.0, shape=(self.nu,), dtype=np.float32)
 
         eq = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_EQUALITY, "tip_anchor")
@@ -209,8 +278,28 @@ class RodRotationEnv(gym.Env):
         self.tilt_terminate_rad = float(tilt_terminate_rad)
         if self.tilt_terminate_rad <= 0.0:
             raise ValueError("tilt_terminate_rad must be > 0")
-        self.ctrl_center = np.zeros(self.nu, dtype=np.float64)
-        self.ctrl_scale = np.full(self.nu, 0.25, dtype=np.float64)
+        ctrl_ranges = np.asarray(self.model.actuator_ctrlrange, dtype=np.float64)
+        self.ctrl_center = np.mean(ctrl_ranges, axis=1)
+        if self.hand_model == "allegro":
+            self.ctrl_scale = np.minimum(0.15, 0.10 * (ctrl_ranges[:, 1] - ctrl_ranges[:, 0]))
+            self._reset_qpos = self._ALLEGRO_RESET_QPOS.copy()
+            self._grasp_qpos = self._ALLEGRO_GRASP_QPOS.copy()
+            self.reset_joint_noise = 0.0075 if reset_joint_noise is None else float(reset_joint_noise)
+            self.grasp_ramp_steps = 100 if grasp_ramp_steps is None else int(grasp_ramp_steps)
+            self.grasp_hold_steps = 100 if grasp_hold_steps is None else int(grasp_hold_steps)
+        else:
+            self.ctrl_scale = np.full(self.nu, 0.25, dtype=np.float64)
+            self._reset_qpos = self._SURROGATE_GRASP_QPOS.copy()
+            self._grasp_qpos = self._SURROGATE_GRASP_QPOS.copy()
+            self.reset_joint_noise = 0.05 if reset_joint_noise is None else float(reset_joint_noise)
+            self.grasp_ramp_steps = 40 if grasp_ramp_steps is None else int(grasp_ramp_steps)
+            self.grasp_hold_steps = 0 if grasp_hold_steps is None else int(grasp_hold_steps)
+        if self.reset_joint_noise < 0.0:
+            raise ValueError("reset_joint_noise must be non-negative")
+        if self.grasp_ramp_steps < 1:
+            raise ValueError("grasp_ramp_steps must be at least 1")
+        if self.grasp_hold_steps < 0:
+            raise ValueError("grasp_hold_steps must be non-negative")
         self.target_tip = np.zeros(3)
         self.target_axis = np.array([0.0, 0.0, -1.0], dtype=np.float64)
         self.prev_quat = np.array([1.0, 0.0, 0.0, 0.0])
@@ -220,12 +309,12 @@ class RodRotationEnv(gym.Env):
         self.last_action = np.zeros(self.nu)
         self.last_stabilizer_torque_norm = 0.0
         self._contact_force_buf = np.zeros(6, dtype=np.float64)
-        self.q0_hand = self._GRASP_QPOS.copy()
+        self.q0_hand = self._grasp_qpos.copy()
 
         # Shared observation layout (same dim for revolute and tip-connect) so Arm A→B
         # checkpoint transfer is possible. Do not concat raw model qpos/qvel.
-        # hand_q(9)+hand_v(9)+touch(3)+centers(6)+tip_err(3)+omega_feats(3)+sincos(2)
-        # +rod_axis(3)+tilt(1)+rod_linvel(3) = 42; optional priv adds _priv_dim.
+        # hand_q(nu)+hand_v(nu)+touch(3)+centers(6)+tip_err(3)+omega_feats(3)
+        # +sincos(2)+rod_axis(3)+tilt(1)+rod_linvel(3); Allegro nu=12 => 48.
         self._base_obs_dim = self.nu + self.nu + 3 + 6 + 3 + 3 + 2 + 3 + 1 + 3
         self._priv_dim = 3 + 1 + 2 + 1 + 3 + 3 if self.privileged_obs else 0
         obs_dim = self._base_obs_dim + self._priv_dim
@@ -469,8 +558,8 @@ class RodRotationEnv(gym.Env):
         axis_tilt = float(np.arccos(np.clip(abs(float(np.dot(axis_world, self.target_axis))), 0.0, 1.0)))
         # Body linear velocity (cvel[3:6]); shared across physics modes.
         rod_linvel = np.asarray(self.data.cvel[self.rod_body, 3:], dtype=np.float64)
-        hand_q = np.asarray(self.data.qpos[: self.nu], dtype=np.float64)
-        hand_v = np.asarray(self.data.qvel[: self.nu], dtype=np.float64)
+        hand_q = np.asarray(self.data.qpos[self.hand_qpos_adr], dtype=np.float64)
+        hand_v = np.asarray(self.data.qvel[self.hand_dof_adr], dtype=np.float64)
         obs = np.concatenate(
             [
                 hand_q,
@@ -524,12 +613,17 @@ class RodRotationEnv(gym.Env):
             self.current_axis_stabilizer_scale = float(self.np_random.uniform(low, high))
         else:
             self.current_axis_stabilizer_scale = self.axis_stabilizer_scale_override
-        # Start from a verified contacting grasp, plus small randomization.
-        noise = self.np_random.uniform(-0.05, 0.05, size=self.nu)
-        q = np.clip(self._GRASP_QPOS + noise, -1.5, 1.5)
-        self.data.qpos[:self.nu] = q
-        self.data.ctrl[:] = q
-        self.q0_hand = q.copy()
+        # Start just outside deep penetration, then ramp into the verified
+        # three-fingertip preload. This avoids reset-time contact impulses.
+        noise = self.np_random.uniform(
+            -self.reset_joint_noise, self.reset_joint_noise, size=self.nu
+        )
+        lo = self.model.actuator_ctrlrange[:, 0]
+        hi = self.model.actuator_ctrlrange[:, 1]
+        q_reset = np.clip(self._reset_qpos + noise, lo, hi)
+        q_grasp = np.clip(self._grasp_qpos + noise, lo, hi)
+        self.data.qpos[self.hand_qpos_adr] = q_reset
+        self.data.ctrl[:] = q_reset
         angle = self.np_random.uniform(-np.pi, np.pi)
         if self.physics_mode == "revolute" and self.hinge_qposadr >= 0:
             self.data.qpos[self.hinge_qposadr] = angle
@@ -541,10 +635,27 @@ class RodRotationEnv(gym.Env):
             q_axial = np.array([np.cos(angle / 2), np.sin(angle / 2), 0.0, 0.0])
             self.data.qpos[qadr + 3:qadr + 7] = self._quat_mul(q_base, q_axial)
         mujoco.mj_forward(self.model, self.data)
-        # Settle contacts briefly so the first observation sees touch.
-        for _ in range(40):
+        # Settle contacts so the first policy observation is inside the
+        # three-tip grasp basin.
+        for settle_step in range(self.grasp_ramp_steps):
+            alpha = float(settle_step + 1) / float(self.grasp_ramp_steps)
+            self.data.ctrl[:] = (1.0 - alpha) * q_reset + alpha * q_grasp
             self._apply_axis_stabilizer()
             mujoco.mj_step(self.model, self.data)
+        self.data.ctrl[:] = q_grasp
+        for _ in range(self.grasp_hold_steps):
+            self._apply_axis_stabilizer()
+            mujoco.mj_step(self.model, self.data)
+        if self.hand_model == "allegro" and not np.all(self._touch() > 0.05):
+            # The revolute rod can be in a brief stick/slip phase exactly at the
+            # end of settling. Advance to the next genuine three-pad support
+            # state so the first policy observation is not seed-phase dependent.
+            for _ in range(250):
+                self._apply_axis_stabilizer()
+                mujoco.mj_step(self.model, self.data)
+                if np.all(self._touch() > 0.05):
+                    break
+        self.q0_hand = np.asarray(self.data.qpos[self.hand_qpos_adr], dtype=np.float64).copy()
         self.target_tip = self.data.site_xpos[self.tip_site].copy()
         # Reward / Stage-0 stabilizer track the hanging vertical axis, not a tilted settle pose.
         self.target_axis = self._VERTICAL_AXIS.copy()
@@ -679,7 +790,7 @@ class RodRotationEnv(gym.Env):
             reward, dex_comp = compute_dexscrew_reward(
                 axial_omega=axial_omega,
                 fingertip_dists=dists,
-                q_hand=self.data.qpos[: self.nu],
+                q_hand=self.data.qpos[self.hand_qpos_adr],
                 q0_hand=self.q0_hand,
                 action=action,
                 last_action=self.last_action,

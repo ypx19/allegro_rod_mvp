@@ -27,6 +27,7 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecNormalize
 
 from allegro_rod_mvp import RodRotationEnv
+from allegro_rod_mvp.hand_pose import load_hand_pose, model_variant_for_physics
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -67,6 +68,8 @@ def make_env(
     tilt_terminate_rad: float = 0.7,
     tip_anchor: str = "top",
     dexscrew_tip_sigma: float = 0.025,
+    hand_model: str = "allegro",
+    hand_pose_config: str | None = None,
     rank: int = 0,
     seed: int = 0,
 ) -> gym.Env:
@@ -108,6 +111,8 @@ def make_env(
             tilt_terminate_rad=tilt_terminate_rad,
             tip_anchor=tip_anchor,
             dexscrew_tip_sigma=dexscrew_tip_sigma,
+            hand_model=hand_model,
+            hand_pose_config=hand_pose_config,
         )
     )
     env.reset(seed=seed + rank)
@@ -301,6 +306,8 @@ def build_vec_env(
             tilt_terminate_rad=args.tilt_terminate_rad,
             tip_anchor=args.tip_anchor,
             dexscrew_tip_sigma=args.dexscrew_tip_sigma,
+            hand_model=args.hand_model,
+            hand_pose_config=args.hand_pose_config,
             rank=rank,
             seed=args.seed,
         )
@@ -392,6 +399,8 @@ def write_run_artifacts(
         "rod_friction_cap": args.rod_friction_cap,
         "tilt_terminate_rad": args.tilt_terminate_rad,
         "tip_anchor": args.tip_anchor,
+        "hand_model": args.hand_model,
+        "hand_pose_config": args.hand_pose_config,
         "dexscrew_tip_penalty_scale": args.dexscrew_tip_penalty_scale,
         "dexscrew_tip_sigma": args.dexscrew_tip_sigma,
         "dexscrew_tilt_scale": (
@@ -414,6 +423,18 @@ def write_run_artifacts(
             "Stage reward_style: unwrapped_angle > π (legacy)."
         ),
     }
+    resolved_pose: dict[str, Any] | None = None
+    if args.hand_pose_config:
+        pose_content, pose_path, pose_hash = load_hand_pose(
+            args.hand_pose_config, model_variant_for_physics(args.physics)
+        )
+        resolved_pose = {
+            "path": str(pose_path),
+            "sha256": pose_hash,
+            "content": pose_content,
+        }
+        config["hand_pose_config"] = str(pose_path)
+        config["hand_pose"] = resolved_pose
     with (run_dir / "config.yaml").open("w", encoding="utf-8") as f:
         yaml.safe_dump(config, f, sort_keys=False)
 
@@ -430,6 +451,8 @@ def write_run_artifacts(
         "baseline_run": "scripts/train.py DummyVecEnv CPU Stage 0",
         "notes": notes,
     }
+    if resolved_pose:
+        meta["hand_pose"] = resolved_pose
     (run_dir / "metadata.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
 
 
@@ -489,6 +512,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.set_defaults(vec_normalize=True)
     parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
     parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
+    parser.add_argument(
+        "--hand-model",
+        choices=["allegro", "surrogate"],
+        default="allegro",
+        help="12-DoF Allegro index/middle/thumb model or legacy 9-DoF surrogate.",
+    )
+    parser.add_argument(
+        "--hand-pose-config",
+        type=str,
+        default=None,
+        help="Optional validated palm-root pose JSON; defaults remain unchanged when omitted.",
+    )
     parser.add_argument("--privileged-obs", action="store_true")
     parser.add_argument("--dexscrew-rotate-scale", type=float, default=2.5)
     parser.add_argument("--dexscrew-prox-scale", type=float, default=2.0)

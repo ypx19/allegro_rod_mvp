@@ -32,28 +32,42 @@ def geom_distances(env: RodRotationEnv) -> np.ndarray:
     )
 
 
-def search(seed: int, samples: int) -> dict:
+def search(
+    seed: int,
+    samples: int,
+    *,
+    hand_model: str = "allegro",
+    physics_mode: str = "tip_connect",
+    tip_anchor: str = "bottom",
+) -> dict:
     env = RodRotationEnv(
+        hand_model=hand_model,
+        physics_mode=physics_mode,
+        tip_anchor=tip_anchor,
         curriculum_stage=2,
-        tip_connect_enabled=True,
+        tip_connect_enabled=True if physics_mode == "tip_connect" else None,
         tip_connect_solref=0.10,
-        axis_stabilizer_scale=0.10,
+        axis_stabilizer_scale=1.0 if physics_mode == "tip_connect" else 0.0,
     )
     env.reset(seed=seed)
-    rod_qpos = env.data.qpos[env.nu :].copy()
-    joint_ranges = env.model.jnt_range[: env.nu]
+    settled_qpos = env.data.qpos.copy()
+    joint_ranges = env.model.jnt_range[env.hand_joint_ids]
     rng = np.random.default_rng(seed)
 
     initial_distances = geom_distances(env)
     initial_forces = env._touch()
+    initial_qpos = env.data.qpos[env.hand_qpos_adr].copy()
     best_individual = [
-        {"distance_m": float(initial_distances[i]), "qpos": env.data.qpos[: env.nu].tolist()}
+        {
+            "distance_m": float(initial_distances[i]),
+            "qpos": initial_qpos.tolist(),
+        }
         for i in range(3)
     ]
     best_simultaneous = {
         "max_distance_m": float(np.max(initial_distances)),
         "distances_m": initial_distances.tolist(),
-        "qpos": env.data.qpos[: env.nu].tolist(),
+        "qpos": initial_qpos.tolist(),
     }
     best_shallow_three_contact: dict | None = None
     three_contact_candidates: list[dict] = []
@@ -61,8 +75,8 @@ def search(seed: int, samples: int) -> dict:
 
     for _ in range(samples):
         q = rng.uniform(joint_ranges[:, 0], joint_ranges[:, 1])
-        env.data.qpos[: env.nu] = q
-        env.data.qpos[env.nu :] = rod_qpos
+        env.data.qpos[:] = settled_qpos
+        env.data.qpos[env.hand_qpos_adr] = q
         env.data.qvel[:] = 0.0
         env.data.ctrl[:] = q
         mujoco.mj_forward(env.model, env.data)
@@ -99,14 +113,31 @@ def search(seed: int, samples: int) -> dict:
                 "qpos": q.tolist(),
             }
 
-    # Dynamically replay every three-contact candidate and retain the strongest
-    # settled grasp. Fall back to the geometric minimax candidate if none exist.
+    # The post-reset state is already dynamically settled by the environment;
+    # retain it as the baseline instead of replaying its measured qpos with a
+    # different control target.
+    initial_count = int(np.sum(initial_forces > 0.05))
+    initial_score = (
+        initial_count,
+        float(np.min(initial_forces)),
+        float(np.sum(np.minimum(initial_forces, 20.0))),
+    )
+    best_dynamic: dict | None = {
+        "score": list(initial_score),
+        "qpos": initial_qpos.tolist(),
+        "static_distances_m": initial_distances.tolist(),
+        "settled_distances_m": initial_distances.tolist(),
+        "settled_forces_n": initial_forces.tolist(),
+        "settled_contact_count": initial_count,
+        "source": "environment_reset",
+    }
+    # Replay random geometric three-contact candidates; if none were sampled,
+    # replay the geometric minimax state as a diagnostic only.
     replay_candidates = three_contact_candidates or [best_simultaneous]
-    best_dynamic: dict | None = None
     for candidate in replay_candidates:
         q = np.asarray(candidate["qpos"], dtype=np.float64)
-        env.data.qpos[: env.nu] = q
-        env.data.qpos[env.nu :] = rod_qpos
+        env.data.qpos[:] = settled_qpos
+        env.data.qpos[env.hand_qpos_adr] = q
         env.data.qvel[:] = 0.0
         env.data.ctrl[:] = q
         mujoco.mj_forward(env.model, env.data)
@@ -130,12 +161,16 @@ def search(seed: int, samples: int) -> dict:
                 "settled_distances_m": settled_distances.tolist(),
                 "settled_forces_n": settled_forces.tolist(),
                 "settled_contact_count": settled_count,
+                "source": "random_search_replay",
             }
     assert best_dynamic is not None
 
     result = {
         "seed": seed,
         "samples": samples,
+        "hand_model": hand_model,
+        "physics_mode": physics_mode,
+        "tip_anchor": tip_anchor,
         "initial_distances_m": initial_distances.tolist(),
         "initial_forces_n": initial_forces.tolist(),
         "best_individual": best_individual,
@@ -159,11 +194,23 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--samples", type=int, default=20_000)
     parser.add_argument("--seeds", type=int, default=3)
+    parser.add_argument("--hand-model", choices=["allegro", "surrogate"], default="allegro")
+    parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
+    parser.add_argument("--tip-anchor", choices=["top", "bottom"], default="bottom")
     parser.add_argument("--out-dir", type=Path, required=True)
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    results = [search(seed, args.samples) for seed in range(args.seeds)]
+    results = [
+        search(
+            seed,
+            args.samples,
+            hand_model=args.hand_model,
+            physics_mode=args.physics,
+            tip_anchor=args.tip_anchor,
+        )
+        for seed in range(args.seeds)
+    ]
     (args.out_dir / "reachability.json").write_text(json.dumps(results, indent=2))
     with (args.out_dir / "metrics.csv").open("w", newline="") as handle:
         fieldnames = [

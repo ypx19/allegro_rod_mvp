@@ -1108,3 +1108,356 @@ revise
 
 ### Next Step
 Use the verified settled three-contact reset distribution and add an initial gate grace period, while holding the reward table and gate threshold fixed.
+
+## EXP-20260823-001: Allegro three-fingertip reset reachability
+- Run ID: `20260823-geometry-reachability-allegro-tip-bottom-v2`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: `20260724-2045-finger2-spatial-dof`
+- Git branch: `cursor/teleop-hand-keyboard`
+- Random seed: 0–2
+- Device: CPU
+- Checkpoint: none
+
+### Question
+Can an Allegro V3-derived index/middle/thumb model begin the bottom-tip task in a dynamically settled three-fingertip wrap?
+
+### Hypothesis
+Exact Allegro joint frames plus a bounded ramp from a shallow IK solution to a preload target will produce all three fingertip contacts without excessive median force.
+
+### Change from Baseline
+- Replaced the planar 9-DoF surrogate with a 12-DoF index/middle/thumb model.
+- Preserved official Allegro joint axes, ranges, link offsets, and thumb opposition frame.
+- Used primitive collision geometry, a 2 mm middle-pad allowance, and a ramped reset.
+
+### Success Criteria
+- Three contacts on at least 90% of fixed-seed resets.
+- Median force below 50 N per fingertip.
+- Finite dynamics in both revolute and point-connect variants.
+
+### Result
+Passed. A 50-seed reset audit produced three contacts on 50/50 resets in each physics variant. The recorded three-seed point-connect audit had settled forces of 12.91/18.40/6.20 N, 13.48/20.16/5.25 N, and 11.26/19.50/4.74 N.
+
+### Key Metrics
+- Point-connect three-contact reset rate: 1.00 (50/50).
+- Revolute three-contact reset rate: 1.00 (50/50 after seed-phase settling).
+- Maximum point-connect force in the 50-seed audit: 29.55 N.
+- Observation/action shape: 48 / 12 in both physics variants.
+
+### Visual Evidence
+No rendered media was generated in this validation pass.
+
+### Interpretation
+The previous exploration failure caused by an unreachable/non-contacting third finger is removed for the new model. Random 12-DoF search remains sparse, but the optimized reset is reproducible.
+
+### Decision
+adopt
+
+### Next Step
+Run a short revolute PPO smoke, then execute every retained-connect curriculum transition.
+
+## EXP-20260823-002: Allegro retained-connect curriculum smoke
+- Run ID: `20260823-0405-allegro-tip-bottom-smoke-seed0`
+- Date: 2026-08-23
+- Status: completed (plumbing passed; task failed)
+- Parent or baseline run: `20260808-0224-...-3touch-smoke` documentation
+- Git branch: `cursor/teleop-hand-keyboard`
+- Random seed: 0
+- Device: NVIDIA RTX 3090
+- Duration: approximately 22 minutes
+- Checkpoint: `runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0/checkpoints/final_model.zip`
+
+### Question
+Can the new 12-DoF policy and VecNormalize state transfer from revolute through progressively less-assisted bottom point-connect stages to nominal mass?
+
+### Hypothesis
+The verified wrap reset will keep contact observable at every stage and prevent the immediate C1/C5 collapse seen with the surrogate.
+
+### Change from Baseline
+- New Allegro-like hand and 12-action/48-observation policy trained from scratch.
+- Final point-connect is retained; no free-tip C5.
+- Eight stages: A0, B0–B3, then mass 4→2→1.
+- Each smoke stage used 20k steps and selected among 10k/20k/final checkpoints.
+
+### Success Criteria
+Plumbing: every stage trains, saves/loads, transfers matching VecNormalize state, and evaluates finitely. Task: final success ≥0.5, tip error <2 cm, drop ≤0.15, three-contact occupancy ≥0.72, and zero stabilizer torque.
+
+### Result
+Plumbing passed all eight stages. The final task gate failed because sustained-ω success was 0. The final policy survived every 20 s episode with all three contacts and low tip error, but rotated only 40.11°.
+
+### Key Metrics
+| Metric | A0 selected | Final selected |
+|---|---:|---:|
+| Success rate | 0.00 | 0.00 |
+| Mean rotation | 0.01° | 40.11° |
+| Tip error | 0.00 mm | 1.40 mm |
+| Three-contact occupancy | 0.984 | 1.000 |
+| Drop rate | 0.60 | 0.00 |
+| Stabilizer torque max mean | 0.000 | 0.000 |
+| Mean rotation reward / step | 0.002 | 0.085 |
+| Mean contact reward / step | 2.950 | 3.000 |
+
+### Visual Evidence
+- Eight-stage selected-checkpoint video index: `runs/curricula/20260823-0405-allegro-tip-bottom-smoke-seed0/stage_videos_20260823-130800/INDEX.md`
+- Machine-readable video/config/metric manifest: `runs/curricula/20260823-0405-allegro-tip-bottom-smoke-seed0/stage_videos_20260823-130800/metadata.json`
+- Deterministic seed 0 was retained for seven stages. C1 uses fixed seed 7 because seed 0 terminated at 2.84 s while seed 7 provided a representative 4.92 s rollout. B0 seed 0 ends at 2.76 s, but seeds 1–9 fail similarly, so the short episode is representative.
+- Every MP4 includes a readable overlay with stage/checkpoint, seed, rotation, tip error, contact count, tilt, success, and termination. All eight files fully decoded at 640×480, 25 FPS.
+
+### Interpretation
+Measured fact: the model solves the prior contact-initialization and immediate-collapse failures. Measured fact: contact reward dominates rotation reward by about 35:1 at the final checkpoint. The evidence suggests a reward-specification failure: holding still with three contacts is a high-return local optimum.
+
+### Decision
+revise
+
+### Next Step
+Change only the three-contact bonus from +3.0 to +0.3 while keeping the 72% hard support window and no-rotation-credit gate. Train A0 long enough to evaluate angular-speed learning before another full curriculum.
+
+## EXP-20260823-003: Reversed Allegro world-X geometry preview
+- Run ID: `reversed_world_x_180_20260823-161731`
+- Date: 2026-08-23
+- Status: completed (preview; awaiting orientation confirmation)
+- Parent or baseline run: validated Allegro MJCF geometry from `20260823-geometry-reachability-allegro-tip-bottom-v2`
+- Random seed: none
+- Device: CPU / MuJoCo EGL renderer
+- Duration: 5 s per video
+- Checkpoint: none; no policy loaded
+
+### Question
+Does a rigid 180° world-X transform of the complete palm subtree produce a clear downward-facing orientation preview while keeping the existing grasp meaningfully positioned around the vertical rod?
+
+### Hypothesis
+Rotating only the palm root about the rod-center pivot `(0, -0.05, 0)` will preserve every Allegro-relative joint frame and map the validated wrap to the opposite side of the rod without losing all three fingertip contacts.
+
+### Change from Baseline
+- Pre-multiplied the palm root by quaternion `(0, 1, 0, 0)` about world pivot `(0, -0.05, 0)`.
+- Changed no palm-relative child body or joint transform.
+- Generated separate preview MJCF files; validated defaults remain unchanged.
+- Configured explicit bottom anchors and visual-only world-axis/anchor markers.
+
+### Success Criteria
+- Both preview MJCFs compile and render.
+- Videos decode at 640×480 and 25 FPS.
+- Distinct bottom-anchor marker remains visible throughout each camera orbit.
+- The settled preview retains 3/3 fingertip-to-rod geometric and force contacts.
+
+### Result
+All preview gates passed. Both 125-frame MP4s decoded at 640×480 and 25 FPS. The yellow revolute marker and magenta point-connect marker were detected in every frame. Both scenes retained 3/3 contacts after 0.2 s.
+
+### Key Metrics
+- A0 settled signed distances: `[-0.509, -0.216, -0.462]` mm; forces `[113.44, 31.89, 52.97]` N.
+- C3 settled signed distances: `[-0.572, -0.945, -0.820]` mm; forces `[6.38, 26.06, 17.72]` N.
+- A0 marker pixels/frame: minimum 10, maximum 184.
+- C3 marker pixels/frame: minimum 5, maximum 240.
+
+### Visual Evidence
+- Index: `runs/previews/reversed_world_x_180_20260823-161731/INDEX.md`
+- Metadata: `runs/previews/reversed_world_x_180_20260823-161731/metadata.json`
+- A0 video: `runs/previews/reversed_world_x_180_20260823-161731/reversed_A0_bottom_revolute.mp4`
+- C3 video: `runs/previews/reversed_world_x_180_20260823-161731/reversed_C3_bottom_point_connect.mp4`
+
+### Interpretation
+The rigid root transform preserves initial grasp contact under both constraints. This is only geometry/constraint evidence; it does not establish policy validity or task success. The high A0 preview force also means the transformed pose should not be promoted to a training reset without a separate reset audit.
+
+### Decision
+Await visual orientation confirmation; do not replace the validated default.
+
+### Next Step
+If the orientation is accepted, expose this transform as an explicit training configuration and run a multi-seed reset/contact-force audit before any policy training.
+
+## EXP-20260823-004: Reversed hand with 10 mm palm clearance
+- Run ID: `reversed_world_x_180_clearance10mm_20260823-162310`
+- Date: 2026-08-23
+- Status: completed (preview; A0 contact gate failed)
+- Parent or baseline run: `reversed_world_x_180_20260823-161731`
+- Random seed: none
+- Device: CPU / MuJoCo EGL renderer
+- Duration: 5 s per video
+- Checkpoint: none; no policy loaded
+
+### Question
+What contact state remains when the already-flipped hand is translated rigidly upward until the palm collision bottom is 10 mm above the fixed rod top?
+
+### Hypothesis
+A world-Z-only translation of the full palm subtree will achieve exact clearance without modifying Allegro-relative frames, though fingertip contact may change because the finite rod and constraints remain fixed.
+
+### Change from Baseline
+- Added only `+0.032386 m` world-Z translation to the flipped palm root.
+- Kept the 180° world-X orientation, rod, bottom anchors, joint values, and every child transform fixed.
+- Targeted palm-bottom Z `0.080 m` above rod-top Z `0.070 m`.
+
+### Success Criteria
+- Measured initial clearance equals 10 mm.
+- Both models compile and both 125-frame videos fully decode at 640×480, 25 FPS.
+- Constraint markers remain visible.
+- Contact is measured after 0.2 s without joint retuning.
+
+### Result
+Placement and media checks passed. C3 retained 3/3 geometric and force contacts. A0 retained only 2/3: index-to-rod distance became +15.63 mm and index normal force became 0 N.
+
+### Key Metrics
+- Applied ΔZ: `+0.032386 m`.
+- Initial palm bottom / rod top / clearance: `0.080 / 0.070 / 0.010 m`.
+- A0 after 0.2 s: distances `[15.634, -0.024, -0.456]` mm; forces `[0.00, 15.60, 51.36]` N; 2/3 contacts.
+- C3 after 0.2 s: distances `[-0.702, -1.049, -1.457]` mm; forces `[11.42, 29.64, 39.95]` N; 3/3 contacts.
+
+### Visual Evidence
+- Index: `runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/INDEX.md`
+- Metadata: `runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/metadata.json`
+- A0: `runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/reversed_A0_bottom_revolute.mp4`
+- C3: `runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/reversed_C3_bottom_point_connect.mp4`
+
+### Interpretation
+The requested clearance is geometrically exact, but it is not contact-neutral under A0 dynamics. This preview does not validate a shared training reset or policy transfer.
+
+### Decision
+Preserve as a visual option pending orientation feedback; do not promote to the validated default.
+
+### Next Step
+If this placement is accepted visually, decide explicitly whether A0 must preserve 3/3 contact before designing a separate controlled reset adjustment.
+
+## EXP-20260823-005: Configurable Allegro palm-root pose interface
+- Run ID: `20260823-hand-pose-interface-validation`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: current validated Allegro geometry
+- Random seed: 3 for reset smoke
+- Device: CPU / MuJoCo EGL
+- Duration: <1 second focused tests; ~2.4 seconds environment smoke
+- Checkpoint: none
+
+### Question
+Can one versioned pose file move the complete Allegro hand identically in both physics variants without altering its internal kinematics or policy signature?
+
+### Hypothesis
+Applying an absolute model-frame transform only to the world-parented `palm` body will preserve every palm-relative body/joint frame and keep the 12-action/48-observation interface unchanged.
+
+### Change from Baseline
+- Added an opt-in hand-pose JSON loader and interactive editor.
+- Added no default pose and changed no MJCF geometry or reset joint values.
+
+### Success Criteria
+- Identical configured palm transform in revolute and point-connect models.
+- All non-palm local body transforms and all joint positions/axes unchanged.
+- Malformed JSON, non-unit quaternion, and incompatible model variants rejected.
+- Reset observation remains finite with shape 48; action shape remains 12.
+
+### Result
+All criteria passed in five dedicated pose tests, including overwrite protection. The combined pose/contact regression suite passed 9/9 tests, `py_compile` passed for every changed Python file, and `scripts/check_env.py` passed. The headless editor check exited immediately with actionable display instructions.
+
+### Key Metrics
+- Dedicated pose tests: 5/5 passed.
+- Combined pose/contact tests: 9/9 passed.
+- Action/observation dimensions: 12 / 48 for both variants.
+- Changed non-palm body transforms: 0.
+- Changed joint positions/axes: 0.
+
+### Visual Evidence
+No live viewer artifact was produced because this validation session had no graphical display. The editor adds green/cyan rod endpoint markers and physics-specific yellow/magenta anchor markers when run with a display.
+
+### Interpretation
+The code-level and model-level evidence supports the hypothesis. Live GUI key handling still requires a display-backed manual check before relying on the editor ergonomics.
+
+### Decision
+adopt as an opt-in configuration interface; do not promote any edited pose to the training default.
+
+### Next Step
+Open the editor on a graphical session, save a candidate pose to a new path, then run the existing multi-seed reset/contact-force audit before training with it.
+
+## EXP-20260823-005: Thirty-millimeter clearance with thumb root inward
+- Run ID: `reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817`
+- Date: 2026-08-23
+- Status: completed (preview; A0 contact gate failed)
+- Parent or baseline run: `reversed_world_x_180_clearance10mm_20260823-162310`
+- Random seed: none
+- Device: CPU / MuJoCo EGL renderer
+- Duration: 5 s per video
+- Checkpoint: none; no policy loaded
+
+### Question
+What geometry and contact state result from raising the current flipped hand another 20 mm and moving its thumb-root body exactly 10 mm closer to the fixed rod axis?
+
+### Hypothesis
+A measured radial XY translation plus a rigid +20 mm Z increment will achieve both placement targets without changing any Allegro-relative frame, but A0 may continue to lose index contact.
+
+### Change from Baseline
+- Relative Z translation: `+0.020000 m`; total post-flip Z translation: `+0.052386 m`.
+- MuJoCo reference positions: thumb-root XY `[-0.064705, -0.058490]` m; rod-axis XY `[0, -0.05]` m.
+- Applied XY translation: `[+0.009915014, +0.001300958]` m.
+- Kept rod, anchors, orientation, joint values, and child transforms fixed.
+
+### Success Criteria
+- Palm-bottom clearance is 30 mm above the rod top.
+- Thumb-root radial distance decreases by exactly 10 mm.
+- Both models compile and both 125-frame videos fully decode at 640×480, 25 FPS.
+- Contact and forces are measured after 0.2 s without retuning.
+
+### Result
+Both placement targets and media checks passed. Thumb-root distance decreased from 65.259613 to 55.259613 mm. C3 retained 3/3 contacts; A0 retained 2/3 and again lost index contact.
+
+### Key Metrics
+- Palm bottom / rod top / clearance: `0.100 / 0.070 / 0.030 m`.
+- A0 after 0.2 s: distances `[8.203, -0.232, -0.658]` mm; forces `[0.00, 34.58, 132.93]` N; 2/3 contacts.
+- C3 after 0.2 s: distances `[-0.633, -1.116, -0.927]` mm; forces `[8.47, 31.36, 24.11]` N; 3/3 contacts.
+
+### Visual Evidence
+- Index: `runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/INDEX.md`
+- Metadata: `runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/metadata.json`
+- A0: `runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/reversed_A0_bottom_revolute.mp4`
+- C3: `runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/reversed_C3_bottom_point_connect.mp4`
+
+### Interpretation
+The measured rigid placement achieves the requested geometry but does not restore A0 three-contact support. C3 contact preservation does not establish policy or reset validity.
+
+### Decision
+Preserve as a reversible preview; do not promote to the validated default.
+
+### Next Step
+Await visual feedback before any explicit, separately documented joint or reset adjustment.
+
+## EXP-20260823-006: Headless Web hand-pose editor validation
+- Run ID: `20260823-hand-pose-web-validation`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: `20260823-hand-pose-interface-validation`
+- Random seed: 0 for deterministic scene reset
+- Device: CPU / MuJoCo EGL
+- Duration: <2 seconds focused tests; live API smoke <1 second
+- Checkpoint: none
+
+### Question
+Can the validated palm-root pose interface be used through a practical local Web UI on a headless server without changing the saved schema or hand kinematics?
+
+### Hypothesis
+A standard-library HTTP server, plain browser client, and MuJoCo EGL renderer can expose responsive pose/camera controls while continuing to apply and serialize only the `palm` root through `allegro_rod_mvp.hand_pose`.
+
+### Change from Baseline
+- Added `scripts/edit_hand_pose_web.py` and deterministic backend/API tests.
+- Replaced the keyboard viewer with the Web UI as the primary documented interface.
+- Kept the existing JSON schema, environment integration, model defaults, and keyboard script unchanged.
+
+### Success Criteria
+- Initial state, pose update/reset, save/load/overwrite protection, malformed requests, and confined paths pass deterministic tests.
+- Revolute and bottom point-connect scenes both produce non-empty decodable PNG renders under EGL without a display.
+- A live HTTP smoke returns state, accepts a pose update, and returns a 640×480 PNG.
+
+### Result
+All four focused tests passed. `py_compile` passed. A live server bound to `127.0.0.1`, used EGL with no display, accepted an API pose update, and returned a decodable 46,099-byte 640×480 PNG.
+
+### Key Metrics
+- Focused tests: 4/4 passed.
+- Physics variants rendered: 2/2.
+- Live render: 640×480 PNG, 46,099 bytes.
+- Changed child/joint frames: 0 by construction; the existing five pose-plumbing regression tests remain the kinematic check.
+
+### Visual Evidence
+- Live MuJoCo image was decoded during the API smoke.
+- No browser-layout screenshot was produced because no browser automation namespace or Chromium executable was available in this session.
+
+### Interpretation
+The Web transport and headless rendering path are validated independently of training behavior. The saved file is still produced by `make_hand_pose`/`write_hand_pose`, so it remains compatible with the environment and artifact hashing.
+
+### Decision
+adopt as the primary documented pose-editing interface; retain the keyboard viewer as an optional display-backed fallback.
+
+### Next Step
+Use the Web UI to save a new candidate pose, then run the existing multi-seed reset/contact-force audit before opting that pose into training.

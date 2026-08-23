@@ -7,3 +7,4 @@ MUJOCO_LOG.TXT
 
 # External reference clones (not part of this project)
 references/
+external/

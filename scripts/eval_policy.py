@@ -46,6 +46,8 @@ def evaluate(
     dexscrew_tip_penalty_scale: float = 0.5,
     dexscrew_tip_sigma: float = 0.025,
     vecnormalize: str | None = None,
+    hand_model: str = "allegro",
+    hand_pose_config: str | None = None,
 ) -> dict:
     def _make_env() -> RodRotationEnv:
         return RodRotationEnv(
@@ -75,6 +77,8 @@ def evaluate(
             rod_friction_cap=rod_friction_cap,
             tilt_terminate_rad=tilt_terminate_rad,
             tip_anchor=tip_anchor,
+            hand_model=hand_model,
+            hand_pose_config=hand_pose_config,
         )
 
     env = _make_env()
@@ -184,6 +188,10 @@ def evaluate(
         "rod_friction_cap": rod_friction_cap,
         "tilt_terminate_rad": tilt_terminate_rad,
         "tip_anchor": tip_anchor,
+        "hand_model": hand_model,
+        "hand_pose_config": env.hand_pose_config_path,
+        "hand_pose_config_sha256": env.hand_pose_config_sha256,
+        "hand_pose_config_content": env.hand_pose_config_content,
         "dexscrew_tip_penalty_scale": dexscrew_tip_penalty_scale,
         "vecnormalize": vecnormalize,
         "axis_rotation_deg_mean": float(rotations_arr.mean()),
@@ -254,6 +262,8 @@ def main() -> int:
     parser.add_argument("--contact-window-threshold", type=float, default=0.0)
     parser.add_argument("--three-contact-required", action="store_true")
     parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
+    parser.add_argument("--hand-model", choices=["allegro", "surrogate"], default="allegro")
+    parser.add_argument("--hand-pose-config", type=str, default=None)
     parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
     parser.add_argument("--privileged-obs", action="store_true")
     parser.add_argument("--omega-success-threshold", type=float, default=0.5)
@@ -309,6 +319,8 @@ def main() -> int:
         dexscrew_tip_penalty_scale=args.dexscrew_tip_penalty_scale,
         dexscrew_tip_sigma=args.dexscrew_tip_sigma,
         vecnormalize=args.vecnormalize,
+        hand_model=args.hand_model,
+        hand_pose_config=args.hand_pose_config,
     )
     print(json.dumps(metrics, indent=2))
 

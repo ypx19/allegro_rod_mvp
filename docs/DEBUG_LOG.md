@@ -418,3 +418,58 @@ Before hard-gating a sparse behavior, verify that the reset distribution or a st
 A logically correct threshold can destroy the exploration horizon when its passing state is absent from the reset distribution.
 
 ---
+
+## DBG-20260823-001: Three-contact bonus creates a static-grasp optimum
+- Date: 2026-08-23
+- Status: investigating
+- Related runs: `20260823-0405-allegro-tip-bottom-smoke-seed0`
+- Related files: `allegro_rod_mvp/env.py`, `scripts/run_allegro_tip_bottom_curriculum.py`
+- Severity: high
+- First observed: final nominal-mass curriculum smoke evaluation
+
+### Symptom
+The final policy maintains three fingertip contacts for every evaluation step and survives the full episode, but mean rotation is only 40.11° and sustained-ω success is 0%.
+
+### Expected Behavior
+After preserving support, the policy should sustain axial angular velocity above 0.5 rad/s for 10 seconds.
+
+### Reproduction
+```bash
+.venv/bin/python scripts/run_allegro_tip_bottom_curriculum.py \
+  --curriculum-id 20260823-0405-allegro-tip-bottom-smoke-seed0 \
+  --start-scale 10 --smoke --num-envs 4 --device cuda --seed 0
+```
+
+### Evidence
+- Final three-contact occupancy: 1.000.
+- Final drop rate: 0.00.
+- Final tip error: 1.40 mm.
+- Final mean rotation reward: +0.085/step.
+- Final mean contact reward: +3.000/step.
+- Final rotation: 40.11°; success: 0/5.
+
+### Hypotheses
+1. The +3 contact bonus dominates the angular-velocity reward and makes a static grasp locally optimal.
+2. The hard support and no-rotation-credit gates are sufficient to preserve coordination without such a large positive contact bonus.
+3. The 20k-per-stage smoke budget is too short to learn rotation, but extending it with the same reward ratio would reinforce the static optimum.
+
+### Investigation
+- Verified contact reachability and reset stability independently before training.
+- Executed every constraint/stabilizer/mass transition.
+- Compared individual reward components rather than total return.
+- Observed the same low-ω behavior despite excellent contact, endpoint, and survival metrics.
+
+### Root Cause
+The immediate reward imbalance is confirmed: contact contributes approximately 35 times more positive reward than rotation in the final evaluation. Whether reducing it alone is sufficient to learn sustained rotation is not yet confirmed.
+
+### Resolution
+Planned controlled change: reduce only `three_contact_reward` from 3.0 to 0.3. Keep the 25-step/18-step support gate and `three_contact_required` rotation gate unchanged.
+
+### Verification
+Pending a fresh A0 revolute run with dense checkpoint evaluation.
+
+### Prevention
+Require reward-component share checks before promoting future shaping changes. A support bonus must not exceed the task-progress signal once support is already reliably initialized.
+
+### Lessons Learned
+A contact-friendly reset can solve exploration while an oversized continuing contact bonus still prevents task progress.

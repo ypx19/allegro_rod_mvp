@@ -57,6 +57,7 @@ def _make_env(args: argparse.Namespace) -> RodRotationEnv:
         rod_friction_cap=args.rod_friction_cap,
         tilt_terminate_rad=args.tilt_terminate_rad,
         tip_anchor=args.tip_anchor,
+        hand_pose_config=args.hand_pose_config,
     )
 
 
@@ -136,6 +137,7 @@ def main() -> int:
     parser.add_argument("--rod-friction-cap", type=float, default=4.0)
     parser.add_argument("--tilt-terminate-rad", type=float, default=0.7)
     parser.add_argument("--tip-anchor", choices=["top", "bottom"], default="top")
+    parser.add_argument("--hand-pose-config", type=str, default=None)
     parser.add_argument("--dexscrew-tip-penalty-scale", type=float, default=0.5)
     parser.add_argument("--dexscrew-tip-sigma", type=float, default=0.025)
     parser.add_argument(

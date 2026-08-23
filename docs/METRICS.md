@@ -85,6 +85,14 @@ Implementation:
 Discrete EXP-20260724-003 mapping:
 0 → -10.0, 1 → -1.0, 2 → +0.1, 3 → +10.0. EXP-20260724-009 and later contact experiments use +30.0 for three contacts. The legacy linear mapping remains available for reproduction.
 
+Allegro bottom-tip curriculum note (2026-08-23):
+`three_contact_required=True` changes the rolling gate sample to a binary
+three-contact indicator, independent of the configured bonus magnitude. The
+smoke used a +3.0 three-contact bonus and exposed a static-grasp optimum
+(`DBG-20260823-001`). The next controlled experiment should use +0.3 while
+retaining the 25-step window, threshold 18 (72%), and no rotation credit below
+three contacts.
+
 ## Rolling Contact-Support Gate
 Definition:
 The sum of raw discrete contact rewards over the most recent configured number of steps.

@@ -2,7 +2,8 @@
 """Keyboard teleoperation of the Allegro hand in MuJoCo.
 
 Controls:
-  1-9       Select joint a0..a8 (finger0: 1-3, finger1: 4-6, finger2: 7-9)
+  1-9       Select actuator 0..8
+  , / .     Select previous / next actuator (covers all 12 Allegro joints)
   i / k     Increment / decrement selected joint target by step_size
   I / K     Increment / decrement by 5x step_size
   [ / ]     Decrease / increase step_size
@@ -59,7 +60,6 @@ import numpy as np
 
 from allegro_rod_mvp import RodRotationEnv
 
-JOINT_NAMES = ["f0_j0", "f0_j1", "f0_j2", "f1_j0", "f1_j1", "f1_j2", "f2_j0", "f2_j1", "f2_j2"]
 FINGER_NAMES = ["finger0", "finger1", "finger2"]
 
 
@@ -131,6 +131,7 @@ def _print_hud(
     ctrl_target: np.ndarray,
     step_size: float,
     paused: bool,
+    joints_per_finger: int,
 ):
     tilt = info.get("axis_tilt_deg", 0.0)
     rot = info.get("axis_rotation_deg", 0.0)
@@ -139,8 +140,8 @@ def _print_hud(
     tip_err = info.get("tip_error_m", 0.0)
     omega = info.get("axial_omega", 0.0)
     pause_str = " [PAUSED]" if paused else ""
-    finger_idx = selected_joint // 3
-    local_idx = selected_joint % 3
+    finger_idx = selected_joint // joints_per_finger
+    local_idx = selected_joint % joints_per_finger
     joint_label = f"{FINGER_NAMES[finger_idx]}.j{local_idx}"
     tilt_marker = "OK" if info.get("axis_tilt_rad", 1.0) < 0.25 else "!!"
     print(
@@ -204,10 +205,13 @@ def run_teleop(args: argparse.Namespace):
         tilt_terminate_rad=args.tilt_terminate_rad,
         tip_anchor=args.tip_anchor,
         physics_mode=args.physics,
+        hand_model=args.hand_model,
+        hand_pose_config=args.hand_pose_config,
     )
 
     obs, _ = env.reset(seed=args.seed)
     nu = env.nu
+    joints_per_finger = nu // 3
     ctrl_target = env.data.ctrl[:nu].copy()
     snapshot_idx = 0
 
@@ -260,7 +264,7 @@ def run_teleop(args: argparse.Namespace):
 
     fd, old_settings = _setup_terminal()
     mode_label = render_mode or "none"
-    print("Teleop started. Press 'q' to quit, 'r' to reset, 1-9 to select joint, i/k to move.")
+    print("Teleop started. Press 'q' to quit, 'r' to reset, digits or ,/. to select, i/k to move.")
     if render_mode == "human":
         print("Viewer: ON (MuJoCo window)")
     else:
@@ -293,7 +297,11 @@ def run_teleop(args: argparse.Namespace):
                 elif key == "p":
                     paused = not paused
                 elif key in "123456789":
-                    selected_joint = int(key) - 1
+                    selected_joint = min(int(key) - 1, nu - 1)
+                elif key == ",":
+                    selected_joint = (selected_joint - 1) % nu
+                elif key == ".":
+                    selected_joint = (selected_joint + 1) % nu
                 elif key == "i":
                     ctrl_target[selected_joint] += step_size
                 elif key == "k":
@@ -321,7 +329,15 @@ def run_teleop(args: argparse.Namespace):
             if paused:
                 time.sleep(0.02)
                 if info:
-                    _print_hud(step_count, info, selected_joint, ctrl_target, step_size, paused)
+                    _print_hud(
+                        step_count,
+                        info,
+                        selected_joint,
+                        ctrl_target,
+                        step_size,
+                        paused,
+                        joints_per_finger,
+                    )
                 continue
 
             action = (ctrl_target - env.data.ctrl[:nu]) / env.ctrl_scale
@@ -352,7 +368,15 @@ def run_teleop(args: argparse.Namespace):
 
             now = time.time()
             if now - last_hud_time > 0.1:
-                _print_hud(step_count, info, selected_joint, ctrl_target, step_size, paused)
+                _print_hud(
+                    step_count,
+                    info,
+                    selected_joint,
+                    ctrl_target,
+                    step_size,
+                    paused,
+                    joints_per_finger,
+                )
                 last_hud_time = now
 
             if terminated or truncated:
@@ -391,6 +415,8 @@ def main():
                         help="Set high to not auto-terminate on tilt during teleop")
     parser.add_argument("--tip-anchor", choices=["top", "bottom"], default="top")
     parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
+    parser.add_argument("--hand-model", choices=["allegro", "surrogate"], default="allegro")
+    parser.add_argument("--hand-pose-config", type=str, default=None)
     parser.add_argument("--out-dir", type=str, default="runs/teleop")
     parser.add_argument(
         "--headless",

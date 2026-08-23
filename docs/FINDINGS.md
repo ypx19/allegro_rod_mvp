@@ -1,5 +1,24 @@
 # Findings
 
+## FIND-20260823-001: Allegro-aligned wrap reset removes the sparse three-contact initialization failure
+- Confidence: high
+- Supporting runs: `20260823-geometry-reachability-allegro-tip-bottom-v2`, `20260823-0405-allegro-tip-bottom-smoke-seed0`
+- Related debug issues: `DBG-20260724-002`, `DBG-20260823-001`
+- Applies to: 12-DoF Allegro index/middle/thumb primitive model with ramped bottom-tip reset
+- Does not apply to: the legacy 9-DoF surrogate or arbitrary rod/palm placements
+
+### Finding
+Using official Allegro joint frames with an optimized shallow-to-preload reset makes simultaneous three-fingertip support reproducible instead of exploration-sparse.
+
+### Evidence
+Both revolute and point-connect reset audits produced three contacts on 50/50 fixed seeds. The final curriculum smoke maintained three-contact occupancy of 1.0 at nominal mass and zero stabilizer torque.
+
+### Implication
+Future training should not increase contact reward to discover the third finger. Contact initialization is now solved; optimize rotation reward balance and curriculum duration instead.
+
+### Caveats
+The middle primitive pad radius is 2 mm larger than the Menagerie collision primitive so the adjacent distal box does not occlude pad contact. Revolute reset has occasional high transient index force and still needs visual artifact review.
+
 ## FIND-20260802-002: Unconstrained long PPO blows up `std` after Stage 0 success peak
 - Confidence: high
 - Supporting runs: `20260802-0220-exp-infra-subproc64-1e9-seed0` (EXP-20260802-002)
@@ -248,3 +267,39 @@ Do not tune this threshold further from the same reset distribution. Change init
 
 ### Caveats
 One training seed and a 25k-step budget. The gate may be useful after the policy already has a three-contact behavior.
+
+## FIND-20260823-014: Flip the Allegro hand at its subtree root
+- Confidence: medium
+- Supporting runs: `reversed_world_x_180_20260823-161731`
+- Applies to: Allegro index/middle/thumb preview geometry around the current vertical rod
+- Does not apply to: policy compatibility or training-reset force safety
+
+### Finding
+A 180° world-X flip about the rod-center pivot can be represented as one transform on the `palm` root; no child joint frame needs or should receive an independent rotation.
+
+### Evidence
+Both bottom-revolute and bottom-point-connect preview models compiled with unchanged palm-relative transforms and retained 3/3 geometric and force contacts after 0.2 s.
+
+### Implication
+If the reversed orientation is accepted, implement it as an explicit root-transform option and preserve the current MJCF as the default baseline.
+
+### Caveats
+This is deterministic preview evidence only. A0 lost index contact after 0.2 s at both the 10 mm-clearance placement and the later 30 mm-clearance placement with the thumb root moved 10 mm inward; C3 retained 3/3 in both. No policy was evaluated, so reset dynamics and policy transfer remain unvalidated.
+
+## FIND-20260823-015: Palm-root pose files preserve Allegro kinematics
+- Confidence: high
+- Supporting runs: `20260823-hand-pose-interface-validation`
+- Applies to: current Allegro revolute and point-connect task models
+- Does not apply to: arbitrary MJCFs without a world-parented `palm` body
+
+### Finding
+An absolute model-frame transform applied only to the world-parented `palm` body moves the full hand rigidly while preserving all palm-relative body transforms, joint positions, and joint axes.
+
+### Evidence
+Deterministic comparisons across both physics variants found zero changed non-palm local transforms and zero changed joint positions/axes. Both retained 12-D actions and 48-D observations, and a configured reset returned finite observations.
+
+### Implication
+Future candidate hand placements should use the versioned hand-pose configuration instead of editing each finger subtree or replacing the validated MJCF defaults.
+
+### Caveats
+Preserved kinematics do not imply preserved contact quality, reset stability, or policy performance. Each newly saved pose still requires a reset/contact audit before training.

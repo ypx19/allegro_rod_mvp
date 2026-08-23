@@ -115,3 +115,78 @@ This downloads `external/mujoco_menagerie/wonik_allegro`. The next implementatio
 - Contact-center features come from MuJoCo contact points, not a taxel or DIGIT image simulator.
 - Stage transfer with `PPO.load()` only works when observation and action dimensions remain unchanged, which they do across the three included stages.
 - A successful stage-0 policy does not by itself prove free-rod in-hand reorientation; stage 1 is the meaningful checkpoint.
+
+## Edit and reuse the complete Allegro hand pose
+
+The primary pose editor is a local Web UI. It moves only the world-parented
+`palm` body, so every finger body, joint frame, and joint axis remains fixed
+relative to the palm. It uses MuJoCo offscreen rendering and defaults to EGL on
+a headless machine; no X `DISPLAY` is required.
+
+```bash
+.venv/bin/python scripts/edit_hand_pose_web.py \
+  --physics revolute \
+  --output configs/hand_poses/my_grasp.json \
+  --notes "candidate downward-facing grasp"
+```
+
+The command binds only to `127.0.0.1`, prints the selected URL (normally
+`http://127.0.0.1:8765/`), and serves until Ctrl-C. Pass `--port 0` to choose
+and print a free port, or `--open-browser` to request opening the URL locally.
+For remote SSH use, forward the printed port, for example
+`ssh -L 8765:127.0.0.1:8765 host`, then open `http://127.0.0.1:8765/` on your
+computer.
+
+The UI provides:
+
+- palm-root world X/Y/Z in millimeters and roll/pitch/yaw in degrees;
+- fine/coarse slider and numeric-input steps;
+- independent azimuth, elevation, distance, and camera look-at controls;
+- reset, load, settle/contact recomputation, save-as-new, and a separately
+  confirmed overwrite action;
+- live palm clearance above the rod top, thumb-root radial distance, and the
+  three fingertip normal contact forces;
+- green/cyan rod top/bottom markers and a yellow revolute or magenta
+  point-connect anchor marker.
+
+Slider changes are debounced. Camera changes do not alter the saved pose.
+Load and save paths are restricted to `configs/hand_poses/*.json`; existing
+files are refused unless the explicit overwrite button is confirmed.
+
+Reload a pose in the bottom point-connect scene and save a new version:
+
+```bash
+.venv/bin/python scripts/edit_hand_pose_web.py \
+  --physics tip_connect \
+  --tip-anchor bottom \
+  --load configs/hand_poses/my_grasp.json \
+  --output configs/hand_poses/my_grasp_v2.json
+```
+
+The older `scripts/edit_hand_pose.py` keyboard viewer remains available for a
+display-backed MuJoCo session, but the Web UI is the documented interface.
+
+Opt into the pose for training, evaluation, or joint teleoperation:
+
+```bash
+python scripts/train_parallel.py \
+  --physics revolute \
+  --tip-anchor bottom \
+  --hand-pose-config configs/hand_poses/my_grasp.json \
+  --run-id YYYYMMDD-HHMM-pose-trial-seed0
+
+python scripts/eval_policy.py runs/<run>/checkpoints/final_model.zip \
+  --physics revolute \
+  --hand-pose-config configs/hand_poses/my_grasp.json
+
+python scripts/teleop_hand.py \
+  --physics revolute \
+  --hand-pose-config configs/hand_poses/my_grasp.json
+```
+
+Pose files from either editor store the same validated, versioned absolute palm
+transform in MuJoCo model coordinates
+(which are world coordinates because `palm` is a direct world-body child),
+using normalized `wxyz` quaternions. Omitting `--hand-pose-config` preserves
+the model's current default pose. Training run config and metadata snapshot
+the resolved path, SHA-256, and validated pose content for reproducibility.
