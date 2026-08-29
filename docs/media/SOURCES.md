@@ -24,6 +24,10 @@
 | ablation/side_by_side_seed2.mp4 | ablation comparison | Seed 2 side-by-side |
 
 | cinematic-screwdriver.mp4 | `20260818-2345-cinematic-c0-screwdriver-seed0` | Hero / homepage front clip |
+| cinematic-screwdriver.jpg | first frame of `cinematic-screwdriver.mp4` | Hero / gallery poster |
 | cinematic-screwdriver-oval.mp4 | `20260818-2350-cinematic-c0-screwdriver-oval-seed0` | Hero / homepage front clip |
+| cinematic-isaacgym.mp4 | `20260818-2325-cinematic-viz-seed0` | Hero / homepage right clip: Isaac Gym mosaic, n=16 |
+| cinematic-isaacgym.jpg | frame 1/120 of `cinematic-isaacgym.mp4` | Hero / gallery poster (4×4 mosaic) |
+| og-isaacgym-parallel.jpg | 2×2 of close third-person crops from `cinematic-isaacgym.mp4` hold (not top-down mosaic) | Open Graph / Twitter share image |
 
 Ablation clips live under `docs/media/ablation/` for GitHub Pages.
