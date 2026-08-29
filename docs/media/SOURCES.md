@@ -29,5 +29,7 @@
 | cinematic-isaacgym.mp4 | `20260818-2325-cinematic-viz-seed0` | Hero / homepage right clip: Isaac Gym mosaic, n=16 |
 | cinematic-isaacgym.jpg | frame 1/120 of `cinematic-isaacgym.mp4` | Hero / gallery poster (4×4 mosaic) |
 | og-isaacgym-parallel.jpg | 2×2 of close third-person crops from `cinematic-isaacgym.mp4` hold (not top-down mosaic) | Open Graph / Twitter share image |
+| front-demo.mp4 | hstack of screwdriver + isaacgym (1920×540) | README / GitHub repo front demo |
+| front-demo.webp | animated still of `front-demo.mp4` (1280×360) | README-safe looping preview (GitHub strips `<video>`) |
 
 Ablation clips live under `docs/media/ablation/` for GitHub Pages.
