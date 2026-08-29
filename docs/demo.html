@@ -5,6 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Rod Rotation MVP — Research Demo</title>
   <meta name="description" content="DexScrew-style RL for three-finger rod rotation in MuJoCo: successes, failure modes, and ablations." />
+  <link rel="canonical" href="https://ypx19.github.io/allegro_rod_mvp/demo.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Rod Rotation MVP" />
+  <meta property="og:url" content="https://ypx19.github.io/allegro_rod_mvp/demo.html" />
+  <meta property="og:title" content="Rod Rotation MVP — Research Demo" />
+  <meta property="og:description" content="Isaac Gym parallel training (4 envs, close third-person) plus MuJoCo curricula for three-finger rod rotation: what transferred, what cliffed." />
+  <meta property="og:image" content="https://ypx19.github.io/allegro_rod_mvp/media/og-isaacgym-parallel.jpg" />
+  <meta property="og:image:secure_url" content="https://ypx19.github.io/allegro_rod_mvp/media/og-isaacgym-parallel.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Isaac Gym 2x2 of four parallel Allegro-hand rod-rotation environments, close oblique view" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Rod Rotation MVP — Research Demo" />
+  <meta name="twitter:description" content="Isaac Gym parallel training (4 envs, close third-person) plus MuJoCo curricula for three-finger rod rotation: what transferred, what cliffed." />
+  <meta name="twitter:image" content="https://ypx19.github.io/allegro_rod_mvp/media/og-isaacgym-parallel.jpg" />
+  <meta name="twitter:image:alt" content="Isaac Gym 2x2 of four parallel Allegro-hand rod-rotation environments, close oblique view" />
   <meta name="theme-color" content="#0c1218" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -676,10 +693,10 @@
 
   <section class="hero" id="top">
     <div class="hero-media" aria-hidden="true">
-      <video autoplay muted loop playsinline poster="" aria-label="Cinematic screwdriver view">
+      <video autoplay muted loop playsinline poster="media/cinematic-screwdriver.jpg" aria-label="Cinematic screwdriver view">
         <source src="media/cinematic-screwdriver.mp4" type="video/mp4" />
       </video>
-      <video autoplay muted loop playsinline poster="" aria-label="IsaacGym parallel cinematic env view">
+      <video autoplay muted loop playsinline poster="media/cinematic-isaacgym.jpg" aria-label="IsaacGym parallel cinematic env view">
         <source src="media/cinematic-isaacgym.mp4" type="video/mp4" />
       </video>
     </div>
@@ -917,12 +934,12 @@
         <div class="compare" style="margin-bottom: 1.75rem;">
           <div class="panel ok">
             <header>Front demo — MuJoCo cinematic</header>
-            <video controls playsinline preload="metadata" src="media/cinematic-screwdriver.mp4"></video>
+            <video controls playsinline preload="metadata" poster="media/cinematic-screwdriver.jpg" src="media/cinematic-screwdriver.mp4"></video>
             <p>Left clip: MuJoCo cinematic fly-in for the screwdriver view (used as the homepage left half).</p>
           </div>
           <div class="panel bad">
             <header>Front demo — IsaacGym parallel cinematic</header>
-            <video controls playsinline preload="metadata" src="media/cinematic-isaacgym.mp4"></video>
+            <video controls playsinline preload="metadata" poster="media/cinematic-isaacgym.jpg" src="media/cinematic-isaacgym.mp4"></video>
             <p>Right clip: IsaacGym parallel cinematic (used as the homepage right half).</p>
           </div>
         </div>
