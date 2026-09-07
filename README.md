@@ -99,6 +99,25 @@ python scripts/train.py \
 
 A first useful result is more than 180 degrees in the intended direction while keeping tip error below 2 cm without dropping.
 
+### Policy visualization board (Phase T debugging)
+
+Local EGL Web UI to load a PPO checkpoint (+ optional VecNormalize) and inspect
+tilt, tip error, axial ω / unwrapped rotation, 12-DoF joints, contact forces,
+and fingertip-local XY contact-center heatmaps while rolling out:
+
+```bash
+.venv/bin/python scripts/policy_viz_board.py \
+  --model runs/<run>/checkpoints/final_model.zip \
+  --physics tip_connect --tip-anchor bottom --rod-mass-scale 400 \
+  --hand-pose-config configs/hand_poses/my_grasp.json \
+  --port 8770
+```
+
+Open `http://127.0.0.1:8770/`. Use Play / Pause / Step / Reset, change seed /
+physics / tip-anchor / mass scale, or load another checkpoint from the UI.
+Snapshots write under a unique `runs/viz-*` directory (never overwrites prior runs).
+See the module docstring in `scripts/policy_viz_board.py` for full options.
+
 ## 6. Current low-dimensional tactile observation
 
 Each fingertip contributes:

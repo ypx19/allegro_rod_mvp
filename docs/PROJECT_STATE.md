@@ -134,6 +134,7 @@ Open `reports/decks/20260902-experiment-status.html` in a browser
 .venv/bin/python scripts/check_contact_reachability.py --samples 100 --seeds 3 --hand-model allegro --physics tip_connect --tip-anchor bottom --out-dir runs/<run_id>
 .venv/bin/python scripts/run_allegro_tip_bottom_curriculum.py --start-scale 10 --num-envs 32 --device cuda --seed 0
 .venv/bin/python scripts/edit_hand_pose_web.py --physics revolute --output configs/hand_poses/<name>.json
+.venv/bin/python scripts/policy_viz_board.py --model runs/<run>/checkpoints/final_model.zip --physics tip_connect --tip-anchor bottom --rod-mass-scale 400 --hand-pose-config configs/hand_poses/my_grasp.json --port 8770
 HAND_POSE_BROWSER_TESTS=1 MUJOCO_GL=egl .venv/bin/python -m unittest tests.test_hand_pose_web.HandPoseWebBrowserTest -v
 .venv/bin/python scripts/train_parallel.py --physics revolute --tip-anchor bottom --hand-pose-config configs/hand_poses/<name>.json --run-id <run_id>
 .venv/bin/python scripts/run_two_phase_force_curriculum.py --hand-pose-config configs/hand_poses/my_grasp.json --device cuda:1

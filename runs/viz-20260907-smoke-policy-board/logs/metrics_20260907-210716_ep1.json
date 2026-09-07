@@ -1,0 +1,251 @@
+{
+  "timestamp": "20260907-210716",
+  "model": "/data/ypx/allegro_rod_mvp/runs/20260823-2040-proportional-physics-C-tip-seed0-T00-s400-mu4-seed0/checkpoints/final_model.zip",
+  "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-2040-proportional-physics-C-tip-seed0-T00-s400-mu4-seed0/checkpoints/vecnormalize.pkl",
+  "physics": "tip_connect",
+  "tip_anchor": "bottom",
+  "rod_mass_scale": 400.0,
+  "seed": 0,
+  "episode_index": 1,
+  "episode_return": -21.42759213009917,
+  "done": true,
+  "last_info": {
+    "axis_rotation": 2.2404828408947652e-10,
+    "axis_rotation_deg": 1.2837021085475077e-08,
+    "dtheta": 2.2404828408947652e-10,
+    "axial_omega": -1.2628900140123837e-09,
+    "omega_hold_steps": 0,
+    "omega_hold_seconds": 0.0,
+    "omega_hold_satisfied": false,
+    "omega_success_threshold": 0.5,
+    "omega_success_hold_seconds": 10.0,
+    "success_mode": "net_angle",
+    "net_angle_success_threshold_rad": 3.141592653589793,
+    "net_angle_success_threshold_deg": 180.0,
+    "legacy_omega_success": false,
+    "net_angle_success": false,
+    "tip_error_m": 2.2724390156337747e-05,
+    "axis_tilt_rad": 0.5069364171132086,
+    "axis_tilt_deg": 29.04531718207033,
+    "lateral_omega": 0.01639428325649087,
+    "contact_count": 0,
+    "finger_contact_forces_n": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "contact_force_total_n": 0.0,
+    "contact_friction_scale": 4.0,
+    "contact_friction_vector": [
+      7.2,
+      0.05,
+      0.001
+    ],
+    "contact_friction_scaling_mode": "sliding_only",
+    "contact_friction_geom_vectors": {
+      "rod": [
+        7.2,
+        0.05,
+        0.001
+      ],
+      "tip0": [
+        7.2,
+        0.05,
+        0.001
+      ],
+      "tip1": [
+        7.2,
+        0.05,
+        0.001
+      ],
+      "tip2": [
+        7.2,
+        0.05,
+        0.001
+      ]
+    },
+    "effective_pair_friction_vectors": {
+      "rod_tip0": [
+        7.2,
+        7.2,
+        0.05,
+        0.001,
+        0.001
+      ],
+      "rod_tip1": [
+        7.2,
+        7.2,
+        0.05,
+        0.001,
+        0.001
+      ],
+      "rod_tip2": [
+        7.2,
+        7.2,
+        0.05,
+        0.001,
+        0.001
+      ]
+    },
+    "finger_contacts": [
+      0,
+      0,
+      0
+    ],
+    "axial_slip_proxy": 0.012154678414140363,
+    "stabilizer_torque_norm": 0.9729159756540182,
+    "physics_mode": "tip_connect",
+    "reward_style": "stage",
+    "reward_rotation": 0.0,
+    "reward_tip_penalty": -4.2154931263466104e-07,
+    "reward_axis_tilt_penalty": -6.424613274889424,
+    "reward_axis_tilt_penalty_raw": -6.424613274889424,
+    "reward_axis_tilt_recovery": -0.0,
+    "reward_axis_tilt_growth": 0.0,
+    "reward_lateral_omega_penalty": -8.063175704821707e-06,
+    "reward_contact_bonus": 0.0,
+    "reward_contact_bonus_raw": 0.0,
+    "contact_reward_scale": 1.0,
+    "contact_reward_mode": "linear",
+    "three_contact_required": false,
+    "rotation_requires_three_contacts": true,
+    "contact_support_termination_enabled": true,
+    "contact_reward_window_sum": 0.0,
+    "contact_gate_ready": false,
+    "contact_gate_satisfied": true,
+    "reward_proximity": 0.0,
+    "reward_force_penalty": -0.0,
+    "reward_action_rate_penalty": -0.002970370484728983,
+    "termination_reason": "rod_height",
+    "unstable": false,
+    "is_success": false,
+    "adaptive_reward_mass": false,
+    "mass_rot": 0.0,
+    "mass_tilt": 0.0,
+    "dexscrew_rotate_scale_live": 2.5,
+    "dexscrew_tilt_scale_live": 0.0,
+    "rod_mass_scale": 400.0,
+    "rod_friction_scale": 4.0,
+    "rod_mass": 6.743952229706089,
+    "rod_friction": 7.2,
+    "scale_rod_joint_dynamics_from_s400": false,
+    "rod_dof_damping": [
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05,
+      0.05
+    ],
+    "rod_dof_armature": [
+      0.002,
+      0.002,
+      0.002,
+      0.002,
+      0.002,
+      0.002
+    ],
+    "rod_dof_frictionloss": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "tip_anchor": "bottom",
+    "tip_solref0": 0.0004
+  },
+  "history": {
+    "step": [
+      0.0,
+      1.0
+    ],
+    "tilt_rad": [
+      0.0,
+      0.5069364171132086
+    ],
+    "tilt_deg": [
+      0.0,
+      29.04531718207033
+    ],
+    "tip_error_m": [
+      0.0,
+      2.2724390156337747e-05
+    ],
+    "axial_omega": [
+      0.0,
+      -1.2628900140123837e-09
+    ],
+    "axis_rotation_deg": [
+      0.0,
+      1.2837021085475077e-08
+    ],
+    "contact_count": [
+      0.0,
+      0.0
+    ],
+    "force0": [
+      0.0,
+      0.0
+    ],
+    "force1": [
+      0.0,
+      0.0
+    ],
+    "force2": [
+      0.0,
+      0.0
+    ],
+    "reward": [
+      0.0,
+      -21.42759213009917
+    ],
+    "episode_return": [
+      0.0,
+      -21.42759213009917
+    ]
+  },
+  "joint_names": [
+    "f0_j0",
+    "f0_j1",
+    "f0_j2",
+    "f0_j3",
+    "f1_j0",
+    "f1_j1",
+    "f1_j2",
+    "f1_j3",
+    "f2_j0",
+    "f2_j1",
+    "f2_j2",
+    "f2_j3"
+  ],
+  "latest_joints": [
+    -0.062182931686048215,
+    0.8161005996563531,
+    0.8789193458529139,
+    0.7199738633493112,
+    0.15082933277924104,
+    0.9658059616296505,
+    0.8849205217334567,
+    0.7600062445809256,
+    0.9967650244351378,
+    0.58153294414763,
+    0.9487209641185699,
+    0.8800183660379441
+  ],
+  "latest_contact_centers_m": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ]
+}
