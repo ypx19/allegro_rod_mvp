@@ -1,0 +1,13 @@
+[
+  {
+    "file": "runs/20260823-1730-two-phase-force-pose-smoke-seed0-R00-s400-mu4-iter0-seed0/videos/revolute_best_00_seed10000_rot222deg_tilt0deg_steps25_contact_support.mp4",
+    "seed": 10000,
+    "axis_rotation_deg": 222.0369780376055,
+    "peak_rotation_deg": 222.0369780376055,
+    "tip_error_m": 2.032468237812385e-17,
+    "omega_hold_satisfied": false,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 26
+  }
+]

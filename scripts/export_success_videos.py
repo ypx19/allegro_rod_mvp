@@ -40,23 +40,35 @@ def _make_env(args: argparse.Namespace) -> RodRotationEnv:
         axis_stabilizer_scale=args.axis_stabilizer_scale,
         axis_tilt_penalty_weight=args.axis_tilt_penalty_weight,
         axis_tilt_recovery_scale=args.axis_tilt_recovery_scale,
+        axis_tilt_growth_scale=args.axis_tilt_growth_scale,
         rotation_reward_scale=args.rotation_reward_scale,
         contact_reward_mode=args.contact_reward_mode,
         three_contact_reward=args.three_contact_reward,
         contact_window_steps=args.contact_window_steps,
         contact_window_threshold=args.contact_window_threshold,
         three_contact_required=args.three_contact_required,
+        rotation_requires_three_contacts=args.rotation_requires_three_contacts,
+        contact_support_termination_enabled=args.contact_support_termination_enabled,
+        contact_reward_scale=args.contact_reward_scale,
         physics_mode=args.physics,
         reward_style=args.reward_style,
         omega_success_threshold=args.omega_success_threshold,
         omega_success_hold_seconds=args.omega_success_hold_seconds,
+        success_mode=args.success_mode,
+        net_angle_success_threshold_rad=args.net_angle_success_threshold_rad,
         dexscrew_tilt_scale=args.dexscrew_tilt_scale,
         dexscrew_tip_penalty_scale=args.dexscrew_tip_penalty_scale,
         dexscrew_tip_sigma=args.dexscrew_tip_sigma,
         rod_mass_scale=args.rod_mass_scale,
         rod_friction_cap=args.rod_friction_cap,
+        contact_friction_scale=args.contact_friction_scale,
+        contact_friction_scaling_mode=args.contact_friction_scaling_mode,
+        scale_rod_joint_dynamics_from_s400=args.scale_rod_joint_dynamics_from_s400,
+        scale_tip_solref_with_mass=args.scale_tip_solref_with_mass,
         tilt_terminate_rad=args.tilt_terminate_rad,
         tip_anchor=args.tip_anchor,
+        hand_pose_config=args.hand_pose_config,
+        hand_grasp_config=args.hand_grasp_config,
     )
 
 
@@ -112,10 +124,19 @@ def main() -> int:
     parser.add_argument("--axis-stabilizer-scale", type=float, default=None)
     parser.add_argument("--axis-tilt-penalty-weight", type=float, default=1.0)
     parser.add_argument("--axis-tilt-recovery-scale", type=float, default=0.0)
+    parser.add_argument(
+        "--axis-tilt-growth-scale",
+        type=float,
+        default=0.0,
+        help=(
+            "DexScrew tilt-growth penalty scale (default 0). "
+            "Experiment scale 50 is not the default."
+        ),
+    )
     parser.add_argument("--rotation-reward-scale", type=float, default=16.0)
     parser.add_argument(
         "--contact-reward-mode",
-        choices=["linear", "discrete"],
+        choices=["linear", "discrete", "gait_two_support"],
         default="linear",
     )
     parser.add_argument("--three-contact-reward", type=float, default=10.0)
@@ -124,18 +145,69 @@ def main() -> int:
     parser.add_argument(
         "--three-contact-required",
         action="store_true",
-        help="Match training: no rotation credit and hard 3-contact window gate.",
+        help="Use the binary three-contact rolling termination gate.",
     )
+    parser.set_defaults(rotation_requires_three_contacts=True)
+    parser.add_argument(
+        "--rotation-requires-three-contacts",
+        dest="rotation_requires_three_contacts",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--no-rotation-requires-three-contacts",
+        dest="rotation_requires_three_contacts",
+        action="store_false",
+    )
+    parser.set_defaults(contact_support_termination_enabled=True)
+    parser.add_argument(
+        "--contact-support-termination",
+        dest="contact_support_termination_enabled",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--no-contact-support-termination",
+        dest="contact_support_termination_enabled",
+        action="store_false",
+    )
+    parser.add_argument("--contact-reward-scale", type=float, default=1.0)
     parser.add_argument("--fps", type=int, default=25)
     parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
     parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
     parser.add_argument("--omega-success-threshold", type=float, default=0.5)
     parser.add_argument("--omega-success-hold-seconds", type=float, default=10.0)
+    parser.add_argument(
+        "--success-mode",
+        choices=["omega_hold", "net_angle"],
+        default="omega_hold",
+    )
+    parser.add_argument(
+        "--net-angle-success-threshold-rad",
+        type=float,
+        default=float(np.pi),
+    )
     parser.add_argument("--dexscrew-tilt-scale", type=float, default=None)
     parser.add_argument("--rod-mass-scale", type=float, default=1.0)
     parser.add_argument("--rod-friction-cap", type=float, default=4.0)
+    parser.add_argument("--contact-friction-scale", type=float, default=None)
+    parser.add_argument(
+        "--contact-friction-scaling-mode",
+        choices=["sliding_only", "full_vector"],
+        default="sliding_only",
+    )
+    parser.add_argument(
+        "--scale-rod-joint-dynamics-from-s400",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--no-scale-tip-solref-with-mass",
+        dest="scale_tip_solref_with_mass",
+        action="store_false",
+    )
+    parser.set_defaults(scale_tip_solref_with_mass=True)
     parser.add_argument("--tilt-terminate-rad", type=float, default=0.7)
     parser.add_argument("--tip-anchor", choices=["top", "bottom"], default="top")
+    parser.add_argument("--hand-pose-config", type=str, default=None)
+    parser.add_argument("--hand-grasp-config", type=str, default=None)
     parser.add_argument("--dexscrew-tip-penalty-scale", type=float, default=0.5)
     parser.add_argument("--dexscrew-tip-sigma", type=float, default=0.025)
     parser.add_argument(

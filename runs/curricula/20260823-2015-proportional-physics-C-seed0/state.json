@@ -1,0 +1,1643 @@
+{
+  "curriculum_id": "20260823-2015-proportional-physics-C-seed0",
+  "created_at": "2026-08-23T20:11:16-07:00",
+  "methodology": "full proportional friction; policy force diagnostic only",
+  "schedule": [
+    400.0,
+    200.0,
+    100.0,
+    50.0,
+    25.0,
+    12.5,
+    6.25,
+    3.125,
+    1.5625,
+    1.0
+  ],
+  "friction_schedule": "4*s/400",
+  "pose": {
+    "path": "/data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json",
+    "sha256": "2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f",
+    "content": {
+      "schema": "allegro_rod_mvp.hand_pose",
+      "schema_version": 1,
+      "transform_space": "model",
+      "body": "palm",
+      "translation": [
+        0.0262807865392716,
+        -0.08578110798288589,
+        0.113580438493427
+      ],
+      "quaternion_wxyz": [
+        0.7071067811865475,
+        1.3877787807814457e-17,
+        0.7071067811865476,
+        1.3877787807814457e-17
+      ],
+      "euler_xyz_degrees": [
+        169.97501213792427,
+        90.0,
+        169.97501213792427
+      ],
+      "source_pose": {
+        "type": "model_default",
+        "model": "models/allegro_three_finger_rod_revolute.xml",
+        "translation": [
+          -0.018718,
+          -0.022177,
+          -0.058714
+        ],
+        "quaternion_wxyz": [
+          0.0,
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476
+        ]
+      },
+      "pivot": "palm_body_origin",
+      "rotation_convention": "world-axis incremental rotations pre-multiplied onto the palm orientation; Euler display is extrinsic XYZ in degrees",
+      "model_variant": "allegro_three_finger_rod_revolute",
+      "compatible_model_variants": [
+        "allegro_three_finger_rod",
+        "allegro_three_finger_rod_revolute"
+      ],
+      "created_at": "2026-08-23T17:15:52-07:00",
+      "notes": ""
+    }
+  },
+  "gate": "fixed and unseen net-angle success_rate >= 0.5",
+  "completed": [
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 0,
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R00-s400-mu4-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-1812-finger-gait-contact-scale010-C-s400-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-1812-finger-gait-contact-scale010-C-s400-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 544.4334216445118,
+        "tip_error_m_mean": 1.7936513848042654e-17,
+        "tip_error_m_max": 5.1664899745600336e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.17,
+          "1": 0.0554,
+          "2": 0.2666,
+          "3": 0.508
+        },
+        "contact_fraction_at_least_one": 0.83,
+        "contact_fraction_at_least_two": 0.7746,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 35.6652078650268,
+              "median": 35.70727701105512,
+              "p95": 100.36137522249061
+            },
+            {
+              "mean": 33.972386942415454,
+              "median": 20.598061828459354,
+              "p95": 108.44803903145915
+            },
+            {
+              "mean": 32.744232230636456,
+              "median": 18.114981974621664,
+              "p95": 101.48528681485779
+            }
+          ],
+          "total": {
+            "mean": 102.38182703807871,
+            "median": 100.12203850192179,
+            "p95": 208.8804441277608
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            7.2,
+            7.2,
+            0.2,
+            0.004,
+            0.004
+          ],
+          "rod_tip1": [
+            7.2,
+            7.2,
+            0.2,
+            0.004,
+            0.004
+          ],
+          "rod_tip2": [
+            7.2,
+            7.2,
+            0.2,
+            0.004,
+            0.004
+          ]
+        },
+        "rod_dof_damping": [
+          0.02
+        ],
+        "rod_dof_armature": [
+          0.001
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 616.8171473473079,
+        "tip_error_m_mean": 1.333623866736916e-17,
+        "tip_error_m_max": 4.858186628028942e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.2058,
+          "1": 0.1168,
+          "2": 0.275,
+          "3": 0.4024
+        },
+        "contact_fraction_at_least_one": 0.7942,
+        "contact_fraction_at_least_two": 0.6774,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 30.258288515116654,
+              "median": 25.446969912076437,
+              "p95": 98.40044581348279
+            },
+            {
+              "mean": 32.84854180018421,
+              "median": 18.967380392733133,
+              "p95": 108.5955011915698
+            },
+            {
+              "mean": 25.05836284282032,
+              "median": 4.960089567523876,
+              "p95": 93.49790337423919
+            }
+          ],
+          "total": {
+            "mean": 88.16519315812117,
+            "median": 82.73225656437441,
+            "p95": 210.73806190227003
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            7.2,
+            7.2,
+            0.2,
+            0.004,
+            0.004
+          ],
+          "rod_tip1": [
+            7.2,
+            7.2,
+            0.2,
+            0.004,
+            0.004
+          ],
+          "rod_tip2": [
+            7.2,
+            7.2,
+            0.2,
+            0.004,
+            0.004
+          ]
+        },
+        "rod_dof_damping": [
+          0.02
+        ],
+        "rod_dof_armature": [
+          0.001
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 1,
+      "mass_scale": 200.0,
+      "friction_scale": 2.0,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R01-s200-mu2-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R01-s200-mu2-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-1812-finger-gait-contact-scale010-C-s400-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 924.915318032066,
+        "tip_error_m_mean": 1.0117380281161359e-17,
+        "tip_error_m_max": 4.758766085665787e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.137,
+          "1": 0.3324,
+          "2": 0.3532,
+          "3": 0.1774
+        },
+        "contact_fraction_at_least_one": 0.863,
+        "contact_fraction_at_least_two": 0.5306,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 17.935815518111617,
+              "median": 0.0,
+              "p95": 79.31935015917315
+            },
+            {
+              "mean": 36.82579157144053,
+              "median": 24.375891781104116,
+              "p95": 110.34802531979561
+            },
+            {
+              "mean": 26.88223425963927,
+              "median": 0.0,
+              "p95": 114.68845699540985
+            }
+          ],
+          "total": {
+            "mean": 81.64384134919142,
+            "median": 76.49334393176414,
+            "p95": 192.03393070338754
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            3.6,
+            3.6,
+            0.1,
+            0.002,
+            0.002
+          ],
+          "rod_tip1": [
+            3.6,
+            3.6,
+            0.1,
+            0.002,
+            0.002
+          ],
+          "rod_tip2": [
+            3.6,
+            3.6,
+            0.1,
+            0.002,
+            0.002
+          ]
+        },
+        "rod_dof_damping": [
+          0.01
+        ],
+        "rod_dof_armature": [
+          0.0005
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 1098.1872668811716,
+        "tip_error_m_mean": 1.0211019193048028e-17,
+        "tip_error_m_max": 4.968249246596504e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.1506,
+          "1": 0.3384,
+          "2": 0.3524,
+          "3": 0.1586
+        },
+        "contact_fraction_at_least_one": 0.8493999999999999,
+        "contact_fraction_at_least_two": 0.511,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 17.082914861002212,
+              "median": 0.0,
+              "p95": 66.47981588521132
+            },
+            {
+              "mean": 29.637274838323275,
+              "median": 20.954376629942978,
+              "p95": 88.332348221111
+            },
+            {
+              "mean": 20.732491366220753,
+              "median": 0.0,
+              "p95": 112.37113151043357
+            }
+          ],
+          "total": {
+            "mean": 67.45268106554623,
+            "median": 52.064005620220776,
+            "p95": 183.3102487023668
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            3.6,
+            3.6,
+            0.1,
+            0.002,
+            0.002
+          ],
+          "rod_tip1": [
+            3.6,
+            3.6,
+            0.1,
+            0.002,
+            0.002
+          ],
+          "rod_tip2": [
+            3.6,
+            3.6,
+            0.1,
+            0.002,
+            0.002
+          ]
+        },
+        "rod_dof_damping": [
+          0.01
+        ],
+        "rod_dof_armature": [
+          0.0005
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 2,
+      "mass_scale": 100.0,
+      "friction_scale": 1.0,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R01-s200-mu2-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 2088.025740005662,
+        "tip_error_m_mean": 1.3887636314892428e-17,
+        "tip_error_m_max": 5.0431445247509576e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.178,
+          "1": 0.4548,
+          "2": 0.3334,
+          "3": 0.0338
+        },
+        "contact_fraction_at_least_one": 0.8220000000000001,
+        "contact_fraction_at_least_two": 0.3672,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 22.04179643398817,
+              "median": 0.0,
+              "p95": 80.67366826457507
+            },
+            {
+              "mean": 25.61440660425591,
+              "median": 21.000093389279797,
+              "p95": 82.42235454186344
+            },
+            {
+              "mean": 3.4319814082254934,
+              "median": 0.0,
+              "p95": 32.03995848444263
+            }
+          ],
+          "total": {
+            "mean": 51.08818444646957,
+            "median": 45.603278535762016,
+            "p95": 124.20163078571505
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            1.8,
+            1.8,
+            0.05,
+            0.001,
+            0.001
+          ],
+          "rod_tip1": [
+            1.8,
+            1.8,
+            0.05,
+            0.001,
+            0.001
+          ],
+          "rod_tip2": [
+            1.8,
+            1.8,
+            0.05,
+            0.001,
+            0.001
+          ]
+        },
+        "rod_dof_damping": [
+          0.005
+        ],
+        "rod_dof_armature": [
+          0.00025
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 1676.9451237058777,
+        "tip_error_m_mean": 1.906494236091731e-17,
+        "tip_error_m_max": 5.409348539375392e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.1448,
+          "1": 0.4668,
+          "2": 0.351,
+          "3": 0.0374
+        },
+        "contact_fraction_at_least_one": 0.8552,
+        "contact_fraction_at_least_two": 0.3884,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 17.975918469922913,
+              "median": 0.0,
+              "p95": 83.40926927222804
+            },
+            {
+              "mean": 27.561832888747936,
+              "median": 18.447807208975966,
+              "p95": 97.17905434339833
+            },
+            {
+              "mean": 7.64830664507281,
+              "median": 0.0,
+              "p95": 53.44743961902606
+            }
+          ],
+          "total": {
+            "mean": 53.18605800374365,
+            "median": 45.60415761678938,
+            "p95": 135.7749682507393
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            1.8,
+            1.8,
+            0.05,
+            0.001,
+            0.001
+          ],
+          "rod_tip1": [
+            1.8,
+            1.8,
+            0.05,
+            0.001,
+            0.001
+          ],
+          "rod_tip2": [
+            1.8,
+            1.8,
+            0.05,
+            0.001,
+            0.001
+          ]
+        },
+        "rod_dof_damping": [
+          0.005
+        ],
+        "rod_dof_armature": [
+          0.00025
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 3,
+      "mass_scale": 50.0,
+      "friction_scale": 0.5,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R03-s50-mu0.5-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R03-s50-mu0.5-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 4168.625271646121,
+        "tip_error_m_mean": 1.4766557960942386e-17,
+        "tip_error_m_max": 5.003707553108401e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.4042,
+          "1": 0.4462,
+          "2": 0.1214,
+          "3": 0.0282
+        },
+        "contact_fraction_at_least_one": 0.5958,
+        "contact_fraction_at_least_two": 0.1496,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 14.850807355921942,
+              "median": 0.0,
+              "p95": 66.6434745158435
+            },
+            {
+              "mean": 12.393399854937687,
+              "median": 0.0,
+              "p95": 58.287576344385286
+            },
+            {
+              "mean": 3.975521953242775,
+              "median": 0.0,
+              "p95": 33.529498339778414
+            }
+          ],
+          "total": {
+            "mean": 31.219729164102407,
+            "median": 18.589374406958243,
+            "p95": 112.85493392561047
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.9,
+            0.9,
+            0.025,
+            0.0005,
+            0.0005
+          ],
+          "rod_tip1": [
+            0.9,
+            0.9,
+            0.025,
+            0.0005,
+            0.0005
+          ],
+          "rod_tip2": [
+            0.9,
+            0.9,
+            0.025,
+            0.0005,
+            0.0005
+          ]
+        },
+        "rod_dof_damping": [
+          0.0025
+        ],
+        "rod_dof_armature": [
+          0.000125
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 4134.147367815013,
+        "tip_error_m_mean": 1.3840724066295295e-17,
+        "tip_error_m_max": 4.968249246596503e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.4044,
+          "1": 0.437,
+          "2": 0.135,
+          "3": 0.0236
+        },
+        "contact_fraction_at_least_one": 0.5956,
+        "contact_fraction_at_least_two": 0.1586,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 14.185192432855844,
+              "median": 0.0,
+              "p95": 63.48292236607526
+            },
+            {
+              "mean": 11.423881582348551,
+              "median": 0.0,
+              "p95": 49.95416202811307
+            },
+            {
+              "mean": 3.522890144231021,
+              "median": 0.0,
+              "p95": 32.78154924005574
+            }
+          ],
+          "total": {
+            "mean": 29.13196415943542,
+            "median": 16.888711498293596,
+            "p95": 106.94806196150654
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.9,
+            0.9,
+            0.025,
+            0.0005,
+            0.0005
+          ],
+          "rod_tip1": [
+            0.9,
+            0.9,
+            0.025,
+            0.0005,
+            0.0005
+          ],
+          "rod_tip2": [
+            0.9,
+            0.9,
+            0.025,
+            0.0005,
+            0.0005
+          ]
+        },
+        "rod_dof_damping": [
+          0.0025
+        ],
+        "rod_dof_armature": [
+          0.000125
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 4,
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R04-s25-mu0.25-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R04-s25-mu0.25-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R03-s50-mu0.5-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 5437.14573125144,
+        "tip_error_m_mean": 1.3252716106382264e-17,
+        "tip_error_m_max": 4.06493647562477e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.443,
+          "1": 0.4652,
+          "2": 0.0752,
+          "3": 0.0166
+        },
+        "contact_fraction_at_least_one": 0.5569999999999999,
+        "contact_fraction_at_least_two": 0.0918,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 14.194861140776574,
+              "median": 0.0,
+              "p95": 69.08245076012109
+            },
+            {
+              "mean": 8.409869362923686,
+              "median": 0.0,
+              "p95": 41.77280738176594
+            },
+            {
+              "mean": 2.062896230801182,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 24.66762673450144,
+            "median": 11.794996669928011,
+            "p95": 82.50947317527847
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.45,
+            0.45,
+            0.0125,
+            0.00025,
+            0.00025
+          ],
+          "rod_tip1": [
+            0.45,
+            0.45,
+            0.0125,
+            0.00025,
+            0.00025
+          ],
+          "rod_tip2": [
+            0.45,
+            0.45,
+            0.0125,
+            0.00025,
+            0.00025
+          ]
+        },
+        "rod_dof_damping": [
+          0.00125
+        ],
+        "rod_dof_armature": [
+          6.25e-05
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 5151.5656164085585,
+        "tip_error_m_mean": 1.304953212272581e-17,
+        "tip_error_m_max": 5.331382981107677e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.4228,
+          "1": 0.486,
+          "2": 0.0724,
+          "3": 0.0188
+        },
+        "contact_fraction_at_least_one": 0.5771999999999999,
+        "contact_fraction_at_least_two": 0.0912,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 14.12203455957887,
+              "median": 0.0,
+              "p95": 69.27669195387224
+            },
+            {
+              "mean": 8.442657733458635,
+              "median": 0.0,
+              "p95": 41.49033279506867
+            },
+            {
+              "mean": 2.742856388353201,
+              "median": 0.0,
+              "p95": 24.392362919789257
+            }
+          ],
+          "total": {
+            "mean": 25.307548681390706,
+            "median": 12.96667241948802,
+            "p95": 82.53218696711791
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.45,
+            0.45,
+            0.0125,
+            0.00025,
+            0.00025
+          ],
+          "rod_tip1": [
+            0.45,
+            0.45,
+            0.0125,
+            0.00025,
+            0.00025
+          ],
+          "rod_tip2": [
+            0.45,
+            0.45,
+            0.0125,
+            0.00025,
+            0.00025
+          ]
+        },
+        "rod_dof_damping": [
+          0.00125
+        ],
+        "rod_dof_armature": [
+          6.25e-05
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 5,
+      "mass_scale": 12.5,
+      "friction_scale": 0.125,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R05-s12.5-mu0.125-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R05-s12.5-mu0.125-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R04-s25-mu0.25-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 7917.742224665033,
+        "tip_error_m_mean": 1.585044123626762e-17,
+        "tip_error_m_max": 4.685351628010801e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.5204,
+          "1": 0.4372,
+          "2": 0.0284,
+          "3": 0.014
+        },
+        "contact_fraction_at_least_one": 0.4796,
+        "contact_fraction_at_least_two": 0.0424,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 13.340835752392001,
+              "median": 0.0,
+              "p95": 66.3551646925084
+            },
+            {
+              "mean": 5.319758094320855,
+              "median": 0.0,
+              "p95": 35.423681772300824
+            },
+            {
+              "mean": 1.4142704025890533,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 20.074864249301907,
+            "median": 0.0,
+            "p95": 72.49131770755388
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.225,
+            0.225,
+            0.00625,
+            0.000125,
+            0.000125
+          ],
+          "rod_tip1": [
+            0.225,
+            0.225,
+            0.00625,
+            0.000125,
+            0.000125
+          ],
+          "rod_tip2": [
+            0.225,
+            0.225,
+            0.00625,
+            0.000125,
+            0.000125
+          ]
+        },
+        "rod_dof_damping": [
+          0.000625
+        ],
+        "rod_dof_armature": [
+          3.125e-05
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 7937.439490184681,
+        "tip_error_m_mean": 1.6457333097280762e-17,
+        "tip_error_m_max": 4.055993087654682e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.5248,
+          "1": 0.4348,
+          "2": 0.0242,
+          "3": 0.0162
+        },
+        "contact_fraction_at_least_one": 0.47519999999999996,
+        "contact_fraction_at_least_two": 0.0404,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 13.309508027779838,
+              "median": 0.0,
+              "p95": 65.33351139397202
+            },
+            {
+              "mean": 5.275259771160051,
+              "median": 0.0,
+              "p95": 35.48548471643255
+            },
+            {
+              "mean": 1.4570964876045196,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 20.041864286544406,
+            "median": 0.0,
+            "p95": 71.98784165017683
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.225,
+            0.225,
+            0.00625,
+            0.000125,
+            0.000125
+          ],
+          "rod_tip1": [
+            0.225,
+            0.225,
+            0.00625,
+            0.000125,
+            0.000125
+          ],
+          "rod_tip2": [
+            0.225,
+            0.225,
+            0.00625,
+            0.000125,
+            0.000125
+          ]
+        },
+        "rod_dof_damping": [
+          0.000625
+        ],
+        "rod_dof_armature": [
+          3.125e-05
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 6,
+      "mass_scale": 6.25,
+      "friction_scale": 0.0625,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R06-s6.25-mu0.0625-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R06-s6.25-mu0.0625-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R05-s12.5-mu0.125-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 9645.72966518748,
+        "tip_error_m_mean": 1.3546185723656397e-17,
+        "tip_error_m_max": 5.131704949388002e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.5146,
+          "1": 0.451,
+          "2": 0.021,
+          "3": 0.0134
+        },
+        "contact_fraction_at_least_one": 0.48540000000000005,
+        "contact_fraction_at_least_two": 0.0344,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 14.32140682179993,
+              "median": 0.0,
+              "p95": 68.15618746019325
+            },
+            {
+              "mean": 4.845278206121998,
+              "median": 0.0,
+              "p95": 29.833527080060936
+            },
+            {
+              "mean": 1.132740171443861,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 20.29942519936579,
+            "median": 0.0,
+            "p95": 72.44442286465521
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.1125,
+            0.1125,
+            0.003125,
+            6.25e-05,
+            6.25e-05
+          ],
+          "rod_tip1": [
+            0.1125,
+            0.1125,
+            0.003125,
+            6.25e-05,
+            6.25e-05
+          ],
+          "rod_tip2": [
+            0.1125,
+            0.1125,
+            0.003125,
+            6.25e-05,
+            6.25e-05
+          ]
+        },
+        "rod_dof_damping": [
+          0.0003125
+        ],
+        "rod_dof_armature": [
+          1.5625e-05
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 9766.7292687315,
+        "tip_error_m_mean": 1.5258374496545054e-17,
+        "tip_error_m_max": 3.8141453076571995e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.5062,
+          "1": 0.4584,
+          "2": 0.0228,
+          "3": 0.0126
+        },
+        "contact_fraction_at_least_one": 0.4938,
+        "contact_fraction_at_least_two": 0.0354,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 14.509796271549137,
+              "median": 0.0,
+              "p95": 68.81752357649401
+            },
+            {
+              "mean": 5.182004308413529,
+              "median": 0.0,
+              "p95": 32.56080441381065
+            },
+            {
+              "mean": 1.1633793445162004,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 20.855179924478865,
+            "median": 0.0,
+            "p95": 72.82754926776454
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.1125,
+            0.1125,
+            0.003125,
+            6.25e-05,
+            6.25e-05
+          ],
+          "rod_tip1": [
+            0.1125,
+            0.1125,
+            0.003125,
+            6.25e-05,
+            6.25e-05
+          ],
+          "rod_tip2": [
+            0.1125,
+            0.1125,
+            0.003125,
+            6.25e-05,
+            6.25e-05
+          ]
+        },
+        "rod_dof_damping": [
+          0.0003125
+        ],
+        "rod_dof_armature": [
+          1.5625e-05
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 7,
+      "mass_scale": 3.125,
+      "friction_scale": 0.03125,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R07-s3.125-mu0.03125-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R07-s3.125-mu0.03125-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R06-s6.25-mu0.0625-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 10255.291039949352,
+        "tip_error_m_mean": 1.416723278029074e-17,
+        "tip_error_m_max": 5.0594132102764384e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.4924,
+          "1": 0.4798,
+          "2": 0.0182,
+          "3": 0.0096
+        },
+        "contact_fraction_at_least_one": 0.5076,
+        "contact_fraction_at_least_two": 0.0278,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 15.199006255889287,
+              "median": 0.0,
+              "p95": 70.16435079090469
+            },
+            {
+              "mean": 4.892769021612699,
+              "median": 0.0,
+              "p95": 28.15268336915468
+            },
+            {
+              "mean": 0.9570649476776029,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 21.048840225179585,
+            "median": 3.3440320717438135,
+            "p95": 72.6411001602822
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.05625,
+            0.05625,
+            0.0015625,
+            3.125e-05,
+            3.125e-05
+          ],
+          "rod_tip1": [
+            0.05625,
+            0.05625,
+            0.0015625,
+            3.125e-05,
+            3.125e-05
+          ],
+          "rod_tip2": [
+            0.05625,
+            0.05625,
+            0.0015625,
+            3.125e-05,
+            3.125e-05
+          ]
+        },
+        "rod_dof_damping": [
+          0.00015625
+        ],
+        "rod_dof_armature": [
+          7.8125e-06
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 10280.7735421686,
+        "tip_error_m_mean": 1.1345502340045868e-17,
+        "tip_error_m_max": 5.003707553108401e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.4962,
+          "1": 0.4762,
+          "2": 0.018,
+          "3": 0.0096
+        },
+        "contact_fraction_at_least_one": 0.5038,
+        "contact_fraction_at_least_two": 0.0276,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 15.134950561896671,
+              "median": 0.0,
+              "p95": 69.56720277440436
+            },
+            {
+              "mean": 4.855500651046437,
+              "median": 0.0,
+              "p95": 29.294496258390282
+            },
+            {
+              "mean": 1.0404057301373453,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 21.030856943080455,
+            "median": 1.8251191463351157,
+            "p95": 71.21895504621386
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.05625,
+            0.05625,
+            0.0015625,
+            3.125e-05,
+            3.125e-05
+          ],
+          "rod_tip1": [
+            0.05625,
+            0.05625,
+            0.0015625,
+            3.125e-05,
+            3.125e-05
+          ],
+          "rod_tip2": [
+            0.05625,
+            0.05625,
+            0.0015625,
+            3.125e-05,
+            3.125e-05
+          ]
+        },
+        "rod_dof_damping": [
+          0.00015625
+        ],
+        "rod_dof_armature": [
+          7.8125e-06
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 8,
+      "mass_scale": 1.5625,
+      "friction_scale": 0.015625,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R08-s1.5625-mu0.015625-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R08-s1.5625-mu0.015625-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R07-s3.125-mu0.03125-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 11101.503460880473,
+        "tip_error_m_mean": 1.2982985931600016e-17,
+        "tip_error_m_max": 5.003707553108401e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.5028,
+          "1": 0.4724,
+          "2": 0.0158,
+          "3": 0.009
+        },
+        "contact_fraction_at_least_one": 0.4972,
+        "contact_fraction_at_least_two": 0.0248,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 13.163786111883757,
+              "median": 0.0,
+              "p95": 62.54409506585812
+            },
+            {
+              "mean": 5.736044068990065,
+              "median": 0.0,
+              "p95": 36.782553536385656
+            },
+            {
+              "mean": 0.5532449514867274,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 19.45307513236055,
+            "median": 0.0,
+            "p95": 65.8025677177466
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.028125,
+            0.028125,
+            0.00078125,
+            1.5625e-05,
+            1.5625e-05
+          ],
+          "rod_tip1": [
+            0.028125,
+            0.028125,
+            0.00078125,
+            1.5625e-05,
+            1.5625e-05
+          ],
+          "rod_tip2": [
+            0.028125,
+            0.028125,
+            0.00078125,
+            1.5625e-05,
+            1.5625e-05
+          ]
+        },
+        "rod_dof_damping": [
+          7.8125e-05
+        ],
+        "rod_dof_armature": [
+          3.90625e-06
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 11122.111225138413,
+        "tip_error_m_mean": 1.422777743502029e-17,
+        "tip_error_m_max": 4.758766085665787e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.514,
+          "1": 0.4622,
+          "2": 0.0146,
+          "3": 0.0092
+        },
+        "contact_fraction_at_least_one": 0.486,
+        "contact_fraction_at_least_two": 0.0238,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 12.9435227893042,
+              "median": 0.0,
+              "p95": 62.09381927493983
+            },
+            {
+              "mean": 5.740256647759423,
+              "median": 0.0,
+              "p95": 37.400591553630555
+            },
+            {
+              "mean": 0.5381925009942065,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 19.22197193805783,
+            "median": 0.0,
+            "p95": 65.10582872095846
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.028125,
+            0.028125,
+            0.00078125,
+            1.5625e-05,
+            1.5625e-05
+          ],
+          "rod_tip1": [
+            0.028125,
+            0.028125,
+            0.00078125,
+            1.5625e-05,
+            1.5625e-05
+          ],
+          "rod_tip2": [
+            0.028125,
+            0.028125,
+            0.00078125,
+            1.5625e-05,
+            1.5625e-05
+          ]
+        },
+        "rod_dof_damping": [
+          7.8125e-05
+        ],
+        "rod_dof_armature": [
+          3.90625e-06
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    },
+    {
+      "phase": "R",
+      "physics": "revolute",
+      "stage_index": 9,
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R09-s1-mu0.01-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R09-s1-mu0.01-seed0/checkpoints/final_model.zip",
+      "warm_start": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R08-s1.5625-mu0.015625-seed0/checkpoints/final_model.zip",
+      "fixed": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 11384.680609993902,
+        "tip_error_m_mean": 1.5907795041756422e-17,
+        "tip_error_m_max": 4.9957774161366516e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.5064,
+          "1": 0.479,
+          "2": 0.0078,
+          "3": 0.0068
+        },
+        "contact_fraction_at_least_one": 0.49360000000000004,
+        "contact_fraction_at_least_two": 0.0146,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 13.65435321625615,
+              "median": 0.0,
+              "p95": 63.878077658079704
+            },
+            {
+              "mean": 5.520511162734441,
+              "median": 0.0,
+              "p95": 31.984324082777377
+            },
+            {
+              "mean": 0.7099964555586745,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 19.88486083454926,
+            "median": 0.0,
+            "p95": 66.00226929501375
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.018000000000000002,
+            0.018000000000000002,
+            0.0005,
+            1e-05,
+            1e-05
+          ],
+          "rod_tip1": [
+            0.018000000000000002,
+            0.018000000000000002,
+            0.0005,
+            1e-05,
+            1e-05
+          ],
+          "rod_tip2": [
+            0.018000000000000002,
+            0.018000000000000002,
+            0.0005,
+            1e-05,
+            1e-05
+          ]
+        },
+        "rod_dof_damping": [
+          5e-05
+        ],
+        "rod_dof_armature": [
+          2.5e-06
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "unseen": {
+        "success_rate": 1.0,
+        "axis_rotation_deg_mean": 11337.886988899709,
+        "tip_error_m_mean": 1.3748039388758303e-17,
+        "tip_error_m_max": 5.331382981107677e-17,
+        "drop_rate": 0.0,
+        "numerical_instability_episodes": 0,
+        "contact_distribution": {
+          "0": 0.5074,
+          "1": 0.4746,
+          "2": 0.0112,
+          "3": 0.0068
+        },
+        "contact_fraction_at_least_one": 0.49260000000000004,
+        "contact_fraction_at_least_two": 0.018,
+        "normal_contact_force_n": {
+          "per_tip": [
+            {
+              "mean": 13.33638637902599,
+              "median": 0.0,
+              "p95": 63.37440370856412
+            },
+            {
+              "mean": 5.538029278301068,
+              "median": 0.0,
+              "p95": 33.64838329264812
+            },
+            {
+              "mean": 0.6126669405021441,
+              "median": 0.0,
+              "p95": 0.0
+            }
+          ],
+          "total": {
+            "mean": 19.4870825978292,
+            "median": 0.0,
+            "p95": 65.31274335153189
+          },
+          "definition": "MuJoCo contact-frame normal force, not actuator effort"
+        },
+        "effective_pair_friction_vectors": {
+          "rod_tip0": [
+            0.018000000000000002,
+            0.018000000000000002,
+            0.0005,
+            1e-05,
+            1e-05
+          ],
+          "rod_tip1": [
+            0.018000000000000002,
+            0.018000000000000002,
+            0.0005,
+            1e-05,
+            1e-05
+          ],
+          "rod_tip2": [
+            0.018000000000000002,
+            0.018000000000000002,
+            0.0005,
+            1e-05,
+            1e-05
+          ]
+        },
+        "rod_dof_damping": [
+          5e-05
+        ],
+        "rod_dof_armature": [
+          2.5e-06
+        ],
+        "rod_dof_frictionloss": [
+          0.0
+        ]
+      },
+      "accepted": true
+    }
+  ],
+  "status": "revolute_completed_tip_grasp_required",
+  "final_revolute_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R09-s1-mu0.01-seed0/checkpoints/final_model.zip"
+}

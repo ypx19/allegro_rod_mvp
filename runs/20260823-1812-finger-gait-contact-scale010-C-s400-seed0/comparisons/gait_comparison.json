@@ -1,0 +1,564 @@
+{
+  "strict": {
+    "fixed": {
+      "rotation_deg_mean": 200.5574659410184,
+      "cumulative_abs_rotation_deg_mean": 339.2874598036849,
+      "completed_net_cycles_mean": 0.0,
+      "episodes_at_least_two_cycles": 0,
+      "three_contact_occupancy": 0.9748944157672454,
+      "at_least_two_contact_fraction": 1.0,
+      "at_least_one_contact_fraction": 1.0,
+      "minimum_window_three_contact_occupancy": {
+        "window_steps": 25,
+        "minimum_across_episodes": 0.68,
+        "mean_episode_minimum": 0.752
+      },
+      "leave_return_events": [
+        {
+          "mean": 0.7,
+          "minimum": 0,
+          "maximum": 2,
+          "total": 7
+        },
+        {
+          "mean": 0.0,
+          "minimum": 0,
+          "maximum": 0,
+          "total": 0
+        },
+        {
+          "mean": 2.0,
+          "minimum": 0,
+          "maximum": 3,
+          "total": 20
+        }
+      ],
+      "per_tip_longest_loss": [
+        {
+          "mean_steps": 0.7,
+          "max_steps": 2,
+          "mean_seconds": 0.027999999999999997,
+          "max_seconds": 0.08
+        },
+        {
+          "mean_steps": 0.0,
+          "max_steps": 0,
+          "mean_seconds": 0.0,
+          "max_seconds": 0.0
+        },
+        {
+          "mean_steps": 6.0,
+          "max_steps": 8,
+          "mean_seconds": 0.24,
+          "max_seconds": 0.32
+        }
+      ],
+      "complete_loss_longest": {
+        "mean_steps": 0.0,
+        "max_steps": 0,
+        "mean_seconds": 0.0,
+        "max_seconds": 0.0
+      },
+      "omega_hold_seconds_max_mean": 1.092,
+      "omega_fraction_above_threshold": 0.10511496949788832,
+      "force_p95_n": 163.97843123067022,
+      "tip_error_m_max": 5.003707553108401e-17,
+      "numerical_instability_episodes": 0,
+      "success_rate": 0.0,
+      "termination_reasons": {
+        "none": 8,
+        "contact_support": 2
+      }
+    },
+    "unseen": {
+      "rotation_deg_mean": 192.05751069148536,
+      "cumulative_abs_rotation_deg_mean": 289.6919606456614,
+      "completed_net_cycles_mean": 0.0,
+      "episodes_at_least_two_cycles": 0,
+      "three_contact_occupancy": 0.9597629444791017,
+      "at_least_two_contact_fraction": 0.9996880848409233,
+      "at_least_one_contact_fraction": 1.0,
+      "minimum_window_three_contact_occupancy": {
+        "window_steps": 25,
+        "minimum_across_episodes": 0.68,
+        "mean_episode_minimum": 0.704
+      },
+      "leave_return_events": [
+        {
+          "mean": 2.1,
+          "minimum": 0,
+          "maximum": 7,
+          "total": 21
+        },
+        {
+          "mean": 0.1,
+          "minimum": 0,
+          "maximum": 1,
+          "total": 1
+        },
+        {
+          "mean": 1.6,
+          "minimum": 0,
+          "maximum": 3,
+          "total": 16
+        }
+      ],
+      "per_tip_longest_loss": [
+        {
+          "mean_steps": 1.9,
+          "max_steps": 5,
+          "mean_seconds": 0.076,
+          "max_seconds": 0.2
+        },
+        {
+          "mean_steps": 0.1,
+          "max_steps": 1,
+          "mean_seconds": 0.004,
+          "max_seconds": 0.04
+        },
+        {
+          "mean_steps": 5.9,
+          "max_steps": 8,
+          "mean_seconds": 0.23600000000000002,
+          "max_seconds": 0.32
+        }
+      ],
+      "complete_loss_longest": {
+        "mean_steps": 0.0,
+        "max_steps": 0,
+        "mean_seconds": 0.0,
+        "max_seconds": 0.0
+      },
+      "omega_hold_seconds_max_mean": 1.08,
+      "omega_fraction_above_threshold": 0.1232064878353088,
+      "force_p95_n": 168.7160565916843,
+      "tip_error_m_max": 3.925231146709438e-17,
+      "numerical_instability_episodes": 0,
+      "success_rate": 0.0,
+      "termination_reasons": {
+        "contact_support": 5,
+        "none": 5
+      }
+    }
+  },
+  "A": {
+    "fixed": {
+      "rotation_deg_mean": 294.0132193199716,
+      "cumulative_abs_rotation_deg_mean": 305.36010675053546,
+      "completed_net_cycles_mean": 0.0,
+      "episodes_at_least_two_cycles": 0,
+      "three_contact_occupancy": 0.8776978417266187,
+      "at_least_two_contact_fraction": 0.9798561151079137,
+      "at_least_one_contact_fraction": 0.99568345323741,
+      "minimum_window_three_contact_occupancy": {
+        "window_steps": 25,
+        "minimum_across_episodes": 0.68,
+        "mean_episode_minimum": 0.6799999999999999
+      },
+      "leave_return_events": [
+        {
+          "mean": 1.7,
+          "minimum": 0,
+          "maximum": 3,
+          "total": 17
+        },
+        {
+          "mean": 0.4,
+          "minimum": 0,
+          "maximum": 1,
+          "total": 4
+        },
+        {
+          "mean": 0.0,
+          "minimum": 0,
+          "maximum": 0,
+          "total": 0
+        }
+      ],
+      "per_tip_longest_loss": [
+        {
+          "mean_steps": 5.6,
+          "max_steps": 8,
+          "mean_seconds": 0.22399999999999998,
+          "max_seconds": 0.32
+        },
+        {
+          "mean_steps": 1.3,
+          "max_steps": 4,
+          "mean_seconds": 0.052000000000000005,
+          "max_seconds": 0.16
+        },
+        {
+          "mean_steps": 0.6,
+          "max_steps": 4,
+          "mean_seconds": 0.024,
+          "max_seconds": 0.16
+        }
+      ],
+      "complete_loss_longest": {
+        "mean_steps": 0.3,
+        "max_steps": 2,
+        "mean_seconds": 0.012,
+        "max_seconds": 0.08
+      },
+      "omega_hold_seconds_max_mean": 1.012,
+      "omega_fraction_above_threshold": 0.5870503597122302,
+      "force_p95_n": 184.2243779172955,
+      "tip_error_m_max": 5.0116037848373006e-17,
+      "numerical_instability_episodes": 0,
+      "success_rate": 0.0,
+      "termination_reasons": {
+        "contact_support": 10
+      }
+    },
+    "unseen": {
+      "rotation_deg_mean": 277.3928825602014,
+      "cumulative_abs_rotation_deg_mean": 291.2720953888412,
+      "completed_net_cycles_mean": 0.1,
+      "episodes_at_least_two_cycles": 0,
+      "three_contact_occupancy": 0.8710144927536232,
+      "at_least_two_contact_fraction": 0.9869565217391304,
+      "at_least_one_contact_fraction": 0.9985507246376811,
+      "minimum_window_three_contact_occupancy": {
+        "window_steps": 25,
+        "minimum_across_episodes": 0.68,
+        "mean_episode_minimum": 0.6799999999999999
+      },
+      "leave_return_events": [
+        {
+          "mean": 1.8,
+          "minimum": 0,
+          "maximum": 3,
+          "total": 18
+        },
+        {
+          "mean": 0.6,
+          "minimum": 0,
+          "maximum": 2,
+          "total": 6
+        },
+        {
+          "mean": 0.0,
+          "minimum": 0,
+          "maximum": 0,
+          "total": 0
+        }
+      ],
+      "per_tip_longest_loss": [
+        {
+          "mean_steps": 5.5,
+          "max_steps": 8,
+          "mean_seconds": 0.22,
+          "max_seconds": 0.32
+        },
+        {
+          "mean_steps": 0.9,
+          "max_steps": 3,
+          "mean_seconds": 0.036000000000000004,
+          "max_seconds": 0.12
+        },
+        {
+          "mean_steps": 0.4,
+          "max_steps": 3,
+          "mean_seconds": 0.016,
+          "max_seconds": 0.12
+        }
+      ],
+      "complete_loss_longest": {
+        "mean_steps": 0.1,
+        "max_steps": 1,
+        "mean_seconds": 0.004,
+        "max_seconds": 0.04
+      },
+      "omega_hold_seconds_max_mean": 1.004,
+      "omega_fraction_above_threshold": 0.591304347826087,
+      "force_p95_n": 191.47818908258537,
+      "tip_error_m_max": 3.925231146709438e-17,
+      "numerical_instability_episodes": 0,
+      "success_rate": 0.0,
+      "termination_reasons": {
+        "contact_support": 10
+      }
+    }
+  },
+  "B": {
+    "fixed": {
+      "rotation_deg_mean": 374.04102530197395,
+      "cumulative_abs_rotation_deg_mean": 921.7001331439827,
+      "completed_net_cycles_mean": 0.6,
+      "episodes_at_least_two_cycles": 0,
+      "three_contact_occupancy": 0.2876,
+      "at_least_two_contact_fraction": 0.9116,
+      "at_least_one_contact_fraction": 0.9988,
+      "minimum_window_three_contact_occupancy": {
+        "window_steps": 25,
+        "minimum_across_episodes": 0.0,
+        "mean_episode_minimum": 0.0
+      },
+      "leave_return_events": [
+        {
+          "mean": 15.1,
+          "minimum": 9,
+          "maximum": 28,
+          "total": 151
+        },
+        {
+          "mean": 1.0,
+          "minimum": 0,
+          "maximum": 3,
+          "total": 10
+        },
+        {
+          "mean": 1.7,
+          "minimum": 0,
+          "maximum": 9,
+          "total": 17
+        }
+      ],
+      "per_tip_longest_loss": [
+        {
+          "mean_steps": 61.9,
+          "max_steps": 151,
+          "mean_seconds": 2.476,
+          "max_seconds": 6.04
+        },
+        {
+          "mean_steps": 26.4,
+          "max_steps": 214,
+          "mean_seconds": 1.056,
+          "max_seconds": 8.56
+        },
+        {
+          "mean_steps": 228.7,
+          "max_steps": 337,
+          "mean_seconds": 9.148,
+          "max_seconds": 13.48
+        }
+      ],
+      "complete_loss_longest": {
+        "mean_steps": 0.6,
+        "max_steps": 4,
+        "mean_seconds": 0.024,
+        "max_seconds": 0.16
+      },
+      "omega_hold_seconds_max_mean": 0.868,
+      "omega_fraction_above_threshold": 0.2668,
+      "force_p95_n": 230.82106615813564,
+      "tip_error_m_max": 5.1664899745600336e-17,
+      "numerical_instability_episodes": 0,
+      "success_rate": 0.0,
+      "termination_reasons": {
+        "none": 10
+      }
+    },
+    "unseen": {
+      "rotation_deg_mean": 379.2036270162316,
+      "cumulative_abs_rotation_deg_mean": 878.7629271099975,
+      "completed_net_cycles_mean": 0.3,
+      "episodes_at_least_two_cycles": 0,
+      "three_contact_occupancy": 0.335,
+      "at_least_two_contact_fraction": 0.8936,
+      "at_least_one_contact_fraction": 0.997,
+      "minimum_window_three_contact_occupancy": {
+        "window_steps": 25,
+        "minimum_across_episodes": 0.0,
+        "mean_episode_minimum": 0.0
+      },
+      "leave_return_events": [
+        {
+          "mean": 16.1,
+          "minimum": 4,
+          "maximum": 48,
+          "total": 161
+        },
+        {
+          "mean": 0.9,
+          "minimum": 0,
+          "maximum": 3,
+          "total": 9
+        },
+        {
+          "mean": 4.3,
+          "minimum": 0,
+          "maximum": 14,
+          "total": 43
+        }
+      ],
+      "per_tip_longest_loss": [
+        {
+          "mean_steps": 92.2,
+          "max_steps": 230,
+          "mean_seconds": 3.688,
+          "max_seconds": 9.200000000000001
+        },
+        {
+          "mean_steps": 37.0,
+          "max_steps": 316,
+          "mean_seconds": 1.48,
+          "max_seconds": 12.64
+        },
+        {
+          "mean_steps": 167.1,
+          "max_steps": 327,
+          "mean_seconds": 6.684,
+          "max_seconds": 13.08
+        }
+      ],
+      "complete_loss_longest": {
+        "mean_steps": 1.5,
+        "max_steps": 9,
+        "mean_seconds": 0.06,
+        "max_seconds": 0.36
+      },
+      "omega_hold_seconds_max_mean": 0.924,
+      "omega_fraction_above_threshold": 0.2418,
+      "force_p95_n": 217.17594119794484,
+      "tip_error_m_max": 5.003707553108401e-17,
+      "numerical_instability_episodes": 0,
+      "success_rate": 0.0,
+      "termination_reasons": {
+        "none": 10
+      }
+    }
+  },
+  "C": {
+    "fixed": {
+      "rotation_deg_mean": 533.9696259250084,
+      "cumulative_abs_rotation_deg_mean": 1040.3344908826489,
+      "completed_net_cycles_mean": 1.1,
+      "episodes_at_least_two_cycles": 1,
+      "three_contact_occupancy": 0.1792,
+      "at_least_two_contact_fraction": 0.6042,
+      "at_least_one_contact_fraction": 0.9464,
+      "minimum_window_three_contact_occupancy": {
+        "window_steps": 25,
+        "minimum_across_episodes": 0.0,
+        "mean_episode_minimum": 0.0
+      },
+      "leave_return_events": [
+        {
+          "mean": 8.3,
+          "minimum": 3,
+          "maximum": 20,
+          "total": 83
+        },
+        {
+          "mean": 4.1,
+          "minimum": 2,
+          "maximum": 8,
+          "total": 41
+        },
+        {
+          "mean": 2.8,
+          "minimum": 0,
+          "maximum": 5,
+          "total": 28
+        }
+      ],
+      "per_tip_longest_loss": [
+        {
+          "mean_steps": 138.4,
+          "max_steps": 309,
+          "mean_seconds": 5.5360000000000005,
+          "max_seconds": 12.36
+        },
+        {
+          "mean_steps": 71.4,
+          "max_steps": 253,
+          "mean_seconds": 2.8560000000000003,
+          "max_seconds": 10.120000000000001
+        },
+        {
+          "mean_steps": 236.6,
+          "max_steps": 444,
+          "mean_seconds": 9.464,
+          "max_seconds": 17.76
+        }
+      ],
+      "complete_loss_longest": {
+        "mean_steps": 16.3,
+        "max_steps": 44,
+        "mean_seconds": 0.652,
+        "max_seconds": 1.76
+      },
+      "omega_hold_seconds_max_mean": 1.2,
+      "omega_fraction_above_threshold": 0.2634,
+      "force_p95_n": 158.40382432676114,
+      "tip_error_m_max": 4.883132886754873e-17,
+      "numerical_instability_episodes": 0,
+      "success_rate": 0.0,
+      "termination_reasons": {
+        "none": 10
+      }
+    },
+    "unseen": {
+      "rotation_deg_mean": 546.9754662344569,
+      "cumulative_abs_rotation_deg_mean": 982.6969116730813,
+      "completed_net_cycles_mean": 1.1,
+      "episodes_at_least_two_cycles": 1,
+      "three_contact_occupancy": 0.2624,
+      "at_least_two_contact_fraction": 0.578,
+      "at_least_one_contact_fraction": 0.9286,
+      "minimum_window_three_contact_occupancy": {
+        "window_steps": 25,
+        "minimum_across_episodes": 0.0,
+        "mean_episode_minimum": 0.0
+      },
+      "leave_return_events": [
+        {
+          "mean": 7.9,
+          "minimum": 2,
+          "maximum": 19,
+          "total": 79
+        },
+        {
+          "mean": 5.7,
+          "minimum": 2,
+          "maximum": 10,
+          "total": 57
+        },
+        {
+          "mean": 2.9,
+          "minimum": 1,
+          "maximum": 8,
+          "total": 29
+        }
+      ],
+      "per_tip_longest_loss": [
+        {
+          "mean_steps": 140.7,
+          "max_steps": 280,
+          "mean_seconds": 5.627999999999999,
+          "max_seconds": 11.200000000000001
+        },
+        {
+          "mean_steps": 37.4,
+          "max_steps": 153,
+          "mean_seconds": 1.496,
+          "max_seconds": 6.12
+        },
+        {
+          "mean_steps": 223.0,
+          "max_steps": 412,
+          "mean_seconds": 8.92,
+          "max_seconds": 16.48
+        }
+      ],
+      "complete_loss_longest": {
+        "mean_steps": 18.8,
+        "max_steps": 42,
+        "mean_seconds": 0.752,
+        "max_seconds": 1.68
+      },
+      "omega_hold_seconds_max_mean": 1.1880000000000002,
+      "omega_fraction_above_threshold": 0.2492,
+      "force_p95_n": 167.60795061301988,
+      "tip_error_m_max": 4.9665124892445506e-17,
+      "numerical_instability_episodes": 0,
+      "success_rate": 0.0,
+      "termination_reasons": {
+        "none": 10
+      }
+    }
+  }
+}

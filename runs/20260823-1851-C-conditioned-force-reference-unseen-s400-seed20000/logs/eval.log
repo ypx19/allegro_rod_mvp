@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/data/ypx/allegro_rod_mvp/scripts/eval_policy.py", line 665, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/data/ypx/allegro_rod_mvp/scripts/eval_policy.py", line 613, in main
+    metrics = evaluate(
+        args.model,
+    ...<37 lines>...
+        hand_grasp_config=args.hand_grasp_config,
+    )
+  File "/data/ypx/allegro_rod_mvp/scripts/eval_policy.py", line 455, in evaluate
+    len(conditioned_total_normal_forces) / max(1, total_steps)
+                                                  ^^^^^^^^^^^
+NameError: name 'total_steps' is not defined

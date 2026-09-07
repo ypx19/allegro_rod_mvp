@@ -1,0 +1,74 @@
+{
+  "control": {
+    "fixed": {
+      "rotation_deg_mean": 183.17964492696518,
+      "three_contact_occupancy": 0.9750818021646112,
+      "drop_rate": 1.0,
+      "omega_hold_satisfied_rate": 0.0,
+      "omega_hold_seconds_max_mean": 0.944,
+      "force_p95_n": 231.3931813828578,
+      "success_rate": 0.0,
+      "reward_rotation_step_mean": 0.6325590007980632,
+      "contact_support_terminations": 10
+    },
+    "unseen": {
+      "rotation_deg_mean": 188.97279833189623,
+      "three_contact_occupancy": 0.9750898203592815,
+      "drop_rate": 0.9,
+      "omega_hold_satisfied_rate": 0.0,
+      "omega_hold_seconds_max_mean": 0.9479999999999998,
+      "force_p95_n": 233.82614741142646,
+      "success_rate": 0.0,
+      "reward_rotation_step_mean": 0.6061461008277054,
+      "contact_support_terminations": 9
+    }
+  },
+  "A": {
+    "fixed": {
+      "rotation_deg_mean": 294.0132193199716,
+      "three_contact_occupancy": 0.8776978417266187,
+      "drop_rate": 1.0,
+      "omega_hold_satisfied_rate": 0.0,
+      "omega_hold_seconds_max_mean": 1.012,
+      "force_p95_n": 184.2243779172955,
+      "success_rate": 0.0,
+      "reward_rotation_step_mean": 4.069484442539251,
+      "contact_support_terminations": 10
+    },
+    "unseen": {
+      "rotation_deg_mean": 277.3928825602014,
+      "three_contact_occupancy": 0.8710144927536232,
+      "drop_rate": 1.0,
+      "omega_hold_satisfied_rate": 0.0,
+      "omega_hold_seconds_max_mean": 1.004,
+      "force_p95_n": 191.47818908258537,
+      "success_rate": 0.0,
+      "reward_rotation_step_mean": 4.013419987020357,
+      "contact_support_terminations": 10
+    }
+  },
+  "B": {
+    "fixed": {
+      "rotation_deg_mean": 374.04102530197395,
+      "three_contact_occupancy": 0.2876,
+      "drop_rate": 0.0,
+      "omega_hold_satisfied_rate": 0.0,
+      "omega_hold_seconds_max_mean": 0.868,
+      "force_p95_n": 230.82106615813564,
+      "success_rate": 0.0,
+      "reward_rotation_step_mean": 0.8118248963966656,
+      "contact_support_terminations": 0
+    },
+    "unseen": {
+      "rotation_deg_mean": 379.2036270162316,
+      "three_contact_occupancy": 0.335,
+      "drop_rate": 0.0,
+      "omega_hold_satisfied_rate": 0.0,
+      "omega_hold_seconds_max_mean": 0.924,
+      "force_p95_n": 217.17594119794484,
+      "success_rate": 0.0,
+      "reward_rotation_step_mean": 0.7874183916588073,
+      "contact_support_terminations": 0
+    }
+  }
+}

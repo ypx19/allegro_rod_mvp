@@ -1,0 +1,747 @@
+{
+  "curriculum_id": "20260823-0405-allegro-tip-bottom-smoke-seed0",
+  "seed": 0,
+  "smoke": true,
+  "stages": [
+    {
+      "name": "A0-revolute",
+      "physics": "revolute",
+      "mass_scale": 10.0,
+      "stabilizer": 0.0,
+      "tip_solref": null,
+      "final": false
+    },
+    {
+      "name": "B0-soft-connect",
+      "physics": "tip_connect",
+      "mass_scale": 10.0,
+      "stabilizer": 1.0,
+      "tip_solref": 0.05,
+      "final": false
+    },
+    {
+      "name": "B1-medium-connect",
+      "physics": "tip_connect",
+      "mass_scale": 10.0,
+      "stabilizer": 0.5,
+      "tip_solref": 0.02,
+      "final": false
+    },
+    {
+      "name": "B2-hard-connect",
+      "physics": "tip_connect",
+      "mass_scale": 10.0,
+      "stabilizer": 0.25,
+      "tip_solref": 0.008,
+      "final": false
+    },
+    {
+      "name": "B3-zero-stabilizer",
+      "physics": "tip_connect",
+      "mass_scale": 10.0,
+      "stabilizer": 0.0,
+      "tip_solref": 0.008,
+      "final": false
+    },
+    {
+      "name": "C1-mass-4",
+      "physics": "tip_connect",
+      "mass_scale": 4.0,
+      "stabilizer": 0.0,
+      "tip_solref": 0.008,
+      "final": false
+    },
+    {
+      "name": "C2-mass-2",
+      "physics": "tip_connect",
+      "mass_scale": 2.0,
+      "stabilizer": 0.0,
+      "tip_solref": 0.008,
+      "final": false
+    },
+    {
+      "name": "C3-mass-1",
+      "physics": "tip_connect",
+      "mass_scale": 1.0,
+      "stabilizer": 0.0,
+      "tip_solref": 0.008,
+      "final": true
+    }
+  ],
+  "completed": [
+    {
+      "stage": {
+        "name": "A0-revolute",
+        "physics": "revolute",
+        "mass_scale": 10.0,
+        "stabilizer": 0.0,
+        "tip_solref": null,
+        "final": false
+      },
+      "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-A0-revolute-s10-retry0",
+      "selected_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-A0-revolute-s10-retry0/checkpoints/ppo_rod_20000_steps.zip",
+      "selected_vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-A0-revolute-s10-retry0/checkpoints/ppo_rod_20000_steps_vecnormalize.pkl",
+      "metrics": {
+        "model": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-A0-revolute-s10-retry0/checkpoints/ppo_rod_20000_steps.zip",
+        "stage": 0,
+        "episodes": 5,
+        "physics_mode": "revolute",
+        "reward_style": "dexscrew",
+        "tip_connect_solref": null,
+        "tip_connect_enabled": false,
+        "axis_stabilizer_scale": 0.0,
+        "axis_tilt_penalty_weight": 1.0,
+        "axis_tilt_recovery_scale": 0.0,
+        "rotation_reward_scale": 16.0,
+        "contact_reward_mode": "discrete",
+        "three_contact_reward": 3.0,
+        "contact_window_steps": 25,
+        "contact_window_threshold": 18.0,
+        "omega_success_threshold": 0.5,
+        "omega_success_hold_seconds": 10.0,
+        "rod_mass_scale": 10.0,
+        "rod_friction_cap": 4.0,
+        "tilt_terminate_rad": 1.2,
+        "tip_anchor": "bottom",
+        "hand_model": "allegro",
+        "dexscrew_tip_penalty_scale": 0.5,
+        "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-A0-revolute-s10-retry0/checkpoints/ppo_rod_20000_steps_vecnormalize.pkl",
+        "axis_rotation_deg_mean": 0.005293395818048474,
+        "axis_rotation_deg_std": 0.26228940106967547,
+        "tip_error_m_mean": 8.198088628962743e-18,
+        "tip_error_m_std": 7.779102946986583e-18,
+        "contact_count_mean": 2.4,
+        "contact_count_step_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.01622352410995944,
+          "3": 0.9837764758900406
+        },
+        "finger_contact_step_fraction": [
+          0.9873817034700315,
+          1.0,
+          0.9963947724200091
+        ],
+        "final_axis_tilt_deg_mean": 0.0,
+        "omega_hold_satisfied_rate": 0.0,
+        "omega_hold_seconds_max_mean": 0.0,
+        "stabilizer_torque_mean": 0.0,
+        "stabilizer_torque_max_mean": 0.0,
+        "termination_reasons": {
+          "contact_support": 3,
+          "none": 2
+        },
+        "reward_component_step_means": {
+          "reward_rotation": 0.002130483125697219,
+          "reward_tip_penalty": -2.2551213989785233e-31,
+          "reward_axis_tilt_penalty": 0.0,
+          "reward_axis_tilt_penalty_raw": 0.0,
+          "reward_axis_tilt_recovery": 0.0,
+          "reward_lateral_omega_penalty": 0.0,
+          "reward_contact_bonus": 2.94996131076456,
+          "reward_proximity": 8.245500164742785e-05,
+          "reward_force_penalty": 0.0,
+          "reward_action_rate_penalty": -0.001002114077966357
+        },
+        "success_rate": 0.0,
+        "drop_rate": 0.6,
+        "passed": false
+      },
+      "passed": false,
+      "failures": [
+        "drop rate 0.6 too high",
+        "neither success>=0.2 nor mean max omega hold>=2 s"
+      ],
+      "retry": 0
+    },
+    {
+      "stage": {
+        "name": "B0-soft-connect",
+        "physics": "tip_connect",
+        "mass_scale": 10.0,
+        "stabilizer": 1.0,
+        "tip_solref": 0.05,
+        "final": false
+      },
+      "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-B0-soft-connect-s10-retry0",
+      "selected_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B0-soft-connect-s10-retry0/checkpoints/ppo_rod_10000_steps.zip",
+      "selected_vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B0-soft-connect-s10-retry0/checkpoints/ppo_rod_10000_steps_vecnormalize.pkl",
+      "metrics": {
+        "model": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B0-soft-connect-s10-retry0/checkpoints/ppo_rod_10000_steps.zip",
+        "stage": 0,
+        "episodes": 5,
+        "physics_mode": "tip_connect",
+        "reward_style": "dexscrew",
+        "tip_connect_solref": 0.05,
+        "tip_connect_enabled": true,
+        "axis_stabilizer_scale": 1.0,
+        "axis_tilt_penalty_weight": 1.0,
+        "axis_tilt_recovery_scale": 0.0,
+        "rotation_reward_scale": 16.0,
+        "contact_reward_mode": "discrete",
+        "three_contact_reward": 3.0,
+        "contact_window_steps": 25,
+        "contact_window_threshold": 18.0,
+        "omega_success_threshold": 0.5,
+        "omega_success_hold_seconds": 10.0,
+        "rod_mass_scale": 10.0,
+        "rod_friction_cap": 4.0,
+        "tilt_terminate_rad": 1.2,
+        "tip_anchor": "bottom",
+        "hand_model": "allegro",
+        "dexscrew_tip_penalty_scale": 0.5,
+        "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B0-soft-connect-s10-retry0/checkpoints/ppo_rod_10000_steps_vecnormalize.pkl",
+        "axis_rotation_deg_mean": 49.373865766852006,
+        "axis_rotation_deg_std": 2.364273192649082,
+        "tip_error_m_mean": 0.007958200574294028,
+        "tip_error_m_std": 0.00033845065598344135,
+        "contact_count_mean": 1.4,
+        "contact_count_step_distribution": {
+          "0": 0.0,
+          "1": 0.011661807580174927,
+          "2": 0.10787172011661808,
+          "3": 0.880466472303207
+        },
+        "finger_contact_step_fraction": [
+          0.9970845481049563,
+          0.8833819241982507,
+          0.9883381924198251
+        ],
+        "final_axis_tilt_deg_mean": 9.293995669516177,
+        "omega_hold_satisfied_rate": 0.0,
+        "omega_hold_seconds_max_mean": 0.48,
+        "stabilizer_torque_mean": 0.2466556298318185,
+        "stabilizer_torque_max_mean": 0.3563753319988742,
+        "termination_reasons": {
+          "contact_support": 5
+        },
+        "reward_component_step_means": {
+          "reward_rotation": 0.6330352594915398,
+          "reward_tip_penalty": -0.01578378062633401,
+          "reward_axis_tilt_penalty": -0.7309235974140602,
+          "reward_axis_tilt_penalty_raw": -0.7309235974140602,
+          "reward_axis_tilt_recovery": 0.0,
+          "reward_lateral_omega_penalty": 0.0,
+          "reward_contact_bonus": 2.6405370843989773,
+          "reward_proximity": 0.05736657337901409,
+          "reward_force_penalty": 0.0,
+          "reward_action_rate_penalty": -0.0005912380101552592
+        },
+        "success_rate": 0.0,
+        "drop_rate": 1.0,
+        "passed": false
+      },
+      "passed": false,
+      "failures": [
+        "drop rate 1.0 too high",
+        "neither success>=0.2 nor mean max omega hold>=2 s"
+      ],
+      "retry": 0
+    },
+    {
+      "stage": {
+        "name": "B1-medium-connect",
+        "physics": "tip_connect",
+        "mass_scale": 10.0,
+        "stabilizer": 0.5,
+        "tip_solref": 0.02,
+        "final": false
+      },
+      "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-B1-medium-connect-s10-retry0",
+      "selected_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B1-medium-connect-s10-retry0/checkpoints/final_model.zip",
+      "selected_vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B1-medium-connect-s10-retry0/checkpoints/vecnormalize.pkl",
+      "metrics": {
+        "model": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B1-medium-connect-s10-retry0/checkpoints/final_model.zip",
+        "stage": 0,
+        "episodes": 5,
+        "physics_mode": "tip_connect",
+        "reward_style": "dexscrew",
+        "tip_connect_solref": 0.02,
+        "tip_connect_enabled": true,
+        "axis_stabilizer_scale": 0.5,
+        "axis_tilt_penalty_weight": 1.0,
+        "axis_tilt_recovery_scale": 0.0,
+        "rotation_reward_scale": 16.0,
+        "contact_reward_mode": "discrete",
+        "three_contact_reward": 3.0,
+        "contact_window_steps": 25,
+        "contact_window_threshold": 18.0,
+        "omega_success_threshold": 0.5,
+        "omega_success_hold_seconds": 10.0,
+        "rod_mass_scale": 10.0,
+        "rod_friction_cap": 4.0,
+        "tilt_terminate_rad": 1.2,
+        "tip_anchor": "bottom",
+        "hand_model": "allegro",
+        "dexscrew_tip_penalty_scale": 0.5,
+        "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B1-medium-connect-s10-retry0/checkpoints/vecnormalize.pkl",
+        "axis_rotation_deg_mean": 43.635004108439425,
+        "axis_rotation_deg_std": 6.195864212370248,
+        "tip_error_m_mean": 0.0011558759794741478,
+        "tip_error_m_std": 0.00020895153477826442,
+        "contact_count_mean": 1.8,
+        "contact_count_step_distribution": {
+          "0": 0.0,
+          "1": 0.003284072249589491,
+          "2": 0.029556650246305417,
+          "3": 0.9671592775041051
+        },
+        "finger_contact_step_fraction": [
+          1.0,
+          0.993431855500821,
+          0.9704433497536946
+        ],
+        "final_axis_tilt_deg_mean": 9.097678706936623,
+        "omega_hold_satisfied_rate": 0.0,
+        "omega_hold_seconds_max_mean": 0.0,
+        "stabilizer_torque_mean": 0.13455348819456153,
+        "stabilizer_torque_max_mean": 0.18161318904927082,
+        "termination_reasons": {
+          "contact_support": 5
+        },
+        "reward_component_step_means": {
+          "reward_rotation": 0.21115710007804026,
+          "reward_tip_penalty": -0.0012129170526480651,
+          "reward_axis_tilt_penalty": -0.8708673135496449,
+          "reward_axis_tilt_penalty_raw": -0.8708673135496449,
+          "reward_axis_tilt_recovery": 0.0,
+          "reward_lateral_omega_penalty": 0.0,
+          "reward_contact_bonus": 2.8926863369907903,
+          "reward_proximity": 0.06554191339437938,
+          "reward_force_penalty": 0.0,
+          "reward_action_rate_penalty": -0.00043560200414566417
+        },
+        "success_rate": 0.0,
+        "drop_rate": 1.0,
+        "passed": false
+      },
+      "passed": false,
+      "failures": [
+        "drop rate 1.0 too high",
+        "neither success>=0.2 nor mean max omega hold>=2 s"
+      ],
+      "retry": 0
+    },
+    {
+      "stage": {
+        "name": "B2-hard-connect",
+        "physics": "tip_connect",
+        "mass_scale": 10.0,
+        "stabilizer": 0.25,
+        "tip_solref": 0.008,
+        "final": false
+      },
+      "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-B2-hard-connect-s10-retry0",
+      "selected_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B2-hard-connect-s10-retry0/checkpoints/final_model.zip",
+      "selected_vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B2-hard-connect-s10-retry0/checkpoints/vecnormalize.pkl",
+      "metrics": {
+        "model": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B2-hard-connect-s10-retry0/checkpoints/final_model.zip",
+        "stage": 0,
+        "episodes": 5,
+        "physics_mode": "tip_connect",
+        "reward_style": "dexscrew",
+        "tip_connect_solref": 0.008,
+        "tip_connect_enabled": true,
+        "axis_stabilizer_scale": 0.25,
+        "axis_tilt_penalty_weight": 1.0,
+        "axis_tilt_recovery_scale": 0.0,
+        "rotation_reward_scale": 16.0,
+        "contact_reward_mode": "discrete",
+        "three_contact_reward": 3.0,
+        "contact_window_steps": 25,
+        "contact_window_threshold": 18.0,
+        "omega_success_threshold": 0.5,
+        "omega_success_hold_seconds": 10.0,
+        "rod_mass_scale": 10.0,
+        "rod_friction_cap": 4.0,
+        "tilt_terminate_rad": 1.2,
+        "tip_anchor": "bottom",
+        "hand_model": "allegro",
+        "dexscrew_tip_penalty_scale": 0.5,
+        "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B2-hard-connect-s10-retry0/checkpoints/vecnormalize.pkl",
+        "axis_rotation_deg_mean": 56.853404329669196,
+        "axis_rotation_deg_std": 10.956069236186794,
+        "tip_error_m_mean": 0.00037549543344021004,
+        "tip_error_m_std": 0.0002490773338011532,
+        "contact_count_mean": 2.0,
+        "contact_count_step_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.10200364298724955,
+          "3": 0.8979963570127505
+        },
+        "finger_contact_step_fraction": [
+          0.9672131147540983,
+          1.0,
+          0.930783242258652
+        ],
+        "final_axis_tilt_deg_mean": 11.572825021214719,
+        "omega_hold_satisfied_rate": 0.0,
+        "omega_hold_seconds_max_mean": 0.152,
+        "stabilizer_torque_mean": 0.08135687361198224,
+        "stabilizer_torque_max_mean": 0.11266631519357347,
+        "termination_reasons": {
+          "contact_support": 5
+        },
+        "reward_component_step_means": {
+          "reward_rotation": 0.5635872060028533,
+          "reward_tip_penalty": -0.0003633134679387683,
+          "reward_axis_tilt_penalty": -1.2430161010193999,
+          "reward_axis_tilt_penalty_raw": -1.2430161010193999,
+          "reward_axis_tilt_recovery": 0.0,
+          "reward_lateral_omega_penalty": 0.0,
+          "reward_contact_bonus": 2.6457118216023523,
+          "reward_proximity": 0.012150345463739698,
+          "reward_force_penalty": 0.0,
+          "reward_action_rate_penalty": -0.0040022587078948815
+        },
+        "success_rate": 0.0,
+        "drop_rate": 1.0,
+        "passed": false
+      },
+      "passed": false,
+      "failures": [
+        "drop rate 1.0 too high",
+        "neither success>=0.2 nor mean max omega hold>=2 s"
+      ],
+      "retry": 0
+    },
+    {
+      "stage": {
+        "name": "B3-zero-stabilizer",
+        "physics": "tip_connect",
+        "mass_scale": 10.0,
+        "stabilizer": 0.0,
+        "tip_solref": 0.008,
+        "final": false
+      },
+      "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-B3-zero-stabilizer-s10-retry0",
+      "selected_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B3-zero-stabilizer-s10-retry0/checkpoints/ppo_rod_10000_steps.zip",
+      "selected_vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B3-zero-stabilizer-s10-retry0/checkpoints/ppo_rod_10000_steps_vecnormalize.pkl",
+      "metrics": {
+        "model": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B3-zero-stabilizer-s10-retry0/checkpoints/ppo_rod_10000_steps.zip",
+        "stage": 0,
+        "episodes": 5,
+        "physics_mode": "tip_connect",
+        "reward_style": "dexscrew",
+        "tip_connect_solref": 0.008,
+        "tip_connect_enabled": true,
+        "axis_stabilizer_scale": 0.0,
+        "axis_tilt_penalty_weight": 1.0,
+        "axis_tilt_recovery_scale": 0.0,
+        "rotation_reward_scale": 16.0,
+        "contact_reward_mode": "discrete",
+        "three_contact_reward": 3.0,
+        "contact_window_steps": 25,
+        "contact_window_threshold": 18.0,
+        "omega_success_threshold": 0.5,
+        "omega_success_hold_seconds": 10.0,
+        "rod_mass_scale": 10.0,
+        "rod_friction_cap": 4.0,
+        "tilt_terminate_rad": 1.2,
+        "tip_anchor": "bottom",
+        "hand_model": "allegro",
+        "dexscrew_tip_penalty_scale": 0.5,
+        "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-B3-zero-stabilizer-s10-retry0/checkpoints/ppo_rod_10000_steps_vecnormalize.pkl",
+        "axis_rotation_deg_mean": 55.391427287240596,
+        "axis_rotation_deg_std": 3.3470857216726304,
+        "tip_error_m_mean": 0.0008074249907519496,
+        "tip_error_m_std": 0.00010829630502215495,
+        "contact_count_mean": 2.0,
+        "contact_count_step_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.09624413145539906,
+          "3": 0.903755868544601
+        },
+        "finger_contact_step_fraction": [
+          0.9976525821596244,
+          1.0,
+          0.9061032863849765
+        ],
+        "final_axis_tilt_deg_mean": 11.973401991854239,
+        "omega_hold_satisfied_rate": 0.0,
+        "omega_hold_seconds_max_mean": 0.43200000000000005,
+        "stabilizer_torque_mean": 0.0,
+        "stabilizer_torque_max_mean": 0.0,
+        "termination_reasons": {
+          "contact_support": 5
+        },
+        "reward_component_step_means": {
+          "reward_rotation": 0.6912205580031671,
+          "reward_tip_penalty": -0.0003883713510736603,
+          "reward_axis_tilt_penalty": -1.087962898277325,
+          "reward_axis_tilt_penalty_raw": -1.087962898277325,
+          "reward_axis_tilt_recovery": 0.0,
+          "reward_lateral_omega_penalty": 0.0,
+          "reward_contact_bonus": 2.714282270876698,
+          "reward_proximity": 0.032022681000409635,
+          "reward_force_penalty": 0.0,
+          "reward_action_rate_penalty": -0.007718608642115715
+        },
+        "success_rate": 0.0,
+        "drop_rate": 1.0,
+        "passed": false
+      },
+      "passed": false,
+      "failures": [
+        "drop rate 1.0 too high",
+        "neither success>=0.2 nor mean max omega hold>=2 s"
+      ],
+      "retry": 0
+    },
+    {
+      "stage": {
+        "name": "C1-mass-4",
+        "physics": "tip_connect",
+        "mass_scale": 4.0,
+        "stabilizer": 0.0,
+        "tip_solref": 0.008,
+        "final": false
+      },
+      "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-C1-mass-4-s4-retry0",
+      "selected_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C1-mass-4-s4-retry0/checkpoints/ppo_rod_10000_steps.zip",
+      "selected_vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C1-mass-4-s4-retry0/checkpoints/ppo_rod_10000_steps_vecnormalize.pkl",
+      "metrics": {
+        "model": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C1-mass-4-s4-retry0/checkpoints/ppo_rod_10000_steps.zip",
+        "stage": 0,
+        "episodes": 5,
+        "physics_mode": "tip_connect",
+        "reward_style": "dexscrew",
+        "tip_connect_solref": 0.008,
+        "tip_connect_enabled": true,
+        "axis_stabilizer_scale": 0.0,
+        "axis_tilt_penalty_weight": 1.0,
+        "axis_tilt_recovery_scale": 0.0,
+        "rotation_reward_scale": 16.0,
+        "contact_reward_mode": "discrete",
+        "three_contact_reward": 3.0,
+        "contact_window_steps": 25,
+        "contact_window_threshold": 18.0,
+        "omega_success_threshold": 0.5,
+        "omega_success_hold_seconds": 10.0,
+        "rod_mass_scale": 4.0,
+        "rod_friction_cap": 4.0,
+        "tilt_terminate_rad": 1.2,
+        "tip_anchor": "bottom",
+        "hand_model": "allegro",
+        "dexscrew_tip_penalty_scale": 0.5,
+        "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C1-mass-4-s4-retry0/checkpoints/ppo_rod_10000_steps_vecnormalize.pkl",
+        "axis_rotation_deg_mean": 61.41210608108895,
+        "axis_rotation_deg_std": 1.1081227789300443,
+        "tip_error_m_mean": 0.0007326166783734021,
+        "tip_error_m_std": 2.560867533659252e-05,
+        "contact_count_mean": 2.0,
+        "contact_count_step_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.11461318051575932,
+          "3": 0.8853868194842407
+        },
+        "finger_contact_step_fraction": [
+          1.0,
+          1.0,
+          0.8853868194842407
+        ],
+        "final_axis_tilt_deg_mean": 11.464341348914235,
+        "omega_hold_satisfied_rate": 0.0,
+        "omega_hold_seconds_max_mean": 0.4,
+        "stabilizer_torque_mean": 0.0,
+        "stabilizer_torque_max_mean": 0.0,
+        "termination_reasons": {
+          "contact_support": 5
+        },
+        "reward_component_step_means": {
+          "reward_rotation": 0.8887817465797705,
+          "reward_tip_penalty": -0.0004082495323306875,
+          "reward_axis_tilt_penalty": -0.8282469400512698,
+          "reward_axis_tilt_penalty_raw": -0.8282469400512698,
+          "reward_axis_tilt_recovery": 0.0,
+          "reward_lateral_omega_penalty": 0.0,
+          "reward_contact_bonus": 2.667149400695022,
+          "reward_proximity": 0.03431763784205395,
+          "reward_force_penalty": 0.0,
+          "reward_action_rate_penalty": -0.004697826338494951
+        },
+        "success_rate": 0.0,
+        "drop_rate": 1.0,
+        "passed": false
+      },
+      "passed": false,
+      "failures": [
+        "drop rate 1.0 too high",
+        "neither success>=0.2 nor mean max omega hold>=2 s"
+      ],
+      "retry": 0
+    },
+    {
+      "stage": {
+        "name": "C2-mass-2",
+        "physics": "tip_connect",
+        "mass_scale": 2.0,
+        "stabilizer": 0.0,
+        "tip_solref": 0.008,
+        "final": false
+      },
+      "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-C2-mass-2-s2-retry0",
+      "selected_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C2-mass-2-s2-retry0/checkpoints/ppo_rod_10000_steps.zip",
+      "selected_vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C2-mass-2-s2-retry0/checkpoints/ppo_rod_10000_steps_vecnormalize.pkl",
+      "metrics": {
+        "model": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C2-mass-2-s2-retry0/checkpoints/ppo_rod_10000_steps.zip",
+        "stage": 0,
+        "episodes": 5,
+        "physics_mode": "tip_connect",
+        "reward_style": "dexscrew",
+        "tip_connect_solref": 0.008,
+        "tip_connect_enabled": true,
+        "axis_stabilizer_scale": 0.0,
+        "axis_tilt_penalty_weight": 1.0,
+        "axis_tilt_recovery_scale": 0.0,
+        "rotation_reward_scale": 16.0,
+        "contact_reward_mode": "discrete",
+        "three_contact_reward": 3.0,
+        "contact_window_steps": 25,
+        "contact_window_threshold": 18.0,
+        "omega_success_threshold": 0.5,
+        "omega_success_hold_seconds": 10.0,
+        "rod_mass_scale": 2.0,
+        "rod_friction_cap": 4.0,
+        "tilt_terminate_rad": 1.2,
+        "tip_anchor": "bottom",
+        "hand_model": "allegro",
+        "dexscrew_tip_penalty_scale": 0.5,
+        "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C2-mass-2-s2-retry0/checkpoints/ppo_rod_10000_steps_vecnormalize.pkl",
+        "axis_rotation_deg_mean": 51.17537983697394,
+        "axis_rotation_deg_std": 2.9735201598638734,
+        "tip_error_m_mean": 0.001174941010235969,
+        "tip_error_m_std": 0.00013035860316792984,
+        "contact_count_mean": 2.6,
+        "contact_count_step_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0144,
+          "3": 0.9856
+        },
+        "finger_contact_step_fraction": [
+          0.9996,
+          1.0,
+          0.986
+        ],
+        "final_axis_tilt_deg_mean": 11.433022425360338,
+        "omega_hold_satisfied_rate": 0.0,
+        "omega_hold_seconds_max_mean": 0.144,
+        "stabilizer_torque_mean": 0.0,
+        "stabilizer_torque_max_mean": 0.0,
+        "termination_reasons": {
+          "none": 5
+        },
+        "reward_component_step_means": {
+          "reward_rotation": 0.1064254082007942,
+          "reward_tip_penalty": -0.0013114928449437565,
+          "reward_axis_tilt_penalty": -1.5607643064061807,
+          "reward_axis_tilt_penalty_raw": -1.5607643064061807,
+          "reward_axis_tilt_recovery": 0.0,
+          "reward_lateral_omega_penalty": 0.0,
+          "reward_contact_bonus": 2.9582400000000004,
+          "reward_proximity": 0.018447904218585356,
+          "reward_force_penalty": 0.0,
+          "reward_action_rate_penalty": -0.0009712350798727199
+        },
+        "success_rate": 0.0,
+        "drop_rate": 0.0,
+        "passed": false
+      },
+      "passed": false,
+      "failures": [
+        "neither success>=0.2 nor mean max omega hold>=2 s"
+      ],
+      "retry": 0
+    },
+    {
+      "stage": {
+        "name": "C3-mass-1",
+        "physics": "tip_connect",
+        "mass_scale": 1.0,
+        "stabilizer": 0.0,
+        "tip_solref": 0.008,
+        "final": true
+      },
+      "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0",
+      "selected_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0/checkpoints/final_model.zip",
+      "selected_vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0/checkpoints/vecnormalize.pkl",
+      "metrics": {
+        "model": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0/checkpoints/final_model.zip",
+        "stage": 0,
+        "episodes": 5,
+        "physics_mode": "tip_connect",
+        "reward_style": "dexscrew",
+        "tip_connect_solref": 0.008,
+        "tip_connect_enabled": true,
+        "axis_stabilizer_scale": 0.0,
+        "axis_tilt_penalty_weight": 1.0,
+        "axis_tilt_recovery_scale": 0.0,
+        "rotation_reward_scale": 16.0,
+        "contact_reward_mode": "discrete",
+        "three_contact_reward": 3.0,
+        "contact_window_steps": 25,
+        "contact_window_threshold": 18.0,
+        "omega_success_threshold": 0.5,
+        "omega_success_hold_seconds": 10.0,
+        "rod_mass_scale": 1.0,
+        "rod_friction_cap": 4.0,
+        "tilt_terminate_rad": 1.2,
+        "tip_anchor": "bottom",
+        "hand_model": "allegro",
+        "dexscrew_tip_penalty_scale": 0.5,
+        "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0/checkpoints/vecnormalize.pkl",
+        "axis_rotation_deg_mean": 40.11393421980097,
+        "axis_rotation_deg_std": 1.1328573825460244,
+        "tip_error_m_mean": 0.001398103800683973,
+        "tip_error_m_std": 0.0002382134879653008,
+        "contact_count_mean": 3.0,
+        "contact_count_step_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 1.0
+        },
+        "finger_contact_step_fraction": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "final_axis_tilt_deg_mean": 8.787247717758781,
+        "omega_hold_satisfied_rate": 0.0,
+        "omega_hold_seconds_max_mean": 0.0,
+        "stabilizer_torque_mean": 0.0,
+        "stabilizer_torque_max_mean": 0.0,
+        "termination_reasons": {
+          "none": 5
+        },
+        "reward_component_step_means": {
+          "reward_rotation": 0.08533013807076385,
+          "reward_tip_penalty": -0.0014239336756370672,
+          "reward_axis_tilt_penalty": -0.6092091176984322,
+          "reward_axis_tilt_penalty_raw": -0.6092091176984322,
+          "reward_axis_tilt_recovery": 0.0,
+          "reward_lateral_omega_penalty": 0.0,
+          "reward_contact_bonus": 3.0,
+          "reward_proximity": 0.09534623063146938,
+          "reward_force_penalty": 0.0,
+          "reward_action_rate_penalty": -0.005393483816220869
+        },
+        "success_rate": 0.0,
+        "drop_rate": 0.0,
+        "passed": false
+      },
+      "passed": false,
+      "failures": [
+        "success rate 0.0 < 0.5"
+      ],
+      "retry": 0
+    }
+  ],
+  "last_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0/checkpoints/final_model.zip",
+  "status": "smoke_completed",
+  "final_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0/checkpoints/final_model.zip"
+}

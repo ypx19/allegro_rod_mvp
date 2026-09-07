@@ -1,0 +1,46 @@
+{
+  "schema": "allegro_rod_mvp.hand_pose",
+  "schema_version": 1,
+  "transform_space": "model",
+  "body": "palm",
+  "translation": [
+    0.0262807865392716,
+    -0.08578110798288589,
+    0.113580438493427
+  ],
+  "quaternion_wxyz": [
+    0.7071067811865475,
+    1.3877787807814457e-17,
+    0.7071067811865476,
+    1.3877787807814457e-17
+  ],
+  "euler_xyz_degrees": [
+    169.97501213792427,
+    90.0,
+    169.97501213792427
+  ],
+  "source_pose": {
+    "type": "model_default",
+    "model": "models/allegro_three_finger_rod_revolute.xml",
+    "translation": [
+      -0.018718,
+      -0.022177,
+      -0.058714
+    ],
+    "quaternion_wxyz": [
+      0.0,
+      0.7071067811865476,
+      0.0,
+      0.7071067811865476
+    ]
+  },
+  "pivot": "palm_body_origin",
+  "rotation_convention": "world-axis incremental rotations pre-multiplied onto the palm orientation; Euler display is extrinsic XYZ in degrees",
+  "model_variant": "allegro_three_finger_rod_revolute",
+  "compatible_model_variants": [
+    "allegro_three_finger_rod",
+    "allegro_three_finger_rod_revolute"
+  ],
+  "created_at": "2026-08-23T17:15:52-07:00",
+  "notes": ""
+}

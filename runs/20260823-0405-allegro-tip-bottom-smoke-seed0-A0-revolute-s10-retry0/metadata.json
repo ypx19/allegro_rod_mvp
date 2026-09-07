@@ -1,0 +1,21 @@
+{
+  "run_id": "20260823-0405-allegro-tip-bottom-smoke-seed0-A0-revolute-s10-retry0",
+  "timestamp": "2026-08-23T02:55:21-07:00",
+  "git_commit": "3da460c",
+  "git_branch": "cursor/teleop-hand-keyboard",
+  "git_dirty": true,
+  "command": "/data/ypx/allegro_rod_mvp/.venv/bin/python /data/ypx/allegro_rod_mvp/scripts/train_parallel.py --run-id 20260823-0405-allegro-tip-bottom-smoke-seed0-A0-revolute-s10-retry0 --hand-model allegro --physics revolute --reward-style dexscrew --tip-anchor bottom --rod-mass-scale 10.0 --rod-friction-cap 4 --axis-stabilizer-scale 0.0 --tilt-terminate-rad 1.2 --contact-reward-mode discrete --three-contact-reward 3 --contact-window-steps 25 --contact-window-threshold 18 --three-contact-required --omega-success-threshold 0.5 --omega-success-hold-seconds 10 --num-envs 4 --n-steps 256 --batch-size 256 --steps 20000 --checkpoint-freq 10000 --ent-coef 0 --device cuda --seed 0 --notes Allegro three-finger bottom-tip curriculum stage A0-revolute; final physics retains point-connect. --no-tip-connect --dexscrew-tilt-scale 0",
+  "seed": 0,
+  "device": "cuda",
+  "hostname": "batiquitos.ucsd.edu",
+  "python_version": "3.13.9",
+  "framework_versions": {
+    "gymnasium": "1.3.0",
+    "mujoco": "3.11.0",
+    "numpy": "2.5.1",
+    "stable_baselines3": "2.9.0",
+    "torch": "2.5.1+cu124"
+  },
+  "baseline_run": "scripts/train.py DummyVecEnv CPU Stage 0",
+  "notes": "Allegro three-finger bottom-tip curriculum stage A0-revolute; final physics retains point-connect."
+}

@@ -1,0 +1,68 @@
+run_id: 20260823-1810-two-phase-grasp-recovery-seed0-R00-s400-mu4-iter0-seed0-cal-unseen
+kind: deterministic_force_calibration
+warm_start_checkpoint: /data/ypx/allegro_rod_mvp/runs/20260823-1810-two-phase-grasp-recovery-seed0-R00-s400-mu4-iter0-seed0/checkpoints/final_model.zip
+hand_pose:
+  path: /data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json
+  sha256: 2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f
+  content:
+    schema: allegro_rod_mvp.hand_pose
+    schema_version: 1
+    transform_space: model
+    body: palm
+    translation:
+    - 0.0262807865392716
+    - -0.08578110798288589
+    - 0.113580438493427
+    quaternion_wxyz:
+    - 0.7071067811865475
+    - 1.3877787807814457e-17
+    - 0.7071067811865476
+    - 1.3877787807814457e-17
+    euler_xyz_degrees:
+    - 169.97501213792427
+    - 90.0
+    - 169.97501213792427
+    source_pose:
+      type: model_default
+      model: models/allegro_three_finger_rod_revolute.xml
+      translation:
+      - -0.018718
+      - -0.022177
+      - -0.058714
+      quaternion_wxyz:
+      - 0.0
+      - 0.7071067811865476
+      - 0.0
+      - 0.7071067811865476
+    pivot: palm_body_origin
+    rotation_convention: world-axis incremental rotations pre-multiplied onto the
+      palm orientation; Euler display is extrinsic XYZ in degrees
+    model_variant: allegro_three_finger_rod_revolute
+    compatible_model_variants:
+    - allegro_three_finger_rod
+    - allegro_three_finger_rod_revolute
+    created_at: '2026-08-23T17:15:52-07:00'
+    notes: ''
+hand_grasp_config: /data/ypx/allegro_rod_mvp/configs/hand_grasps/my_grasp_revolute_shared.json
+command: /data/ypx/allegro_rod_mvp/.venv/bin/python /data/ypx/allegro_rod_mvp/scripts/eval_policy.py
+  /data/ypx/allegro_rod_mvp/runs/20260823-1810-two-phase-grasp-recovery-seed0-R00-s400-mu4-iter0-seed0/checkpoints/final_model.zip
+  --hand-model allegro --hand-pose-config /data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json
+  --hand-grasp-config configs/hand_grasps/my_grasp_revolute_shared.json --physics
+  revolute --reward-style dexscrew --tip-anchor bottom --rod-mass-scale 400.0 --contact-friction-scale
+  4.0 --no-scale-tip-solref-with-mass --axis-stabilizer-scale 0 --contact-reward-mode
+  discrete --three-contact-reward 0.3 --contact-window-steps 25 --contact-window-threshold
+  18 --three-contact-required --omega-success-threshold 0.5 --omega-success-hold-seconds
+  10 --no-tip-connect --dexscrew-tilt-scale 0 --episodes 10 --episode-seconds 20 --seed
+  20000 --out /data/ypx/allegro_rod_mvp/runs/curricula/.20260823-1810-two-phase-grasp-recovery-seed0-R00-s400-mu4-iter0-seed0-cal-unseen.json
+  --vecnormalize /data/ypx/allegro_rod_mvp/runs/20260823-1810-two-phase-grasp-recovery-seed0-R00-s400-mu4-iter0-seed0/checkpoints/vecnormalize.pkl
+physics: revolute
+rod_mass_scale: 400.0
+contact_friction_scale: 4.0
+contact_friction_vector:
+- 7.2
+- 0.05
+- 0.001
+force_tolerance_relative: 0.2
+mu_scale_bounds:
+- 0.1
+- 4.0

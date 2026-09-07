@@ -1,0 +1,804 @@
+{
+  "method": "stationary angular trajectory under axial torque disturbance; fixed preload controls, no learned policy",
+  "reference_torque_nm_at_s400": 0.5,
+  "torque_schedule": "tau(s)=0.5*s/400 N m",
+  "friction_schedule": "scale(s)=4.0*s/400; full 3-vector on rod and pads",
+  "preload_multipliers": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0,
+    3.0
+  ],
+  "track_seconds": 2.0,
+  "thresholds": {
+    "max_angle_error_rad": 0.08726646259971647,
+    "max_abs_omega_rad_s": 0.2,
+    "minimum_two_contact_fraction": 0.9
+  },
+  "analytical_equation": "N_min ~= tau / (mu_slide*r + mu_torsion), r=0.01 m; assumes full simultaneous friction capacity and ignores contact distribution, elliptic coupling, compliance, and actuator limits",
+  "minimum_passing_trials": {
+    "400.0": null,
+    "25.0": null,
+    "1.0": {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 1.5,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 9.31435883815343,
+      "measured_total_normal_force_p95_n": 9.31795599721488,
+      "max_angle_error_rad": 0.002428357231487599,
+      "max_angle_error_deg": 0.13913462051431247,
+      "max_abs_omega_rad_s": 0.03524540105301724,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": true,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    }
+  },
+  "trials": [
+    {
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "preload_multiplier": 0.0,
+      "applied_axial_torque_nm": 0.5,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 0.0,
+      "measured_total_normal_force_p95_n": 10.811246957930084,
+      "max_angle_error_rad": 43.78021849524565,
+      "max_angle_error_deg": 2508.4217459381634,
+      "max_abs_omega_rad_s": 23.527627526572253,
+      "two_contact_fraction": 0.006,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.02
+      ],
+      "rod_dof_armature": [
+        0.001
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "preload_multiplier": 0.25,
+      "applied_axial_torque_nm": 0.5,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 0.0,
+      "measured_total_normal_force_p95_n": 19.858338602397914,
+      "max_angle_error_rad": 34.251155246192454,
+      "max_angle_error_deg": 1962.4466390541957,
+      "max_abs_omega_rad_s": 18.546970859616135,
+      "two_contact_fraction": 0.041,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.02
+      ],
+      "rod_dof_armature": [
+        0.001
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "preload_multiplier": 0.5,
+      "applied_axial_torque_nm": 0.5,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 5.693404059559546,
+      "measured_total_normal_force_p95_n": 18.39243334514274,
+      "max_angle_error_rad": 21.478999042092273,
+      "max_angle_error_deg": 1230.6559932774253,
+      "max_abs_omega_rad_s": 12.568338054355007,
+      "two_contact_fraction": 0.134,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.02
+      ],
+      "rod_dof_armature": [
+        0.001
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "preload_multiplier": 0.75,
+      "applied_axial_torque_nm": 0.5,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 10.883412752743748,
+      "measured_total_normal_force_p95_n": 11.247749573356003,
+      "max_angle_error_rad": 1.8657640831044544,
+      "max_angle_error_deg": 106.90040752898102,
+      "max_abs_omega_rad_s": 7.296234360858542,
+      "two_contact_fraction": 0.943,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.02
+      ],
+      "rod_dof_armature": [
+        0.001
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "preload_multiplier": 1.0,
+      "applied_axial_torque_nm": 0.5,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 11.898261314315267,
+      "measured_total_normal_force_p95_n": 12.413906199362033,
+      "max_angle_error_rad": 1.035748487625347,
+      "max_angle_error_deg": 59.344016977990364,
+      "max_abs_omega_rad_s": 4.7205316099749695,
+      "two_contact_fraction": 0.987,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.02
+      ],
+      "rod_dof_armature": [
+        0.001
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "preload_multiplier": 1.5,
+      "applied_axial_torque_nm": 0.5,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 13.877984652566331,
+      "measured_total_normal_force_p95_n": 14.753546339817243,
+      "max_angle_error_rad": 0.6911149832967936,
+      "max_angle_error_deg": 39.59797170116065,
+      "max_abs_omega_rad_s": 3.088493163262762,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.02
+      ],
+      "rod_dof_armature": [
+        0.001
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "preload_multiplier": 2.0,
+      "applied_axial_torque_nm": 0.5,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 16.343058928107638,
+      "measured_total_normal_force_p95_n": 17.542446550244367,
+      "max_angle_error_rad": 0.5769924147953893,
+      "max_angle_error_deg": 33.059230178837566,
+      "max_abs_omega_rad_s": 2.4597319493059713,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.02
+      ],
+      "rod_dof_armature": [
+        0.001
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "preload_multiplier": 3.0,
+      "applied_axial_torque_nm": 0.5,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 24.14397015104429,
+      "measured_total_normal_force_p95_n": 25.827590371562,
+      "max_angle_error_rad": 0.5778177787896479,
+      "max_angle_error_deg": 33.10652005227064,
+      "max_abs_omega_rad_s": 2.1064455553938384,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.02
+      ],
+      "rod_dof_armature": [
+        0.001
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "preload_multiplier": 0.0,
+      "applied_axial_torque_nm": 0.03125,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 0.0,
+      "measured_total_normal_force_p95_n": 3.8561483444681657,
+      "max_angle_error_rad": 45.66888280156752,
+      "max_angle_error_deg": 2616.63423960741,
+      "max_abs_omega_rad_s": 24.201671544866088,
+      "two_contact_fraction": 0.006,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.00125
+      ],
+      "rod_dof_armature": [
+        6.25e-05
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "preload_multiplier": 0.25,
+      "applied_axial_torque_nm": 0.03125,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 0.0,
+      "measured_total_normal_force_p95_n": 9.838942906479586,
+      "max_angle_error_rad": 35.52894703313979,
+      "max_angle_error_deg": 2035.6587155427576,
+      "max_abs_omega_rad_s": 18.77549794325736,
+      "two_contact_fraction": 0.128,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.00125
+      ],
+      "rod_dof_armature": [
+        6.25e-05
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "preload_multiplier": 0.5,
+      "applied_axial_torque_nm": 0.03125,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 3.705269955462694,
+      "measured_total_normal_force_p95_n": 8.461708219578671,
+      "max_angle_error_rad": 25.26835606729743,
+      "max_angle_error_deg": 1447.7701578899294,
+      "max_abs_omega_rad_s": 13.723331083829946,
+      "two_contact_fraction": 0.231,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.00125
+      ],
+      "rod_dof_armature": [
+        6.25e-05
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "preload_multiplier": 0.75,
+      "applied_axial_torque_nm": 0.03125,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 4.953976337881912,
+      "measured_total_normal_force_p95_n": 9.19992136076829,
+      "max_angle_error_rad": 14.860673087668335,
+      "max_angle_error_deg": 851.4538486470412,
+      "max_abs_omega_rad_s": 8.266411384910715,
+      "two_contact_fraction": 0.518,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.00125
+      ],
+      "rod_dof_armature": [
+        6.25e-05
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "preload_multiplier": 1.0,
+      "applied_axial_torque_nm": 0.03125,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 7.286708865520023,
+      "measured_total_normal_force_p95_n": 7.942621211081969,
+      "max_angle_error_rad": 4.563867539796357,
+      "max_angle_error_deg": 261.4903482870855,
+      "max_abs_omega_rad_s": 2.644746886203456,
+      "two_contact_fraction": 0.902,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.00125
+      ],
+      "rod_dof_armature": [
+        6.25e-05
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "preload_multiplier": 1.5,
+      "applied_axial_torque_nm": 0.03125,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 9.570880458287498,
+      "measured_total_normal_force_p95_n": 9.800749083432022,
+      "max_angle_error_rad": 0.05067054713768426,
+      "max_angle_error_deg": 2.903208496608002,
+      "max_abs_omega_rad_s": 0.5868522093125227,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.00125
+      ],
+      "rod_dof_armature": [
+        6.25e-05
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "preload_multiplier": 2.0,
+      "applied_axial_torque_nm": 0.03125,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 12.91126035572195,
+      "measured_total_normal_force_p95_n": 13.224910939600553,
+      "max_angle_error_rad": 0.048291641016102727,
+      "max_angle_error_deg": 2.7669072159835446,
+      "max_abs_omega_rad_s": 0.5333919828664238,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.00125
+      ],
+      "rod_dof_armature": [
+        6.25e-05
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "preload_multiplier": 3.0,
+      "applied_axial_torque_nm": 0.03125,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 19.561465099249354,
+      "measured_total_normal_force_p95_n": 20.039870721349054,
+      "max_angle_error_rad": 0.045991230503731995,
+      "max_angle_error_deg": 2.6351034024771742,
+      "max_abs_omega_rad_s": 0.4392816100116471,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        0.00125
+      ],
+      "rod_dof_armature": [
+        6.25e-05
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 0.0,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 0.25977960566138397,
+      "measured_total_normal_force_p95_n": 0.5302951149095259,
+      "max_angle_error_rad": 47.06370445603285,
+      "max_angle_error_deg": 2696.5516335817283,
+      "max_abs_omega_rad_s": 24.386561007175366,
+      "two_contact_fraction": 0.089,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 0.25,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 1.8236290177156507,
+      "measured_total_normal_force_p95_n": 2.373377993786917,
+      "max_angle_error_rad": 36.3827978971552,
+      "max_angle_error_deg": 2084.5807663844394,
+      "max_abs_omega_rad_s": 18.94793825117781,
+      "two_contact_fraction": 0.864,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 0.5,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 3.525464959303954,
+      "measured_total_normal_force_p95_n": 3.8162787613307985,
+      "max_angle_error_rad": 25.802012003767736,
+      "max_angle_error_deg": 1478.3463907617795,
+      "max_abs_omega_rad_s": 13.471139266242648,
+      "two_contact_fraction": 0.98,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 0.75,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 5.005576296853219,
+      "measured_total_normal_force_p95_n": 5.204901557624853,
+      "max_angle_error_rad": 15.391687124822417,
+      "max_angle_error_deg": 881.8787118381732,
+      "max_abs_omega_rad_s": 8.213114435213823,
+      "two_contact_fraction": 0.995,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 1.0,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 6.314652015736414,
+      "measured_total_normal_force_p95_n": 6.314652020410416,
+      "max_angle_error_rad": 4.416134851620617,
+      "max_angle_error_deg": 253.0258887584934,
+      "max_abs_omega_rad_s": 2.281302285442529,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": false,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 1.5,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 9.31435883815343,
+      "measured_total_normal_force_p95_n": 9.31795599721488,
+      "max_angle_error_rad": 0.002428357231487599,
+      "max_angle_error_deg": 0.13913462051431247,
+      "max_abs_omega_rad_s": 0.03524540105301724,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": true,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 2.0,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 12.350816492455039,
+      "measured_total_normal_force_p95_n": 12.358577355134269,
+      "max_angle_error_rad": 0.0022672776315770804,
+      "max_angle_error_deg": 0.1299054392737839,
+      "max_abs_omega_rad_s": 0.029604306139072525,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": true,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    },
+    {
+      "mass_scale": 1.0,
+      "friction_scale": 0.01,
+      "preload_multiplier": 3.0,
+      "applied_axial_torque_nm": 0.00125,
+      "effective_pair_friction_vector": [
+        0.018000000000000002,
+        0.018000000000000002,
+        0.0005,
+        1e-05,
+        1e-05
+      ],
+      "analytical_min_total_normal_force_n": 1.838235294117647,
+      "measured_total_normal_force_median_n": 18.434754030506845,
+      "measured_total_normal_force_p95_n": 18.448764654241856,
+      "max_angle_error_rad": 0.002341622742375371,
+      "max_angle_error_deg": 0.13416510034995843,
+      "max_abs_omega_rad_s": 0.02590035709678081,
+      "two_contact_fraction": 1.0,
+      "finite": true,
+      "tracks_without_slip": true,
+      "rod_dof_damping": [
+        5e-05
+      ],
+      "rod_dof_armature": [
+        2.5e-06
+      ],
+      "rod_dof_frictionloss": [
+        0.0
+      ]
+    }
+  ]
+}

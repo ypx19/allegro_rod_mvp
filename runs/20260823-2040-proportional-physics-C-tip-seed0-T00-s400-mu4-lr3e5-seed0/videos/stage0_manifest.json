@@ -1,0 +1,13 @@
+[
+  {
+    "file": "runs/20260823-2040-proportional-physics-C-tip-seed0-T00-s400-mu4-lr3e5-seed0/videos/tip_connect_best_00_seed10000_rot179deg_tilt86deg_steps34_axis_tilt.mp4",
+    "seed": 10000,
+    "axis_rotation_deg": 179.08732551937067,
+    "peak_rotation_deg": 179.08732551937067,
+    "tip_error_m": 0.0020710984361660633,
+    "omega_hold_satisfied": false,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 35
+  }
+]

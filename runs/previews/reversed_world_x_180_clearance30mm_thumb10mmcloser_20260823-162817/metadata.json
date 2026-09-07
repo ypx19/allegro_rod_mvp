@@ -1,0 +1,436 @@
+{
+  "artifact_type": "orientation_and_constraint_preview",
+  "generated_at": "2026-08-23T16:28:23.080779-07:00",
+  "claim_policy_success": false,
+  "world_transform": {
+    "description": "180 deg about world X",
+    "quaternion_wxyz": [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "rotation_matrix": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ]
+    ],
+    "pivot_world_m": [
+      0.0,
+      -0.05,
+      0.0
+    ],
+    "applied_to": "palm root (complete palm + index + middle + thumb subtree)",
+    "unchanged": "all palm-relative child body transforms and joint frames",
+    "additional_translation_world_m": [
+      0.009915014317635812,
+      0.0013009577553006414,
+      0.052386
+    ],
+    "requested_palm_to_rod_top_clearance_m": 0.03,
+    "horizontal_reference_model": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/reversed_A0_bottom_revolute.xml",
+    "horizontal_reference_measurement": {
+      "thumb_root_world_xy_m": [
+        -0.06470500000000001,
+        -0.05849
+      ],
+      "rod_axis_world_xy_m": [
+        0.0,
+        -0.05
+      ],
+      "thumb_root_to_rod_axis_xy_vector_m": [
+        -0.06470500000000001,
+        -0.008489999999999998
+      ],
+      "thumb_root_to_rod_axis_distance_m": 0.06525961327651277
+    },
+    "requested_thumb_root_closer_m": 0.01,
+    "horizontal_translation_world_xy_m": [
+      0.009915014317635812,
+      0.0013009577553006414
+    ]
+  },
+  "render": {
+    "fps": 25,
+    "seconds": 5.0,
+    "dimensions": [
+      640,
+      480
+    ],
+    "camera": "300-degree free-camera orbit with varying elevation"
+  },
+  "entries": [
+    {
+      "mode": "revolute",
+      "label": "A0 reversed \u2014 bottom revolute",
+      "source_model": "/data/ypx/allegro_rod_mvp/models/allegro_three_finger_rod_revolute.xml",
+      "preview_model": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/reversed_A0_bottom_revolute.xml",
+      "video": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/reversed_A0_bottom_revolute.mp4",
+      "policy": null,
+      "pose_source": "validated Allegro grasp qpos; no action rollout",
+      "constraint_physics": "A0 bottom revolute",
+      "marker_description": "yellow center sphere plus four cardinal satellites",
+      "transform": {
+        "source_palm_pos": [
+          -0.018718,
+          -0.022177,
+          -0.058714
+        ],
+        "source_palm_quat_normalized_wxyz": [
+          0.0,
+          0.7071067811865475,
+          0.0,
+          0.7071067811865475
+        ],
+        "flipped_palm_pos_before_clearance": [
+          -0.018718,
+          -0.077823,
+          0.058714
+        ],
+        "preview_palm_pos": [
+          -0.008802985682364187,
+          -0.07652204224469936,
+          0.1111
+        ],
+        "preview_palm_quat_wxyz": [
+          -0.7071067811865476,
+          0.0,
+          -0.7071067811865476,
+          0.0
+        ],
+        "additional_world_z_translation_m": 0.052386,
+        "additional_world_xy_translation_m": [
+          0.009915014317635812,
+          0.0013009577553006414
+        ],
+        "additional_world_translation_m": [
+          0.009915014317635812,
+          0.0013009577553006414,
+          0.052386
+        ],
+        "calculated_flipped_palm_bottom_z_m": 0.047614000000000004,
+        "target_palm_bottom_z_m": 0.1,
+        "rod_top_tip_z_m": 0.07,
+        "requested_clearance_m": 0.03
+      },
+      "initial_clearance": {
+        "palm_bottom_z_m": 0.1,
+        "rod_top_tip_z_m": 0.07000000000000002,
+        "clearance_m": 0.029999999999999985
+      },
+      "initial_thumb_root": {
+        "thumb_root_world_xy_m": [
+          -0.05478998568000001,
+          -0.0571890422
+        ],
+        "rod_axis_world_xy_m": [
+          0.0,
+          -0.05
+        ],
+        "thumb_root_to_rod_axis_xy_vector_m": [
+          -0.05478998568000001,
+          -0.007189042199999995
+        ],
+        "thumb_root_to_rod_axis_distance_m": 0.05525961326835347
+      },
+      "contact_metrics": {
+        "static": {
+          "signed_tip_to_rod_distance_m": [
+            -0.00044419585092246756,
+            -0.01191172360271733,
+            -0.012085599984904742
+          ],
+          "geometric_contact_count": 3,
+          "normal_contact_force_n": [
+            746.7140755507039,
+            4792.670957609773,
+            716.1057870833812
+          ],
+          "force_contact_count": 3
+        },
+        "static_clearance": {
+          "palm_bottom_z_m": 0.1,
+          "rod_top_tip_z_m": 0.07000000000000002,
+          "clearance_m": 0.029999999999999985
+        },
+        "static_thumb_root": {
+          "thumb_root_world_xy_m": [
+            -0.05478998568000001,
+            -0.0571890422
+          ],
+          "rod_axis_world_xy_m": [
+            0.0,
+            -0.05
+          ],
+          "thumb_root_to_rod_axis_xy_vector_m": [
+            -0.05478998568000001,
+            -0.007189042199999995
+          ],
+          "thumb_root_to_rod_axis_distance_m": 0.05525961326835347
+        },
+        "after_0_2_seconds": {
+          "signed_tip_to_rod_distance_m": [
+            0.008203185043652464,
+            -0.00023242453513485847,
+            -0.0006584927920159894
+          ],
+          "geometric_contact_count": 2,
+          "normal_contact_force_n": [
+            0.0,
+            34.57603665827218,
+            132.93449130669717
+          ],
+          "force_contact_count": 2,
+          "clearance": {
+            "palm_bottom_z_m": 0.1,
+            "rod_top_tip_z_m": 0.07,
+            "clearance_m": 0.03
+          },
+          "thumb_root": {
+            "thumb_root_world_xy_m": [
+              -0.05478998568000001,
+              -0.0571890422
+            ],
+            "rod_axis_world_xy_m": [
+              0.0,
+              -0.05
+            ],
+            "thumb_root_to_rod_axis_xy_vector_m": [
+              -0.05478998568000001,
+              -0.007189042199999995
+            ],
+            "thumb_root_to_rod_axis_distance_m": 0.05525961326835347
+          },
+          "dynamic_state_finite": true
+        },
+        "hand_qpos": [
+          -0.11351945838991867,
+          0.744531644508689,
+          0.8064141046338802,
+          0.7174185822241044,
+          0.11736748905619664,
+          0.8208036133217683,
+          0.875340225924957,
+          0.7388742015356428,
+          0.8289791323875688,
+          0.6742204876540224,
+          0.8934383846633298,
+          1.1156023860681594
+        ]
+      },
+      "render_visibility": {
+        "frame_count": 125,
+        "marker_color_pixels_min": 93,
+        "marker_color_pixels_max": 390,
+        "marker_visible_every_frame": true
+      },
+      "video_verification": {
+        "decode_ok": true,
+        "decoded_frames": 125,
+        "frame_shape": [
+          480,
+          640,
+          3
+        ],
+        "fps": 25.0,
+        "dimensions": [
+          640,
+          480
+        ],
+        "file_size_bytes": 900188
+      }
+    },
+    {
+      "mode": "point_connect",
+      "label": "C3 reversed \u2014 bottom point connect",
+      "source_model": "/data/ypx/allegro_rod_mvp/models/allegro_three_finger_rod.xml",
+      "preview_model": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/reversed_C3_bottom_point_connect.xml",
+      "video": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/reversed_C3_bottom_point_connect.mp4",
+      "policy": null,
+      "pose_source": "validated Allegro grasp qpos; no action rollout",
+      "constraint_physics": "C3 nominal-mass final point-connect parameters",
+      "marker_description": "magenta center sphere plus four diagonal satellites",
+      "transform": {
+        "source_palm_pos": [
+          -0.018718,
+          -0.022177,
+          -0.058714
+        ],
+        "source_palm_quat_normalized_wxyz": [
+          0.0,
+          0.7071067811865475,
+          0.0,
+          0.7071067811865475
+        ],
+        "flipped_palm_pos_before_clearance": [
+          -0.018718,
+          -0.077823,
+          0.058714
+        ],
+        "preview_palm_pos": [
+          -0.008802985682364187,
+          -0.07652204224469936,
+          0.1111
+        ],
+        "preview_palm_quat_wxyz": [
+          -0.7071067811865476,
+          0.0,
+          -0.7071067811865476,
+          0.0
+        ],
+        "additional_world_z_translation_m": 0.052386,
+        "additional_world_xy_translation_m": [
+          0.009915014317635812,
+          0.0013009577553006414
+        ],
+        "additional_world_translation_m": [
+          0.009915014317635812,
+          0.0013009577553006414,
+          0.052386
+        ],
+        "calculated_flipped_palm_bottom_z_m": 0.047614000000000004,
+        "target_palm_bottom_z_m": 0.1,
+        "rod_top_tip_z_m": 0.07,
+        "requested_clearance_m": 0.03
+      },
+      "initial_clearance": {
+        "palm_bottom_z_m": 0.1,
+        "rod_top_tip_z_m": 0.07000000000000002,
+        "clearance_m": 0.029999999999999985
+      },
+      "initial_thumb_root": {
+        "thumb_root_world_xy_m": [
+          -0.05478998568000001,
+          -0.0571890422
+        ],
+        "rod_axis_world_xy_m": [
+          0.0,
+          -0.05
+        ],
+        "thumb_root_to_rod_axis_xy_vector_m": [
+          -0.05478998568000001,
+          -0.007189042199999995
+        ],
+        "thumb_root_to_rod_axis_distance_m": 0.05525961326835347
+      },
+      "contact_metrics": {
+        "static": {
+          "signed_tip_to_rod_distance_m": [
+            -0.00044419585092246756,
+            -0.01191172360271733,
+            -0.012085599984904742
+          ],
+          "geometric_contact_count": 3,
+          "normal_contact_force_n": [
+            32.16832866694941,
+            201.79955748017136,
+            151.98463075687454
+          ],
+          "force_contact_count": 3
+        },
+        "static_clearance": {
+          "palm_bottom_z_m": 0.1,
+          "rod_top_tip_z_m": 0.07000000000000002,
+          "clearance_m": 0.029999999999999985
+        },
+        "static_thumb_root": {
+          "thumb_root_world_xy_m": [
+            -0.05478998568000001,
+            -0.0571890422
+          ],
+          "rod_axis_world_xy_m": [
+            0.0,
+            -0.05
+          ],
+          "thumb_root_to_rod_axis_xy_vector_m": [
+            -0.05478998568000001,
+            -0.007189042199999995
+          ],
+          "thumb_root_to_rod_axis_distance_m": 0.05525961326835347
+        },
+        "after_0_2_seconds": {
+          "signed_tip_to_rod_distance_m": [
+            -0.0006334966066495317,
+            -0.0011156308803709075,
+            -0.0009269441042907643
+          ],
+          "geometric_contact_count": 3,
+          "normal_contact_force_n": [
+            8.46713949599406,
+            31.36088637719799,
+            24.105438962292435
+          ],
+          "force_contact_count": 3,
+          "clearance": {
+            "palm_bottom_z_m": 0.1,
+            "rod_top_tip_z_m": 0.06845075176779417,
+            "clearance_m": 0.03154924823220584
+          },
+          "thumb_root": {
+            "thumb_root_world_xy_m": [
+              -0.05478998568000001,
+              -0.0571890422
+            ],
+            "rod_axis_world_xy_m": [
+              0.004469366988745257,
+              -0.04996550302147919
+            ],
+            "thumb_root_to_rod_axis_xy_vector_m": [
+              -0.05925935266874526,
+              -0.00722353917852081
+            ],
+            "thumb_root_to_rod_axis_distance_m": 0.059697993240831394
+          },
+          "dynamic_state_finite": true
+        },
+        "hand_qpos": [
+          -0.12873143977289858,
+          0.7704287602462893,
+          0.8199460827586084,
+          0.7164934772760979,
+          0.06082749812764603,
+          0.8455648857216868,
+          0.881870500659657,
+          0.7397151121281518,
+          0.8843324178261928,
+          0.5062708202360638,
+          0.9420787405274048,
+          0.8066507213659058
+        ]
+      },
+      "render_visibility": {
+        "frame_count": 125,
+        "marker_color_pixels_min": 72,
+        "marker_color_pixels_max": 527,
+        "marker_visible_every_frame": true
+      },
+      "video_verification": {
+        "decode_ok": true,
+        "decoded_frames": 125,
+        "frame_shape": [
+          480,
+          640,
+          3
+        ],
+        "fps": 25.0,
+        "dimensions": [
+          640,
+          480
+        ],
+        "file_size_bytes": 904714
+      }
+    }
+  ]
+}

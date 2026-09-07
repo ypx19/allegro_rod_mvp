@@ -1,0 +1,32 @@
+{
+  "experiment": "EXP-20260823-016",
+  "mass_scale": 25.0,
+  "force_target_n": {
+    "reference": 98.05846581206242,
+    "minimum": 78.44677264964994,
+    "maximum": 117.6701589744749
+  },
+  "friction_vectors": {
+    "0.10": [0.18, 0.05, 0.001],
+    "0.05": [0.09, 0.05, 0.001],
+    "0.025": [0.045, 0.05, 0.001]
+  },
+  "scale_0.05": {
+    "run_id": "20260823-1915-s25-low-friction-diagnostic-mu005-seed0",
+    "success_rate_fixed_unseen": [1.0, 1.0],
+    "conditioned_force_median_n_fixed_unseen": [54.669057718812894, 54.971745067748316],
+    "conditioned_force_p95_n_fixed_unseen": [100.57257479758239, 105.379636842431],
+    "eligible_fraction_fixed_unseen": [0.176, 0.1698],
+    "accepted": false
+  },
+  "scale_0.025": {
+    "run_id": "20260823-1915-s25-low-friction-diagnostic-mu0025-seed0",
+    "success_rate_fixed_unseen": [1.0, 1.0],
+    "conditioned_force_median_n_fixed_unseen": [49.42652488522167, 47.27224415718664],
+    "conditioned_force_p95_n_fixed_unseen": [95.46146604331055, 80.24350825304323],
+    "eligible_fraction_fixed_unseen": [0.0996, 0.105],
+    "accepted": false
+  },
+  "monotone_expected_direction_from_0.10_to_0.05_to_0.025": false,
+  "decision": "block_s25_friction_only_insufficient"
+}

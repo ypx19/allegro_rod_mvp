@@ -1,0 +1,76 @@
+{
+  "schema": "allegro_rod_mvp.hand_grasp",
+  "schema_version": 1,
+  "hand_model": "allegro",
+  "hand_pose_path": "configs/hand_poses/my_grasp.json",
+  "hand_pose_sha256": "2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f",
+  "joint_order": [
+    "f0_j0",
+    "f0_j1",
+    "f0_j2",
+    "f0_j3",
+    "f1_j0",
+    "f1_j1",
+    "f1_j2",
+    "f1_j3",
+    "f2_j0",
+    "f2_j1",
+    "f2_j2",
+    "f2_j3"
+  ],
+  "reset_qpos": [
+    7.548838867727841e-08,
+    1.0736323864341875,
+    1.0313785514651856,
+    0.7316452497148404,
+    0.16193687029911827,
+    1.2757924785844845,
+    1.0454911512789378,
+    0.7641591781446949,
+    1.0492318494888706,
+    0.40374195243716865,
+    0.19782398096519818,
+    1.1841084856455784
+  ],
+  "grasp_qpos": [
+    7.548838867727841e-08,
+    1.0736323864341875,
+    1.0313785514651856,
+    0.7316452497148404,
+    0.16193687029911827,
+    1.2757924785844845,
+    1.0454911512789378,
+    0.7641591781446949,
+    1.0492318494888706,
+    0.40374195243716865,
+    0.19782398096519818,
+    1.1841084856455784
+  ],
+  "reset_joint_noise": 0.0075,
+  "grasp_ramp_steps": 1,
+  "grasp_hold_steps": 100,
+  "validated_for": {
+    "physics_modes": [
+      "revolute"
+    ],
+    "mass_scales": [
+      400.0,
+      1.0
+    ],
+    "fixed_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "steps_per_seed": 100
+  },
+  "source": "bounded per-finger signed-distance search at -1 mm target followed by deterministic dynamic robustness audit",
+  "notes": "Shared revolute endpoint preset. The same vector passed tip-connect s=1 but not tip-connect s=400, so it is not silently promoted as a universal preset."
+}

@@ -1,0 +1,237 @@
+{
+  "artifact_type": "orientation_and_constraint_preview",
+  "generated_at": "2026-08-23T16:16:43.145630-07:00",
+  "claim_policy_success": false,
+  "world_transform": {
+    "description": "180 deg about world X",
+    "quaternion_wxyz": [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "rotation_matrix": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ]
+    ],
+    "pivot_world_m": [
+      0.0,
+      -0.05,
+      0.0
+    ],
+    "applied_to": "palm root (complete palm + index + middle + thumb subtree)",
+    "unchanged": "all palm-relative child body transforms and joint frames"
+  },
+  "render": {
+    "fps": 25,
+    "seconds": 5.0,
+    "dimensions": [
+      640,
+      480
+    ],
+    "camera": "300-degree free-camera orbit with varying elevation"
+  },
+  "entries": [
+    {
+      "mode": "revolute",
+      "label": "A0 reversed \u2014 bottom revolute",
+      "source_model": "/data/ypx/allegro_rod_mvp/models/allegro_three_finger_rod_revolute.xml",
+      "preview_model": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_20260823-161638/reversed_A0_bottom_revolute.xml",
+      "video": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_20260823-161638/reversed_A0_bottom_revolute.mp4",
+      "policy": null,
+      "pose_source": "validated Allegro grasp qpos; no action rollout",
+      "constraint_physics": "A0 bottom revolute",
+      "marker_description": "yellow center sphere plus four cardinal satellites",
+      "transform": {
+        "source_palm_pos": [
+          -0.018718,
+          -0.022177,
+          -0.058714
+        ],
+        "source_palm_quat_normalized_wxyz": [
+          0.0,
+          0.7071067811865475,
+          0.0,
+          0.7071067811865475
+        ],
+        "preview_palm_pos": [
+          -0.018718,
+          -0.077823,
+          0.058714
+        ],
+        "preview_palm_quat_wxyz": [
+          -0.7071067811865476,
+          0.0,
+          -0.7071067811865476,
+          0.0
+        ]
+      },
+      "contact_metrics": {
+        "static": {
+          "signed_tip_to_rod_distance_m": [
+            -0.010233714106680877,
+            -0.0125861928648194,
+            -0.002999574732485735
+          ],
+          "geometric_contact_count": 3
+        },
+        "after_0_2_seconds": {
+          "signed_tip_to_rod_distance_m": [
+            -0.000508980510458298,
+            -0.00021613405513667278,
+            -0.00046212165106849536
+          ],
+          "geometric_contact_count": 3,
+          "touch_sensor_n": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "dynamic_state_finite": true
+        },
+        "hand_qpos": [
+          -0.144378665132981,
+          0.793514032488341,
+          0.6519915958204705,
+          0.8399993962331549,
+          0.04278026165769975,
+          0.8723593174721305,
+          0.9057349065261214,
+          0.7764336485571174,
+          0.9026605617510249,
+          0.5485042810607533,
+          0.9636278119861166,
+          0.8584368085216452
+        ]
+      },
+      "render_visibility": {
+        "frame_count": 125,
+        "marker_color_pixels_min": 10,
+        "marker_color_pixels_max": 184,
+        "marker_visible_every_frame": true
+      },
+      "video_verification": {
+        "decode_ok": true,
+        "decoded_frames": 125,
+        "frame_shape": [
+          480,
+          640,
+          3
+        ],
+        "fps": 25.0,
+        "dimensions": [
+          640,
+          480
+        ],
+        "file_size_bytes": 975630
+      }
+    },
+    {
+      "mode": "point_connect",
+      "label": "C3 reversed \u2014 bottom point connect",
+      "source_model": "/data/ypx/allegro_rod_mvp/models/allegro_three_finger_rod.xml",
+      "preview_model": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_20260823-161638/reversed_C3_bottom_point_connect.xml",
+      "video": "/data/ypx/allegro_rod_mvp/runs/previews/reversed_world_x_180_20260823-161638/reversed_C3_bottom_point_connect.mp4",
+      "policy": null,
+      "pose_source": "validated Allegro grasp qpos; no action rollout",
+      "constraint_physics": "C3 nominal-mass final point-connect parameters",
+      "marker_description": "magenta center sphere plus four diagonal satellites",
+      "transform": {
+        "source_palm_pos": [
+          -0.018718,
+          -0.022177,
+          -0.058714
+        ],
+        "source_palm_quat_normalized_wxyz": [
+          0.0,
+          0.7071067811865475,
+          0.0,
+          0.7071067811865475
+        ],
+        "preview_palm_pos": [
+          -0.018718,
+          -0.077823,
+          0.058714
+        ],
+        "preview_palm_quat_wxyz": [
+          -0.7071067811865476,
+          0.0,
+          -0.7071067811865476,
+          0.0
+        ]
+      },
+      "contact_metrics": {
+        "static": {
+          "signed_tip_to_rod_distance_m": [
+            -0.010233714106680877,
+            -0.0125861928648194,
+            -0.002999574732485735
+          ],
+          "geometric_contact_count": 3
+        },
+        "after_0_2_seconds": {
+          "signed_tip_to_rod_distance_m": [
+            -0.0005720029927294232,
+            -0.0009453534648698574,
+            -0.0008202521624100009
+          ],
+          "geometric_contact_count": 3,
+          "touch_sensor_n": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "dynamic_state_finite": true
+        },
+        "hand_qpos": [
+          -0.07589776193504047,
+          0.7531379866406877,
+          0.8087991149517747,
+          0.71021160185323,
+          0.03839669421631244,
+          0.8860976516702564,
+          0.8971408046850508,
+          0.7424029602577679,
+          0.9297020399701605,
+          0.5451383865637613,
+          0.9791338718816907,
+          0.8138422333983273
+        ]
+      },
+      "render_visibility": {
+        "frame_count": 125,
+        "marker_color_pixels_min": 5,
+        "marker_color_pixels_max": 240,
+        "marker_visible_every_frame": true
+      },
+      "video_verification": {
+        "decode_ok": true,
+        "decoded_frames": 125,
+        "frame_shape": [
+          480,
+          640,
+          3
+        ],
+        "fps": 25.0,
+        "dimensions": [
+          640,
+          480
+        ],
+        "file_size_bytes": 975019
+      }
+    }
+  ]
+}

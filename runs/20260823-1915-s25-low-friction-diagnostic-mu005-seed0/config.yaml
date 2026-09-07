@@ -1,0 +1,173 @@
+run_id: 20260823-1915-s25-low-friction-diagnostic-mu005-seed0
+stage: 0
+steps: 100000
+seed: 0
+device: cuda:1
+num_envs: 32
+n_steps: 256
+batch_size: 256
+learning_rate: 0.0003
+ent_coef: 0.0
+net_arch:
+- 512
+- 256
+- 128
+vec_normalize: true
+reward_style: dexscrew
+physics: revolute
+tip_connect_solref: null
+tip_connect_enabled: false
+axis_stabilizer_scale: 0.0
+axis_tilt_penalty_weight: 1.0
+axis_tilt_recovery_scale: 0.0
+rotation_reward_scale: 16.0
+contact_reward_mode: discrete
+three_contact_reward: 0.3
+contact_window_steps: 25
+contact_window_threshold: 18.0
+three_contact_required: true
+rotation_requires_three_contacts: false
+contact_support_termination_enabled: false
+contact_reward_scale: 0.1
+omega_success_threshold: 0.5
+omega_success_hold_seconds: 10.0
+success_mode: net_angle
+net_angle_success_threshold_rad: 3.141592653589793
+adaptive_reward_mass: false
+mass_target_rot: 0.45
+mass_target_tilt: 0.45
+mass_ema_tau_steps: 2000.0
+mass_kappa: 0.08
+rod_mass_scale: 25.0
+rod_friction_cap: 4.0
+contact_friction_scale: 0.05
+scale_tip_solref_with_mass: false
+tilt_terminate_rad: 0.7
+tip_anchor: bottom
+hand_model: allegro
+hand_pose_config: /data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json
+hand_grasp_config: /data/ypx/allegro_rod_mvp/configs/hand_grasps/my_grasp_revolute_shared.json
+dexscrew_tip_penalty_scale: 0.5
+dexscrew_tip_sigma: 0.025
+dexscrew_tilt_scale: 0.0
+checkpoint_freq: 25000
+change_from_baseline: 'Training stack only: SubprocVecEnv + CUDA + net_arch [512,256,128]
+  + VecNormalize; Stage 0 reward/physics unchanged.'
+success_criteria: Selected by success_mode. omega_hold preserves historical sustained
+  axial-omega/contact-gate behavior; net_angle requires positive net angle >= threshold
+  plus tip/tilt/physical-stability checks.
+hand_pose:
+  path: /data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json
+  sha256: 2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f
+  content:
+    schema: allegro_rod_mvp.hand_pose
+    schema_version: 1
+    transform_space: model
+    body: palm
+    translation:
+    - 0.0262807865392716
+    - -0.08578110798288589
+    - 0.113580438493427
+    quaternion_wxyz:
+    - 0.7071067811865475
+    - 1.3877787807814457e-17
+    - 0.7071067811865476
+    - 1.3877787807814457e-17
+    euler_xyz_degrees:
+    - 169.97501213792427
+    - 90.0
+    - 169.97501213792427
+    source_pose:
+      type: model_default
+      model: models/allegro_three_finger_rod_revolute.xml
+      translation:
+      - -0.018718
+      - -0.022177
+      - -0.058714
+      quaternion_wxyz:
+      - 0.0
+      - 0.7071067811865476
+      - 0.0
+      - 0.7071067811865476
+    pivot: palm_body_origin
+    rotation_convention: world-axis incremental rotations pre-multiplied onto the
+      palm orientation; Euler display is extrinsic XYZ in degrees
+    model_variant: allegro_three_finger_rod_revolute
+    compatible_model_variants:
+    - allegro_three_finger_rod
+    - allegro_three_finger_rod_revolute
+    created_at: '2026-08-23T17:15:52-07:00'
+    notes: ''
+hand_grasp:
+  path: /data/ypx/allegro_rod_mvp/configs/hand_grasps/my_grasp_revolute_shared.json
+  sha256: fdd9ead60842eca3167f98ecda3c496ea752cff3fa9e053de47a4544e061b03a
+  content:
+    schema: allegro_rod_mvp.hand_grasp
+    schema_version: 1
+    hand_model: allegro
+    hand_pose_path: configs/hand_poses/my_grasp.json
+    hand_pose_sha256: 2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f
+    joint_order:
+    - f0_j0
+    - f0_j1
+    - f0_j2
+    - f0_j3
+    - f1_j0
+    - f1_j1
+    - f1_j2
+    - f1_j3
+    - f2_j0
+    - f2_j1
+    - f2_j2
+    - f2_j3
+    reset_qpos:
+    - 7.548838867727841e-08
+    - 1.0736323864341875
+    - 1.0313785514651856
+    - 0.7316452497148404
+    - 0.16193687029911827
+    - 1.2757924785844845
+    - 1.0454911512789378
+    - 0.7641591781446949
+    - 1.0492318494888706
+    - 0.40374195243716865
+    - 0.19782398096519818
+    - 1.1841084856455784
+    grasp_qpos:
+    - 7.548838867727841e-08
+    - 1.0736323864341875
+    - 1.0313785514651856
+    - 0.7316452497148404
+    - 0.16193687029911827
+    - 1.2757924785844845
+    - 1.0454911512789378
+    - 0.7641591781446949
+    - 1.0492318494888706
+    - 0.40374195243716865
+    - 0.19782398096519818
+    - 1.1841084856455784
+    reset_joint_noise: 0.0075
+    grasp_ramp_steps: 1
+    grasp_hold_steps: 100
+    validated_for:
+      physics_modes:
+      - revolute
+      mass_scales:
+      - 400.0
+      - 1.0
+      fixed_seeds:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      steps_per_seed: 100
+    source: bounded per-finger signed-distance search at -1 mm target followed by
+      deterministic dynamic robustness audit
+    notes: Shared revolute endpoint preset. The same vector passed tip-connect s=1
+      but not tip-connect s=400, so it is not silently promoted as a universal preset.

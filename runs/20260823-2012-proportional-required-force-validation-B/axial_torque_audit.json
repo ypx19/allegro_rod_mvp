@@ -1,0 +1,58 @@
+{
+  "protocol": "contacts disabled; world axial angular velocity 1 rad/s mapped into generalized free-joint coordinates",
+  "axis_stabilizer_scale": 0.0,
+  "policy_applied_torque": 0.0,
+  "revolute": [
+    {
+      "mass_scale": 400.0,
+      "axial_constraint_torque_nm": 0.0,
+      "axial_passive_torque_nm": -0.02,
+      "damping": 0.02,
+      "armature": 0.001,
+      "frictionloss": 0.0
+    },
+    {
+      "mass_scale": 25.0,
+      "axial_constraint_torque_nm": 0.0,
+      "axial_passive_torque_nm": -0.00125,
+      "damping": 0.00125,
+      "armature": 0.0000625,
+      "frictionloss": 0.0
+    },
+    {
+      "mass_scale": 1.0,
+      "axial_constraint_torque_nm": 0.0,
+      "axial_passive_torque_nm": -0.00005,
+      "damping": 0.00005,
+      "armature": 0.0000025,
+      "frictionloss": 0.0
+    }
+  ],
+  "tip_connect": [
+    {
+      "mass_scale": 400.0,
+      "axial_constraint_torque_nm": 3.284410852419552e-7,
+      "axial_passive_torque_nm": -0.05,
+      "rotational_damping_per_dof": 0.05,
+      "rotational_armature_per_dof": 0.002,
+      "frictionloss": 0.0
+    },
+    {
+      "mass_scale": 25.0,
+      "axial_constraint_torque_nm": -1.6457037748353005e-8,
+      "axial_passive_torque_nm": -0.003125,
+      "rotational_damping_per_dof": 0.003125,
+      "rotational_armature_per_dof": 0.000125,
+      "frictionloss": 0.0
+    },
+    {
+      "mass_scale": 1.0,
+      "axial_constraint_torque_nm": -1.969237318553827e-11,
+      "axial_passive_torque_nm": -0.000125,
+      "rotational_damping_per_dof": 0.000125,
+      "rotational_armature_per_dof": 0.000005,
+      "frictionloss": 0.0
+    }
+  ],
+  "conclusion": "Point-connect contributes no meaningful axial resistance under the audited pure axial velocity; explicit passive terms scale proportionally."
+}

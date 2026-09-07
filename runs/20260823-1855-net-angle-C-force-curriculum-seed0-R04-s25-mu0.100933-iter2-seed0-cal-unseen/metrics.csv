@@ -1,0 +1,2 @@
+seed,episodes,success_rate,axis_rotation_deg_mean,tip_error_m_mean,three_contact_occupancy,drop_rate,force_tip0_p95_n,force_tip1_p95_n,force_tip2_p95_n,force_eligible_step_fraction,force_total_mean_n,force_total_median_n,force_total_p95_n
+20000,10,1.0,3245.731469901112,1.515149591002042e-17,0.0168,0.0,44.31217732698506,54.60227679696255,44.372197908051206,0.079,58.7550693885316,49.966495460337434,125.33410081872923

@@ -1,0 +1,3 @@
+seed=10000 rot= 2880.7° peak= 2880.7° tip=0.0000 hold=False success=True dropped=False
+wrote runs/20260823-1855-net-angle-C-force-curriculum-seed0-R03-s50-mu0.39604-iter1-seed0/videos/net_angle-iter1/revolute_success_00_seed10000_rot2881deg_tilt0deg_steps500_none.mp4 (501 frames)
+manifest: runs/20260823-1855-net-angle-C-force-curriculum-seed0-R03-s50-mu0.39604-iter1-seed0/videos/net_angle-iter1/stage0_manifest.json

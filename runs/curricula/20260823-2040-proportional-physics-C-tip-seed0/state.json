@@ -1,0 +1,96 @@
+{
+  "curriculum_id": "20260823-2040-proportional-physics-C-tip-seed0",
+  "created_at": "2026-08-23T20:27:57-07:00",
+  "methodology": "full proportional friction; policy force diagnostic only",
+  "schedule": [
+    400.0,
+    200.0,
+    100.0,
+    50.0,
+    25.0,
+    12.5,
+    6.25,
+    3.125,
+    1.5625,
+    1.0
+  ],
+  "friction_schedule": "4*s/400",
+  "pose": {
+    "path": "/data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json",
+    "sha256": "2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f",
+    "content": {
+      "schema": "allegro_rod_mvp.hand_pose",
+      "schema_version": 1,
+      "transform_space": "model",
+      "body": "palm",
+      "translation": [
+        0.0262807865392716,
+        -0.08578110798288589,
+        0.113580438493427
+      ],
+      "quaternion_wxyz": [
+        0.7071067811865475,
+        1.3877787807814457e-17,
+        0.7071067811865476,
+        1.3877787807814457e-17
+      ],
+      "euler_xyz_degrees": [
+        169.97501213792427,
+        90.0,
+        169.97501213792427
+      ],
+      "source_pose": {
+        "type": "model_default",
+        "model": "models/allegro_three_finger_rod_revolute.xml",
+        "translation": [
+          -0.018718,
+          -0.022177,
+          -0.058714
+        ],
+        "quaternion_wxyz": [
+          0.0,
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476
+        ]
+      },
+      "pivot": "palm_body_origin",
+      "rotation_convention": "world-axis incremental rotations pre-multiplied onto the palm orientation; Euler display is extrinsic XYZ in degrees",
+      "model_variant": "allegro_three_finger_rod_revolute",
+      "compatible_model_variants": [
+        "allegro_three_finger_rod",
+        "allegro_three_finger_rod_revolute"
+      ],
+      "created_at": "2026-08-23T17:15:52-07:00",
+      "notes": ""
+    }
+  },
+  "gate": "fixed and unseen net-angle success_rate >= 0.5",
+  "start_phase": "tip_connect",
+  "external_parent_checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R09-s1-mu0.01-seed0/checkpoints/final_model.zip",
+  "completed": [
+    {
+      "phase": "T",
+      "physics": "tip_connect",
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "run_id": "20260823-2040-proportional-physics-C-tip-seed0-T00-s400-mu4-lr3e5-seed0",
+      "checkpoint": "runs/20260823-2040-proportional-physics-C-tip-seed0-T00-s400-mu4-lr3e5-seed0/checkpoints/final_model.zip",
+      "fixed_success_rate": 0.0,
+      "unseen_success_rate": 0.0,
+      "fixed_rotation_deg": 177.0189695015096,
+      "unseen_rotation_deg": 175.44705757498804,
+      "fixed_drop_rate": 1.0,
+      "unseen_drop_rate": 1.0,
+      "termination_reason": "axis_tilt",
+      "accepted": false
+    }
+  ],
+  "status": "failed_T_s400_axis_tilt",
+  "failed_after": [
+    "initial 100k transfer",
+    "one same-hyperparameter 100k extension",
+    "one predeclared 100k retry at learning_rate=3e-5"
+  ],
+  "lower_tip_connect_masses_started": false
+}

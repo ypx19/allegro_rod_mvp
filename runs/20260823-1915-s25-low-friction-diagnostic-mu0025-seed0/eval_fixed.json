@@ -1,0 +1,344 @@
+{
+  "model": "runs/20260823-1915-s25-low-friction-diagnostic-mu0025-seed0/checkpoints/final_model.zip",
+  "stage": 0,
+  "episodes": 10,
+  "physics_mode": "revolute",
+  "reward_style": "dexscrew",
+  "tip_connect_solref": null,
+  "tip_connect_enabled": false,
+  "axis_stabilizer_scale": 0.0,
+  "axis_tilt_penalty_weight": 1.0,
+  "axis_tilt_recovery_scale": 0.0,
+  "rotation_reward_scale": 16.0,
+  "contact_reward_mode": "discrete",
+  "three_contact_reward": 0.3,
+  "rotation_requires_three_contacts": false,
+  "contact_support_termination_enabled": false,
+  "contact_reward_scale": 0.1,
+  "contact_window_steps": 25,
+  "contact_window_threshold": 18.0,
+  "omega_success_threshold": 0.5,
+  "omega_success_hold_seconds": 10.0,
+  "success_mode": "net_angle",
+  "net_angle_success_threshold_rad": 3.141592653589793,
+  "net_angle_success_threshold_deg": 180.0,
+  "rod_mass_scale": 25.0,
+  "rod_friction_cap": 4.0,
+  "contact_friction_scale": 0.025,
+  "scale_tip_solref_with_mass": false,
+  "contact_friction_vector": [
+    0.045000000000000005,
+    0.05,
+    0.001
+  ],
+  "tilt_terminate_rad": 0.7,
+  "tip_anchor": "bottom",
+  "hand_model": "allegro",
+  "hand_pose_config": "/data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json",
+  "hand_pose_config_sha256": "2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f",
+  "hand_pose_config_content": {
+    "schema": "allegro_rod_mvp.hand_pose",
+    "schema_version": 1,
+    "transform_space": "model",
+    "body": "palm",
+    "translation": [
+      0.0262807865392716,
+      -0.08578110798288589,
+      0.113580438493427
+    ],
+    "quaternion_wxyz": [
+      0.7071067811865475,
+      1.3877787807814457e-17,
+      0.7071067811865476,
+      1.3877787807814457e-17
+    ],
+    "euler_xyz_degrees": [
+      169.97501213792427,
+      90.0,
+      169.97501213792427
+    ],
+    "source_pose": {
+      "type": "model_default",
+      "model": "models/allegro_three_finger_rod_revolute.xml",
+      "translation": [
+        -0.018718,
+        -0.022177,
+        -0.058714
+      ],
+      "quaternion_wxyz": [
+        0.0,
+        0.7071067811865476,
+        0.0,
+        0.7071067811865476
+      ]
+    },
+    "pivot": "palm_body_origin",
+    "rotation_convention": "world-axis incremental rotations pre-multiplied onto the palm orientation; Euler display is extrinsic XYZ in degrees",
+    "model_variant": "allegro_three_finger_rod_revolute",
+    "compatible_model_variants": [
+      "allegro_three_finger_rod",
+      "allegro_three_finger_rod_revolute"
+    ],
+    "created_at": "2026-08-23T17:15:52-07:00",
+    "notes": ""
+  },
+  "hand_grasp_config": "/data/ypx/allegro_rod_mvp/configs/hand_grasps/my_grasp_revolute_shared.json",
+  "hand_grasp_config_sha256": "fdd9ead60842eca3167f98ecda3c496ea752cff3fa9e053de47a4544e061b03a",
+  "hand_grasp_config_content": {
+    "schema": "allegro_rod_mvp.hand_grasp",
+    "schema_version": 1,
+    "hand_model": "allegro",
+    "hand_pose_path": "configs/hand_poses/my_grasp.json",
+    "hand_pose_sha256": "2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f",
+    "joint_order": [
+      "f0_j0",
+      "f0_j1",
+      "f0_j2",
+      "f0_j3",
+      "f1_j0",
+      "f1_j1",
+      "f1_j2",
+      "f1_j3",
+      "f2_j0",
+      "f2_j1",
+      "f2_j2",
+      "f2_j3"
+    ],
+    "reset_qpos": [
+      7.548838867727841e-08,
+      1.0736323864341875,
+      1.0313785514651856,
+      0.7316452497148404,
+      0.16193687029911827,
+      1.2757924785844845,
+      1.0454911512789378,
+      0.7641591781446949,
+      1.0492318494888706,
+      0.40374195243716865,
+      0.19782398096519818,
+      1.1841084856455784
+    ],
+    "grasp_qpos": [
+      7.548838867727841e-08,
+      1.0736323864341875,
+      1.0313785514651856,
+      0.7316452497148404,
+      0.16193687029911827,
+      1.2757924785844845,
+      1.0454911512789378,
+      0.7641591781446949,
+      1.0492318494888706,
+      0.40374195243716865,
+      0.19782398096519818,
+      1.1841084856455784
+    ],
+    "reset_joint_noise": 0.0075,
+    "grasp_ramp_steps": 1,
+    "grasp_hold_steps": 100,
+    "validated_for": {
+      "physics_modes": [
+        "revolute"
+      ],
+      "mass_scales": [
+        400.0,
+        1.0
+      ],
+      "fixed_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "steps_per_seed": 100
+    },
+    "source": "bounded per-finger signed-distance search at -1 mm target followed by deterministic dynamic robustness audit",
+    "notes": "Shared revolute endpoint preset. The same vector passed tip-connect s=1 but not tip-connect s=400, so it is not silently promoted as a universal preset."
+  },
+  "dexscrew_tip_penalty_scale": 0.5,
+  "vecnormalize": "runs/20260823-1915-s25-low-friction-diagnostic-mu0025-seed0/checkpoints/vecnormalize.pkl",
+  "axis_rotation_deg_mean": 3073.8889045216074,
+  "axis_rotation_deg_std": 207.94310804665133,
+  "tip_error_m_mean": 1.4915796424330688e-17,
+  "tip_error_m_std": 1.1238611732861756e-17,
+  "contact_count_mean": 0.7,
+  "contact_count_step_distribution": {
+    "0": 0.271,
+    "1": 0.5724,
+    "2": 0.1432,
+    "3": 0.0134
+  },
+  "contact_fraction_at_least_one": 0.729,
+  "contact_fraction_at_least_two": 0.1566,
+  "finger_contact_step_fraction": [
+    0.2986,
+    0.5568,
+    0.0436
+  ],
+  "minimum_window_three_contact_occupancy": {
+    "window_steps": 25,
+    "minimum_across_episodes": 0.0,
+    "mean_episode_minimum": 0.0
+  },
+  "rolling_contact_gate_failure_steps": {
+    "total": 4760,
+    "episodes_with_failure": 10
+  },
+  "per_tip_contact_loss_longest": [
+    {
+      "mean_steps": 48.4,
+      "max_steps": 241,
+      "mean_seconds": 1.936,
+      "max_seconds": 9.64
+    },
+    {
+      "mean_steps": 18.9,
+      "max_steps": 23,
+      "mean_seconds": 0.756,
+      "max_seconds": 0.92
+    },
+    {
+      "mean_steps": 434.9,
+      "max_steps": 486,
+      "mean_seconds": 17.396,
+      "max_seconds": 19.44
+    }
+  ],
+  "per_tip_leave_return_events": [
+    {
+      "mean": 54.5,
+      "minimum": 32,
+      "maximum": 65,
+      "total": 545
+    },
+    {
+      "mean": 70.0,
+      "minimum": 48,
+      "maximum": 81,
+      "total": 700
+    },
+    {
+      "mean": 0.9,
+      "minimum": 0,
+      "maximum": 3,
+      "total": 9
+    }
+  ],
+  "complete_contact_loss_longest": {
+    "mean_steps": 9.7,
+    "max_steps": 14,
+    "mean_seconds": 0.38799999999999996,
+    "max_seconds": 0.56
+  },
+  "below_two_contact_longest": {
+    "mean_steps": 71.8,
+    "max_steps": 229,
+    "mean_seconds": 2.872,
+    "max_seconds": 9.16
+  },
+  "rotation_cycle_metrics": {
+    "cumulative_absolute_rotation_deg_mean": 3264.9376542636874,
+    "completed_net_cycles_mean": 7.9,
+    "episodes_with_at_least_two_net_cycles": 10
+  },
+  "axial_omega_metrics": {
+    "mean_rad_s": 2.388043895700223,
+    "p95_rad_s": 7.129091294499874,
+    "fraction_above_success_threshold": 0.74
+  },
+  "axial_slip_proxy_metrics": {
+    "mean_m_s": 6.918904318738876e-16,
+    "median_m_s": 5.236992921973099e-16,
+    "p95_m_s": 1.9250118666538e-15,
+    "max_m_s": 7.87922646148033e-15,
+    "definition": "Absolute rod-axis component of mean contacting fingertip velocity minus rod center-of-mass velocity"
+  },
+  "tip_error_m_max": 5.003707553108401e-17,
+  "numerical_instability_episodes": 0,
+  "final_axis_tilt_deg_mean": 0.0,
+  "omega_hold_satisfied_rate": 0.0,
+  "omega_hold_seconds_max_mean": 1.072,
+  "stabilizer_torque_mean": 0.0,
+  "stabilizer_torque_max_mean": 0.0,
+  "termination_reasons": {
+    "none": 10
+  },
+  "reward_component_step_means": {
+    "reward_rotation": 4.704206933650061,
+    "reward_tip_penalty": -2.8043869634842412e-31,
+    "reward_axis_tilt_penalty": 0.0,
+    "reward_axis_tilt_penalty_raw": 0.0,
+    "reward_axis_tilt_recovery": 0.0,
+    "reward_lateral_omega_penalty": 0.0,
+    "reward_contact_bonus": -0.326406,
+    "reward_contact_bonus_raw": -3.2640599999999997,
+    "reward_proximity": 0.4317495372553989,
+    "reward_force_penalty": 0.0,
+    "reward_action_rate_penalty": -0.02135437359454816
+  },
+  "normal_contact_force_n": {
+    "per_tip": [
+      {
+        "mean": 7.4102620919264215,
+        "median": 0.0,
+        "p95": 36.918631869055055
+      },
+      {
+        "mean": 13.57910908953408,
+        "median": 7.096725912204918,
+        "p95": 44.09369185640413
+      },
+      {
+        "mean": 1.880768661654467,
+        "median": 0.0,
+        "p95": 0.0
+      }
+    ],
+    "total": {
+      "mean": 22.870139843114973,
+      "median": 19.95878842915787,
+      "p95": 62.19304226706972
+    },
+    "definition": "MuJoCo contact-frame normal force, not actuator effort"
+  },
+  "conditioned_positive_rotation_support_force_n": {
+    "condition": "axial_omega > 0.5 rad/s AND contact_count >= 2",
+    "eligible_steps": 498,
+    "eligible_step_fraction": 0.0996,
+    "excluded_step_fraction": 0.9004,
+    "per_tip": [
+      {
+        "mean": 19.625081816639444,
+        "median": 18.38763048528018,
+        "p95": 47.029969228798635
+      },
+      {
+        "mean": 24.189264884891024,
+        "median": 24.823413727053534,
+        "p95": 46.38649886751015
+      },
+      {
+        "mean": 6.810851787028326,
+        "median": 0.0,
+        "p95": 45.24091384695803
+      }
+    ],
+    "total": {
+      "mean": 50.625198488558794,
+      "median": 49.42652488522167,
+      "p95": 95.46146604331055
+    },
+    "reference_statistic": "total median",
+    "definition": "MuJoCo contact-frame normal force on genuine positive-rotation timesteps with at least two supporting fingertips; not actuator effort"
+  },
+  "success_rate": 1.0,
+  "legacy_omega_success_rate": 0.0,
+  "net_angle_success_rate": 1.0,
+  "drop_rate": 0.0,
+  "passed": true
+}

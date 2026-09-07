@@ -1,0 +1,24 @@
+[
+  {
+    "file": "runs/20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0/videos/tip_connect_best_00_seed10006_rot333deg_tilt81deg_steps46_axis_tilt.mp4",
+    "seed": 10006,
+    "axis_rotation_deg": 333.01544616330375,
+    "peak_rotation_deg": 411.3509155050643,
+    "tip_error_m": 0.0008716859407985019,
+    "omega_hold_satisfied": false,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 47
+  },
+  {
+    "file": "runs/20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0/videos/tip_connect_best_01_seed10007_rot289deg_tilt80deg_steps56_axis_tilt.mp4",
+    "seed": 10007,
+    "axis_rotation_deg": 289.2096640343231,
+    "peak_rotation_deg": 363.01092302955004,
+    "tip_error_m": 0.0004761801593258927,
+    "omega_hold_satisfied": false,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 57
+  }
+]

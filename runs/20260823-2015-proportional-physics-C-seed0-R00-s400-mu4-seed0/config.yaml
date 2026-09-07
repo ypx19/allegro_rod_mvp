@@ -1,0 +1,30 @@
+run_id: 20260823-2015-proportional-physics-C-seed0-R00-s400-mu4-seed0
+kind: corrected_s400_parent_evaluation
+checkpoint: /data/ypx/allegro_rod_mvp/runs/20260823-1812-finger-gait-contact-scale010-C-s400-seed0/checkpoints/final_model.zip
+mass_scale: 400.0
+friction_scale: 4.0
+contact_friction_scaling_mode: full_vector
+scale_rod_joint_dynamics_from_s400: true
+effective_pair_friction_vectors:
+  rod_tip0:
+  - 7.2
+  - 7.2
+  - 0.2
+  - 0.004
+  - 0.004
+  rod_tip1:
+  - 7.2
+  - 7.2
+  - 0.2
+  - 0.004
+  - 0.004
+  rod_tip2:
+  - 7.2
+  - 7.2
+  - 0.2
+  - 0.004
+  - 0.004
+hand_pose_config: /data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json
+hand_pose_config_sha256: 2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f
+hand_grasp_config: /data/ypx/allegro_rod_mvp/configs/hand_grasps/my_grasp_revolute_shared.json
+hand_grasp_config_sha256: fdd9ead60842eca3167f98ecda3c496ea752cff3fa9e053de47a4544e061b03a

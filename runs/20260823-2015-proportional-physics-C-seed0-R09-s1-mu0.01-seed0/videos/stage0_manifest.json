@@ -1,0 +1,13 @@
+[
+  {
+    "file": "runs/20260823-2015-proportional-physics-C-seed0-R09-s1-mu0.01-seed0/videos/revolute_success_00_seed10000_rot11271deg_tilt0deg_steps500_none.mp4",
+    "seed": 10000,
+    "axis_rotation_deg": 11270.937525602441,
+    "peak_rotation_deg": 11270.937525602441,
+    "tip_error_m": 1.8303955122475675e-17,
+    "omega_hold_satisfied": false,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 501
+  }
+]

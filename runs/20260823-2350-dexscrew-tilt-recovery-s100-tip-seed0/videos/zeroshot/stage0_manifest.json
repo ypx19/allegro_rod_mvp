@@ -1,0 +1,13 @@
+[
+  {
+    "file": "runs/20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0/videos/zeroshot/tip_connect_best_00_seed10000_rot355deg_tilt74deg_steps63_axis_tilt.mp4",
+    "seed": 10000,
+    "axis_rotation_deg": 355.1759103153402,
+    "peak_rotation_deg": 360.4882404063855,
+    "tip_error_m": 0.0005230554050493169,
+    "omega_hold_satisfied": false,
+    "is_success": false,
+    "dropped": true,
+    "num_frames": 64
+  }
+]

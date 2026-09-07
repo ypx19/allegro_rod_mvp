@@ -1,0 +1,57 @@
+{
+  "hand_pose_path": "/data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json",
+  "hand_pose_sha256": "2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f",
+  "hand_grasp_path": "/data/ypx/allegro_rod_mvp/configs/hand_grasps/my_grasp_revolute_shared.json",
+  "hand_grasp_sha256": "fdd9ead60842eca3167f98ecda3c496ea752cff3fa9e053de47a4544e061b03a",
+  "steps_per_seed": 100,
+  "groups": {
+    "revolute_s400": {
+      "passed_seeds": 10,
+      "total_seeds": 10,
+      "min_three_contact_occupancy": 1.0,
+      "median_forces_n": [
+        3.2764315290972044,
+        3.8506154549789713,
+        1.1873057300246619
+      ],
+      "max_constraint_error_m": 4.943250923123497e-17,
+      "max_non_tip_rod_contacts": 0
+    },
+    "revolute_s1": {
+      "passed_seeds": 10,
+      "total_seeds": 10,
+      "min_three_contact_occupancy": 1.0,
+      "median_forces_n": [
+        2.2383266775642285,
+        3.470708498195936,
+        1.2382034646543407
+      ],
+      "max_constraint_error_m": 4.204671986908976e-17,
+      "max_non_tip_rod_contacts": 0
+    },
+    "tip_connect_s400": {
+      "passed_seeds": 0,
+      "total_seeds": 10,
+      "min_three_contact_occupancy": 0.7647058823529411,
+      "median_forces_n": [
+        0.38180427846193254,
+        1.0229420257695994,
+        1.089467524985838
+      ],
+      "max_constraint_error_m": 0.00025477133348020053,
+      "max_non_tip_rod_contacts": 0
+    },
+    "tip_connect_s1": {
+      "passed_seeds": 10,
+      "total_seeds": 10,
+      "min_three_contact_occupancy": 1.0,
+      "median_forces_n": [
+        0.711068198028524,
+        1.3521400171407092,
+        1.1385612149819806
+      ],
+      "max_constraint_error_m": 5.2192324180625904e-05,
+      "max_non_tip_rod_contacts": 0
+    }
+  }
+}

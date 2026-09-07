@@ -18,6 +18,7 @@ def make_env(
     axis_stabilizer_scale_range: tuple[float, float] | None,
     axis_tilt_penalty_weight: float,
     axis_tilt_recovery_scale: float,
+    axis_tilt_growth_scale: float,
     rotation_reward_scale: float,
     contact_reward_mode: str,
     three_contact_reward: float,
@@ -33,6 +34,7 @@ def make_env(
             axis_stabilizer_scale_range=axis_stabilizer_scale_range,
             axis_tilt_penalty_weight=axis_tilt_penalty_weight,
             axis_tilt_recovery_scale=axis_tilt_recovery_scale,
+            axis_tilt_growth_scale=axis_tilt_growth_scale,
             rotation_reward_scale=rotation_reward_scale,
             contact_reward_mode=contact_reward_mode,
             three_contact_reward=three_contact_reward,
@@ -58,10 +60,11 @@ if __name__ == "__main__":
     parser.add_argument("--axis-stabilizer-max", type=float, default=None)
     parser.add_argument("--axis-tilt-penalty-weight", type=float, default=1.0)
     parser.add_argument("--axis-tilt-recovery-scale", type=float, default=0.0)
+    parser.add_argument("--axis-tilt-growth-scale", type=float, default=0.0)
     parser.add_argument("--rotation-reward-scale", type=float, default=16.0)
     parser.add_argument(
         "--contact-reward-mode",
-        choices=["linear", "discrete"],
+        choices=["linear", "discrete", "gait_two_support"],
         default="linear",
     )
     parser.add_argument("--three-contact-reward", type=float, default=10.0)
@@ -91,6 +94,7 @@ if __name__ == "__main__":
                 stabilizer_range,
                 args.axis_tilt_penalty_weight,
                 args.axis_tilt_recovery_scale,
+                args.axis_tilt_growth_scale,
                 args.rotation_reward_scale,
                 args.contact_reward_mode,
                 args.three_contact_reward,

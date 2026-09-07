@@ -1,0 +1,13 @@
+[
+  {
+    "file": "runs/20260823-1855-net-angle-C-force-curriculum-seed0-R03-s50-mu0.39604-iter1-seed0/videos/net_angle-iter1/revolute_success_00_seed10000_rot2881deg_tilt0deg_steps500_none.mp4",
+    "seed": 10000,
+    "axis_rotation_deg": 2880.651439465154,
+    "peak_rotation_deg": 2880.651439465154,
+    "tip_error_m": 1.5052122729293515e-17,
+    "omega_hold_satisfied": false,
+    "is_success": true,
+    "dropped": false,
+    "num_frames": 501
+  }
+]

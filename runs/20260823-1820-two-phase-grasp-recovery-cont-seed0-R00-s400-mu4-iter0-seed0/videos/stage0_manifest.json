@@ -1,0 +1,13 @@
+[
+  {
+    "file": "runs/20260823-1820-two-phase-grasp-recovery-cont-seed0-R00-s400-mu4-iter0-seed0/videos/revolute_best_00_seed10000_rot211deg_tilt0deg_steps500_none.mp4",
+    "seed": 10000,
+    "axis_rotation_deg": 211.1997539399139,
+    "peak_rotation_deg": 211.1997539399139,
+    "tip_error_m": 0.0,
+    "omega_hold_satisfied": false,
+    "is_success": false,
+    "dropped": false,
+    "num_frames": 501
+  }
+]

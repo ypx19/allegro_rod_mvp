@@ -1,5 +1,193 @@
 # Experiment Log
 
+## EXP-20260824-001: DexScrew tilt-growth penalty at tip-connect s=100
+- Run ID: `20260824-0000-dexscrew-tilt-growth-s100-tip-seed0`
+- Date: 2026-08-24
+- Status: completed
+- Parent or baseline run: `20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0` (zero-shot tip-connect s=100)
+- Git commit: `b0b76d4` (dirty: DexScrew growth implementation; recovery left at default 0)
+- Git branch: `cursor/teleop-hand-keyboard`
+- Random seed: training 0; fixed 10000–10009; unseen 20000–20009
+- Device: cuda:4
+- Duration: ~46 s training (65,536 steps, ~1758 fps)
+- Checkpoint: `runs/20260824-0000-dexscrew-tilt-growth-s100-tip-seed0/checkpoints/final_model.zip`
+
+### Question
+Does a default-preserving DexScrew tilt-growth penalty, scaled so a 0.05 rad
+increase near the 0.25 rad success gate competes with rotation (`2.5 * ω` at
+`ω=1`), raise net-angle success at bottom tip-connect `s=100` above 0.50?
+
+### Hypothesis
+If collapse is monotonic, a one-sided recovery term never fires. A growth
+penalty that is nonzero while tilt is increasing, especially around/above
+0.25 rad, should provide on-policy samples and reduce terminal tilt versus
+zero-shot and versus recovery-only shaping.
+
+### Change from Baseline
+Only DexScrew tilt-growth: `--axis-tilt-growth-scale 50` (default 0). Recovery
+stays 0. Formula:
+`r_growth = -50 * clip(curr − prev, 0, 0.05) * clip((curr − 0.05) / 0.20, 0, 1)`.
+Existing tilt-state penalty, 48-D observations, LR `3e-4`, C gait flags, saved
+pose, recovered grasp, and full-vector proportional friction at `s=100` are
+fixed. Parent VecNormalize is reused.
+
+### Configuration
+- Algorithm: SB3 PPO resume
+- Environment: bottom tip-connect, `s=100`, `mu=1.0`, solref 0.008
+- Reward terms: DexScrew + discrete contact ×0.10 + tilt penalty 1.0 + growth 50 + recovery 0
+- Observation space: 48-D
+- Action space: 12-D
+- Network: [512, 256, 128]
+- Optimizer: PPO default Adam
+- Learning rate: 3e-4
+- Batch size: 256
+- Horizon: n_steps 256
+- Number of environments: 32
+- Training steps: 65,536
+- Domain randomization: none
+- Curriculum stage: tip-connect s=100 only
+- Evaluation protocol: net-angle, 10 fixed + 10 unseen episodes
+
+### Success Criteria
+Fixed and unseen net-angle success each ≥ 0.50. Otherwise reject and do not
+start other masses.
+
+### Result
+Failed the gate. Trained success 0.0/0.0 versus zero-shot 0.0/0.0 and recovery
+0.0/0.0. Rotation rose from 182.31/169.09° to 280.12/264.34° (recovery was
+190.95/223.07°). Final/max tilt stayed ~80–83°. All 20 trained episodes
+terminate on `axis_tilt`. Growth share of Σ|r| is 0.033/0.035 versus recovery
+share 0.002/0.004 on the sibling run. Mean growth −0.452/−0.547 versus tilt
+penalty −2.93/−3.17.
+
+### Key Metrics
+| Metric | Zero-shot fixed | Current fixed | Change |
+|---|---:|---:|---:|
+| Success rate | 0.00 | 0.00 | 0.00 |
+| Mean return (online end) | — | −0.74 | — |
+| Position error | 0.00067 m | 0.00077 m | +0.00010 m |
+| Rotation progress | 182.31° | 280.12° | +97.81° |
+| Episode length (online) | 22.7 smoke | 40.3 | +17.6 |
+| Constraint violation rate | 1.00 | 1.00 | 0.00 |
+
+Unseen rotation 169.09° → 264.34°; unseen success remained 0.
+
+### Visual Evidence
+- Training curve: `runs/20260824-0000-dexscrew-tilt-growth-s100-tip-seed0/plots/train_return_length_kl.png`
+- Evaluation video: none succeeded
+- Failure-case video: `runs/20260824-0000-dexscrew-tilt-growth-s100-tip-seed0/videos/tip_connect_best_00_seed10005_rot399deg_tilt85deg_steps65_axis_tilt.mp4`
+- Zero-shot failure: `runs/20260824-0000-dexscrew-tilt-growth-s100-tip-seed0/videos/zeroshot/tip_connect_best_00_seed10000_rot355deg_tilt74deg_steps63_axis_tilt.mp4`
+- Comparison: `reports/comparisons/20260824-dexscrew-tilt-growth-s100.md`
+
+### Interpretation
+Measured: tilt collapse remains monotonic (max tilt = final tilt). Growth does
+fire (~3–4% of |reward|), so the recovery-run diagnosis was correct that a
+signal while increasing is on-policy here. That was not sufficient to hold
+tilt below 0.25 rad. Rotation share rose to 38–42% while growth stayed ~−0.5
+per step versus rotation +5.2 to +6.5. This rejects growth-at-g=50 as a Phase T
+gate solution. PPO KL ~0.18 and clip fraction ~0.64 remain high, similar to
+recovery.
+
+### Decision
+reject
+
+### Next Step
+Do not start other masses. Do not retune this growth scale as the next
+one-factor test. Prefer a tilt assist, grasp change, or other
+dynamics/initialization intervention.
+
+## EXP-20260823-018: DexScrew back-to-balance tilt recovery at tip-connect s=100
+- Run ID: `20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: `20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0` (zero-shot tip-connect s=100)
+- Git commit: `b0b76d4` (dirty: DexScrew recovery implementation)
+- Git branch: `cursor/teleop-hand-keyboard`
+- Random seed: training 0; fixed 10000–10009; unseen 20000–20009
+- Device: cuda:4
+- Duration: ~45 s training (65,536 steps, ~1800 fps)
+- Checkpoint: `runs/20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0/checkpoints/final_model.zip`
+
+### Question
+Does a default-preserving DexScrew one-sided tilt-recovery term, scaled to
+compete with rotation (`2.5 * ω` at `ω=1`) near the 0.25 rad success gate,
+raise net-angle success at bottom tip-connect `s=100` above the 0.50 gate?
+
+### Hypothesis
+If the dominant failure is tilt that grows through the 0.25 rad gate and then
+saturates the quadratic penalty above 0.75 rad, rewarding `Δtilt < 0` while
+`tilt > 0.05` will produce recoverable episodes without needing a larger
+absolute penalty.
+
+### Change from Baseline
+Only DexScrew tilt recovery: `--axis-tilt-recovery-scale 50` (default 0).
+Formula: `r_recovery = 50 * clip(prev − current, 0, 0.05) * 1[current > 0.05]`.
+Existing tilt penalty, 48-D observations, LR `3e-4`, C gait flags, saved pose,
+recovered grasp, and full-vector proportional friction at `s=100` are fixed.
+Parent VecNormalize is reused.
+
+### Configuration
+- Algorithm: SB3 PPO resume
+- Environment: bottom tip-connect, `s=100`, `mu=1.0`, solref 0.008
+- Reward terms: DexScrew + discrete contact ×0.10 + tilt penalty 1.0 + recovery 50
+- Observation space: 48-D
+- Action space: 12-D
+- Network: [512, 256, 128]
+- Optimizer: PPO default Adam
+- Learning rate: 3e-4
+- Batch size: 256
+- Horizon: n_steps 256
+- Number of environments: 32
+- Training steps: 65,536
+- Domain randomization: none
+- Curriculum stage: tip-connect s=100 only
+- Evaluation protocol: net-angle, 10 fixed + 10 unseen episodes
+
+### Success Criteria
+Fixed and unseen net-angle success each ≥ 0.50. Otherwise reject and do not
+start other masses.
+
+### Result
+Failed the gate. Trained success 0.0/0.0 versus zero-shot 0.0/0.0. Rotation
+rose from 182.31/169.09° to 190.95/223.07°. Final/max tilt stayed ~80–83°.
+All 20 trained episodes terminate on `axis_tilt`. Recovery share of Σ|r| is
+0.002/0.004. Mean recovery +0.032/+0.056 versus tilt penalty −3.83/−3.34.
+
+### Key Metrics
+| Metric | Zero-shot fixed | Current fixed | Change |
+|---|---:|---:|---:|
+| Success rate | 0.00 | 0.00 | 0.00 |
+| Mean return (online end) | — | −27.3 | — |
+| Position error | 0.00067 m | 0.00073 m | +0.00006 m |
+| Rotation progress | 182.31° | 190.95° | +8.64° |
+| Episode length (online) | 22.7 smoke | 41.0 | +18.3 |
+| Constraint violation rate | 1.00 | 1.00 | 0.00 |
+
+Unseen rotation 169.09° → 223.07°; unseen success remained 0.
+
+### Visual Evidence
+- Training curve: `runs/20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0/plots/train_return_length_kl.png`
+- Evaluation video: none succeeded
+- Failure-case video: `runs/20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0/videos/tip_connect_best_00_seed10006_rot333deg_tilt81deg_steps46_axis_tilt.mp4`
+- Zero-shot failure: `runs/20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0/videos/zeroshot/tip_connect_best_00_seed10000_rot355deg_tilt74deg_steps63_axis_tilt.mp4`
+- Comparison: `reports/comparisons/20260823-dexscrew-tilt-recovery-s100.md`
+
+### Interpretation
+Measured: tilt collapse remains monotonic (max tilt = final tilt), so the
+one-sided recovery term has almost no on-policy samples. Rotation can still
+exceed 180° while the 0.25 rad tilt gate fails. This supports the hypothesis
+that a scale-only tilt-penalty increase was the wrong next knob, but it
+rejects the hypothesis that adding recovery-only shaping at scale 50 is
+sufficient at this budget. PPO KL ~0.20 and clip fraction ~0.65 remain high.
+
+### Decision
+reject
+
+### Next Step
+Do not start other masses. If continuing reward work, add a signal that is
+nonzero while tilt is increasing near 0.25 rad, or change grasp/assist
+dynamics rather than paying only for already-decreasing tilt.
+
 ## EXP-20260808-003 / Bottom-tip C0–C5 (hard tip → free tip reward)
 - Progress: `runs/curricula/*/CURRICULUM_PROGRESS.md`
 - Date: 2026-08-08
@@ -746,7 +934,7 @@ reject
 ## EXP-20260724-003: Stage 2 steep discrete contact reward
 - Run ID: `20260724-1718-stage2-discrete-contact-seed0`
 - Date: 2026-07-24
-- Status: planned
+- Status: completed; rejected
 - Parent or baseline run: `20260723-1200-stage2-tip-joint-no-axis-stabilizer`
 - Git commit: `8e262a006c7a427034cdcc3a5715321d4400e326` (preserved baseline)
 - Git branch: `main`
@@ -1108,3 +1296,1033 @@ revise
 
 ### Next Step
 Use the verified settled three-contact reset distribution and add an initial gate grace period, while holding the reward table and gate threshold fixed.
+
+## EXP-20260823-001: Allegro three-fingertip reset reachability
+- Run ID: `20260823-geometry-reachability-allegro-tip-bottom-v2`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: `20260724-2045-finger2-spatial-dof`
+- Git branch: `cursor/teleop-hand-keyboard`
+- Random seed: 0–2
+- Device: CPU
+- Checkpoint: none
+
+### Question
+Can an Allegro V3-derived index/middle/thumb model begin the bottom-tip task in a dynamically settled three-fingertip wrap?
+
+### Hypothesis
+Exact Allegro joint frames plus a bounded ramp from a shallow IK solution to a preload target will produce all three fingertip contacts without excessive median force.
+
+### Change from Baseline
+- Replaced the planar 9-DoF surrogate with a 12-DoF index/middle/thumb model.
+- Preserved official Allegro joint axes, ranges, link offsets, and thumb opposition frame.
+- Used primitive collision geometry, a 2 mm middle-pad allowance, and a ramped reset.
+
+### Success Criteria
+- Three contacts on at least 90% of fixed-seed resets.
+- Median force below 50 N per fingertip.
+- Finite dynamics in both revolute and point-connect variants.
+
+### Result
+Passed. A 50-seed reset audit produced three contacts on 50/50 resets in each physics variant. The recorded three-seed point-connect audit had settled forces of 12.91/18.40/6.20 N, 13.48/20.16/5.25 N, and 11.26/19.50/4.74 N.
+
+### Key Metrics
+- Point-connect three-contact reset rate: 1.00 (50/50).
+- Revolute three-contact reset rate: 1.00 (50/50 after seed-phase settling).
+- Maximum point-connect force in the 50-seed audit: 29.55 N.
+- Observation/action shape: 48 / 12 in both physics variants.
+
+### Visual Evidence
+No rendered media was generated in this validation pass.
+
+### Interpretation
+The previous exploration failure caused by an unreachable/non-contacting third finger is removed for the new model. Random 12-DoF search remains sparse, but the optimized reset is reproducible.
+
+### Decision
+adopt
+
+### Next Step
+Run a short revolute PPO smoke, then execute every retained-connect curriculum transition.
+
+## EXP-20260823-002: Allegro retained-connect curriculum smoke
+- Run ID: `20260823-0405-allegro-tip-bottom-smoke-seed0`
+- Date: 2026-08-23
+- Status: completed (plumbing passed; task failed)
+- Parent or baseline run: `20260808-0224-...-3touch-smoke` documentation
+- Git branch: `cursor/teleop-hand-keyboard`
+- Random seed: 0
+- Device: NVIDIA RTX 3090
+- Duration: approximately 22 minutes
+- Checkpoint: `runs/20260823-0405-allegro-tip-bottom-smoke-seed0-C3-mass-1-s1-retry0/checkpoints/final_model.zip`
+
+### Question
+Can the new 12-DoF policy and VecNormalize state transfer from revolute through progressively less-assisted bottom point-connect stages to nominal mass?
+
+### Hypothesis
+The verified wrap reset will keep contact observable at every stage and prevent the immediate C1/C5 collapse seen with the surrogate.
+
+### Change from Baseline
+- New Allegro-like hand and 12-action/48-observation policy trained from scratch.
+- Final point-connect is retained; no free-tip C5.
+- Eight stages: A0, B0–B3, then mass 4→2→1.
+- Each smoke stage used 20k steps and selected among 10k/20k/final checkpoints.
+
+### Success Criteria
+Plumbing: every stage trains, saves/loads, transfers matching VecNormalize state, and evaluates finitely. Task: final success ≥0.5, tip error <2 cm, drop ≤0.15, three-contact occupancy ≥0.72, and zero stabilizer torque.
+
+### Result
+Plumbing passed all eight stages. The final task gate failed because sustained-ω success was 0. The final policy survived every 20 s episode with all three contacts and low tip error, but rotated only 40.11°.
+
+### Key Metrics
+| Metric | A0 selected | Final selected |
+|---|---:|---:|
+| Success rate | 0.00 | 0.00 |
+| Mean rotation | 0.01° | 40.11° |
+| Tip error | 0.00 mm | 1.40 mm |
+| Three-contact occupancy | 0.984 | 1.000 |
+| Drop rate | 0.60 | 0.00 |
+| Stabilizer torque max mean | 0.000 | 0.000 |
+| Mean rotation reward / step | 0.002 | 0.085 |
+| Mean contact reward / step | 2.950 | 3.000 |
+
+### Visual Evidence
+- Eight-stage selected-checkpoint video index: `runs/curricula/20260823-0405-allegro-tip-bottom-smoke-seed0/stage_videos_20260823-130800/INDEX.md`
+- Machine-readable video/config/metric manifest: `runs/curricula/20260823-0405-allegro-tip-bottom-smoke-seed0/stage_videos_20260823-130800/metadata.json`
+- Deterministic seed 0 was retained for seven stages. C1 uses fixed seed 7 because seed 0 terminated at 2.84 s while seed 7 provided a representative 4.92 s rollout. B0 seed 0 ends at 2.76 s, but seeds 1–9 fail similarly, so the short episode is representative.
+- Every MP4 includes a readable overlay with stage/checkpoint, seed, rotation, tip error, contact count, tilt, success, and termination. All eight files fully decoded at 640×480, 25 FPS.
+
+### Interpretation
+Measured fact: the model solves the prior contact-initialization and immediate-collapse failures. Measured fact: contact reward dominates rotation reward by about 35:1 at the final checkpoint. The evidence suggests a reward-specification failure: holding still with three contacts is a high-return local optimum.
+
+### Decision
+revise
+
+### Next Step
+Change only the three-contact bonus from +3.0 to +0.3 while keeping the 72% hard support window and no-rotation-credit gate. Train A0 long enough to evaluate angular-speed learning before another full curriculum.
+
+## EXP-20260823-003: Reversed Allegro world-X geometry preview
+- Run ID: `reversed_world_x_180_20260823-161731`
+- Date: 2026-08-23
+- Status: completed (preview; awaiting orientation confirmation)
+- Parent or baseline run: validated Allegro MJCF geometry from `20260823-geometry-reachability-allegro-tip-bottom-v2`
+- Random seed: none
+- Device: CPU / MuJoCo EGL renderer
+- Duration: 5 s per video
+- Checkpoint: none; no policy loaded
+
+### Question
+Does a rigid 180° world-X transform of the complete palm subtree produce a clear downward-facing orientation preview while keeping the existing grasp meaningfully positioned around the vertical rod?
+
+### Hypothesis
+Rotating only the palm root about the rod-center pivot `(0, -0.05, 0)` will preserve every Allegro-relative joint frame and map the validated wrap to the opposite side of the rod without losing all three fingertip contacts.
+
+### Change from Baseline
+- Pre-multiplied the palm root by quaternion `(0, 1, 0, 0)` about world pivot `(0, -0.05, 0)`.
+- Changed no palm-relative child body or joint transform.
+- Generated separate preview MJCF files; validated defaults remain unchanged.
+- Configured explicit bottom anchors and visual-only world-axis/anchor markers.
+
+### Success Criteria
+- Both preview MJCFs compile and render.
+- Videos decode at 640×480 and 25 FPS.
+- Distinct bottom-anchor marker remains visible throughout each camera orbit.
+- The settled preview retains 3/3 fingertip-to-rod geometric and force contacts.
+
+### Result
+All preview gates passed. Both 125-frame MP4s decoded at 640×480 and 25 FPS. The yellow revolute marker and magenta point-connect marker were detected in every frame. Both scenes retained 3/3 contacts after 0.2 s.
+
+### Key Metrics
+- A0 settled signed distances: `[-0.509, -0.216, -0.462]` mm; forces `[113.44, 31.89, 52.97]` N.
+- C3 settled signed distances: `[-0.572, -0.945, -0.820]` mm; forces `[6.38, 26.06, 17.72]` N.
+- A0 marker pixels/frame: minimum 10, maximum 184.
+- C3 marker pixels/frame: minimum 5, maximum 240.
+
+### Visual Evidence
+- Index: `runs/previews/reversed_world_x_180_20260823-161731/INDEX.md`
+- Metadata: `runs/previews/reversed_world_x_180_20260823-161731/metadata.json`
+- A0 video: `runs/previews/reversed_world_x_180_20260823-161731/reversed_A0_bottom_revolute.mp4`
+- C3 video: `runs/previews/reversed_world_x_180_20260823-161731/reversed_C3_bottom_point_connect.mp4`
+
+### Interpretation
+The rigid root transform preserves initial grasp contact under both constraints. This is only geometry/constraint evidence; it does not establish policy validity or task success. The high A0 preview force also means the transformed pose should not be promoted to a training reset without a separate reset audit.
+
+### Decision
+Await visual orientation confirmation; do not replace the validated default.
+
+### Next Step
+If the orientation is accepted, expose this transform as an explicit training configuration and run a multi-seed reset/contact-force audit before any policy training.
+
+## EXP-20260823-004: Reversed hand with 10 mm palm clearance
+- Run ID: `reversed_world_x_180_clearance10mm_20260823-162310`
+- Date: 2026-08-23
+- Status: completed (preview; A0 contact gate failed)
+- Parent or baseline run: `reversed_world_x_180_20260823-161731`
+- Random seed: none
+- Device: CPU / MuJoCo EGL renderer
+- Duration: 5 s per video
+- Checkpoint: none; no policy loaded
+
+### Question
+What contact state remains when the already-flipped hand is translated rigidly upward until the palm collision bottom is 10 mm above the fixed rod top?
+
+### Hypothesis
+A world-Z-only translation of the full palm subtree will achieve exact clearance without modifying Allegro-relative frames, though fingertip contact may change because the finite rod and constraints remain fixed.
+
+### Change from Baseline
+- Added only `+0.032386 m` world-Z translation to the flipped palm root.
+- Kept the 180° world-X orientation, rod, bottom anchors, joint values, and every child transform fixed.
+- Targeted palm-bottom Z `0.080 m` above rod-top Z `0.070 m`.
+
+### Success Criteria
+- Measured initial clearance equals 10 mm.
+- Both models compile and both 125-frame videos fully decode at 640×480, 25 FPS.
+- Constraint markers remain visible.
+- Contact is measured after 0.2 s without joint retuning.
+
+### Result
+Placement and media checks passed. C3 retained 3/3 geometric and force contacts. A0 retained only 2/3: index-to-rod distance became +15.63 mm and index normal force became 0 N.
+
+### Key Metrics
+- Applied ΔZ: `+0.032386 m`.
+- Initial palm bottom / rod top / clearance: `0.080 / 0.070 / 0.010 m`.
+- A0 after 0.2 s: distances `[15.634, -0.024, -0.456]` mm; forces `[0.00, 15.60, 51.36]` N; 2/3 contacts.
+- C3 after 0.2 s: distances `[-0.702, -1.049, -1.457]` mm; forces `[11.42, 29.64, 39.95]` N; 3/3 contacts.
+
+### Visual Evidence
+- Index: `runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/INDEX.md`
+- Metadata: `runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/metadata.json`
+- A0: `runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/reversed_A0_bottom_revolute.mp4`
+- C3: `runs/previews/reversed_world_x_180_clearance10mm_20260823-162310/reversed_C3_bottom_point_connect.mp4`
+
+### Interpretation
+The requested clearance is geometrically exact, but it is not contact-neutral under A0 dynamics. This preview does not validate a shared training reset or policy transfer.
+
+### Decision
+Preserve as a visual option pending orientation feedback; do not promote to the validated default.
+
+### Next Step
+If this placement is accepted visually, decide explicitly whether A0 must preserve 3/3 contact before designing a separate controlled reset adjustment.
+
+## EXP-20260823-005: Configurable Allegro palm-root pose interface
+- Run ID: `20260823-hand-pose-interface-validation`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: current validated Allegro geometry
+- Random seed: 3 for reset smoke
+- Device: CPU / MuJoCo EGL
+- Duration: <1 second focused tests; ~2.4 seconds environment smoke
+- Checkpoint: none
+
+### Question
+Can one versioned pose file move the complete Allegro hand identically in both physics variants without altering its internal kinematics or policy signature?
+
+### Hypothesis
+Applying an absolute model-frame transform only to the world-parented `palm` body will preserve every palm-relative body/joint frame and keep the 12-action/48-observation interface unchanged.
+
+### Change from Baseline
+- Added an opt-in hand-pose JSON loader and interactive editor.
+- Added no default pose and changed no MJCF geometry or reset joint values.
+
+### Success Criteria
+- Identical configured palm transform in revolute and point-connect models.
+- All non-palm local body transforms and all joint positions/axes unchanged.
+- Malformed JSON, non-unit quaternion, and incompatible model variants rejected.
+- Reset observation remains finite with shape 48; action shape remains 12.
+
+### Result
+All criteria passed in five dedicated pose tests, including overwrite protection. The combined pose/contact regression suite passed 9/9 tests, `py_compile` passed for every changed Python file, and `scripts/check_env.py` passed. The headless editor check exited immediately with actionable display instructions.
+
+### Key Metrics
+- Dedicated pose tests: 5/5 passed.
+- Combined pose/contact tests: 9/9 passed.
+- Action/observation dimensions: 12 / 48 for both variants.
+- Changed non-palm body transforms: 0.
+- Changed joint positions/axes: 0.
+
+### Visual Evidence
+No live viewer artifact was produced because this validation session had no graphical display. The editor adds green/cyan rod endpoint markers and physics-specific yellow/magenta anchor markers when run with a display.
+
+### Interpretation
+The code-level and model-level evidence supports the hypothesis. Live GUI key handling still requires a display-backed manual check before relying on the editor ergonomics.
+
+### Decision
+adopt as an opt-in configuration interface; do not promote any edited pose to the training default.
+
+### Next Step
+Open the editor on a graphical session, save a candidate pose to a new path, then run the existing multi-seed reset/contact-force audit before training with it.
+
+## EXP-20260823-005: Thirty-millimeter clearance with thumb root inward
+- Run ID: `reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817`
+- Date: 2026-08-23
+- Status: completed (preview; A0 contact gate failed)
+- Parent or baseline run: `reversed_world_x_180_clearance10mm_20260823-162310`
+- Random seed: none
+- Device: CPU / MuJoCo EGL renderer
+- Duration: 5 s per video
+- Checkpoint: none; no policy loaded
+
+### Question
+What geometry and contact state result from raising the current flipped hand another 20 mm and moving its thumb-root body exactly 10 mm closer to the fixed rod axis?
+
+### Hypothesis
+A measured radial XY translation plus a rigid +20 mm Z increment will achieve both placement targets without changing any Allegro-relative frame, but A0 may continue to lose index contact.
+
+### Change from Baseline
+- Relative Z translation: `+0.020000 m`; total post-flip Z translation: `+0.052386 m`.
+- MuJoCo reference positions: thumb-root XY `[-0.064705, -0.058490]` m; rod-axis XY `[0, -0.05]` m.
+- Applied XY translation: `[+0.009915014, +0.001300958]` m.
+- Kept rod, anchors, orientation, joint values, and child transforms fixed.
+
+### Success Criteria
+- Palm-bottom clearance is 30 mm above the rod top.
+- Thumb-root radial distance decreases by exactly 10 mm.
+- Both models compile and both 125-frame videos fully decode at 640×480, 25 FPS.
+- Contact and forces are measured after 0.2 s without retuning.
+
+### Result
+Both placement targets and media checks passed. Thumb-root distance decreased from 65.259613 to 55.259613 mm. C3 retained 3/3 contacts; A0 retained 2/3 and again lost index contact.
+
+### Key Metrics
+- Palm bottom / rod top / clearance: `0.100 / 0.070 / 0.030 m`.
+- A0 after 0.2 s: distances `[8.203, -0.232, -0.658]` mm; forces `[0.00, 34.58, 132.93]` N; 2/3 contacts.
+- C3 after 0.2 s: distances `[-0.633, -1.116, -0.927]` mm; forces `[8.47, 31.36, 24.11]` N; 3/3 contacts.
+
+### Visual Evidence
+- Index: `runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/INDEX.md`
+- Metadata: `runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/metadata.json`
+- A0: `runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/reversed_A0_bottom_revolute.mp4`
+- C3: `runs/previews/reversed_world_x_180_clearance30mm_thumb10mmcloser_20260823-162817/reversed_C3_bottom_point_connect.mp4`
+
+### Interpretation
+The measured rigid placement achieves the requested geometry but does not restore A0 three-contact support. C3 contact preservation does not establish policy or reset validity.
+
+### Decision
+Preserve as a reversible preview; do not promote to the validated default.
+
+### Next Step
+Await visual feedback before any explicit, separately documented joint or reset adjustment.
+
+## EXP-20260823-006: Headless Web hand-pose editor validation
+- Run ID: `20260823-hand-pose-web-validation`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: `20260823-hand-pose-interface-validation`
+- Random seed: 0 for deterministic scene reset
+- Device: CPU / MuJoCo EGL
+- Duration: <2 seconds focused tests; live API smoke <1 second
+- Checkpoint: none
+
+### Question
+Can the validated palm-root pose interface be used through a practical local Web UI on a headless server without changing the saved schema or hand kinematics?
+
+### Hypothesis
+A standard-library HTTP server, plain browser client, and MuJoCo EGL renderer can expose responsive pose/camera controls while continuing to apply and serialize only the `palm` root through `allegro_rod_mvp.hand_pose`.
+
+### Change from Baseline
+- Added `scripts/edit_hand_pose_web.py` and deterministic backend/API tests.
+- Replaced the keyboard viewer with the Web UI as the primary documented interface.
+- Kept the existing JSON schema, environment integration, model defaults, and keyboard script unchanged.
+
+### Success Criteria
+- Initial state, pose update/reset, save/load/overwrite protection, malformed requests, and confined paths pass deterministic tests.
+- Revolute and bottom point-connect scenes both produce non-empty decodable PNG renders under EGL without a display.
+- A live HTTP smoke returns state, accepts a pose update, and returns a 640×480 PNG.
+
+### Result
+All four focused tests passed. `py_compile` passed. A live server bound to `127.0.0.1`, used EGL with no display, accepted an API pose update, and returned a decodable 46,099-byte 640×480 PNG.
+
+### Key Metrics
+- Focused tests: 4/4 passed.
+- Physics variants rendered: 2/2.
+- Live render: 640×480 PNG, 46,099 bytes.
+- Changed child/joint frames: 0 by construction; the existing five pose-plumbing regression tests remain the kinematic check.
+
+### Visual Evidence
+- Live MuJoCo image was decoded during the API smoke.
+- No browser-layout screenshot was produced because no browser automation namespace or Chromium executable was available in this session.
+
+### Interpretation
+The Web transport and headless rendering path are validated independently of training behavior. The saved file is still produced by `make_hand_pose`/`write_hand_pose`, so it remains compatible with the environment and artifact hashing.
+
+### Decision
+adopt as the primary documented pose-editing interface; retain the keyboard viewer as an optional display-backed fallback.
+
+### Next Step
+Use the Web UI to save a new candidate pose, then run the existing multi-seed reset/contact-force audit before opting that pose into training.
+
+## EXP-20260823-007: Saved-pose two-phase force-curriculum smoke
+- Run ID: `20260823-1730-two-phase-force-pose-smoke-seed0`
+- Date: 2026-08-23
+- Status: failed at Phase R `s=400`; Phase T not started
+- Parent or baseline run: `20260823-0405-allegro-tip-bottom-smoke-seed0`
+- Git commit: `33d484e` (dirty working tree preserved)
+- Git branch: `main`
+- Random seed: training 0; fixed evaluation 10000–10001; unseen 20000–20001
+- Device: RTX 3090 GPU 1 for strict smoke; CPU for endpoint PPO smokes
+- Duration: strict smoke 19.2 s; endpoint PPO smokes approximately 87 s wall-clock in parallel
+- Checkpoint: `runs/20260823-1730-two-phase-force-pose-smoke-seed0-R00-s400-mu4-iter0-seed0/checkpoints/final_model.zip`
+
+### Question
+Does the newly saved palm pose support the strict revolute `s=400 -> 1` phase,
+with measured normal-force-preserving friction control, well enough to unlock an
+independent bottom tip-connect `s=400 -> 1` phase?
+
+### Hypothesis
+The saved pose will retain three fingertips during initial revolute rotation, and
+explicitly scaling rod/pad sliding friction will permit force calibration as mass
+is annealed.
+
+### Change from Baseline
+- Used `configs/hand_poses/my_grasp.json` explicitly (SHA-256 `2d8ac7f...e7c9f`).
+- Reduced the continuing three-contact reward from +3.0 to +0.3.
+- Added explicit rod-plus-three-pad sliding-friction control and contact normal-force metrics.
+- Declared a ten-stage schedule: `400, 200, 100, 50, 25, 12.5, 6.25, 3.125, 1.5625, 1`.
+- Kept tip equality solref, damping, torsional/rolling friction, and actuator settings fixed.
+
+### Configuration
+- Algorithm: PPO
+- Environment: 12-DoF Allegro, bottom revolute for Phase R
+- Reward terms: DexScrew rotation/proximity/pose/energy plus +0.3 three-contact bonus
+- Observation space: 48-D
+- Action space: 12-D
+- Network: `[512, 256, 128]`
+- Optimizer: Adam
+- Learning rate: 3e-4
+- Batch size: 256
+- Horizon: 256
+- Number of environments: 2 (smoke)
+- Training steps: 2,048 at attempted strict stage; 512 per endpoint plumbing smoke
+- Domain randomization: off while explicit mass/friction ladder owns physics
+- Curriculum stage: Phase R stage 0, `s=400`, friction scale 4.0
+- Evaluation protocol: deterministic fixed and unseen seed sets, 2 episodes each (smoke only)
+
+### Success Criteria
+Predeclared in `docs/METRICS.md`: success >=0.5, mean unwrapped rotation >180
+degrees, endpoint error <2 cm for tip-connect, three-tip occupancy >=0.72,
+violation rate <=0.15, positive rotation reward not dominated by contact reward,
+and total normal-force p95 within +/-20% of each phase's accepted `s=400`
+reference at lower mass stages.
+
+### Result
+Rejected at the first revolute stage. The saved pose never produced three-tip
+support in evaluation; every episode terminated at the 25-step support window.
+No force reference was accepted, no lower mass was attempted, and Phase T was not started.
+
+### Key Metrics
+- Fixed: success 0.00, rotation 224.09 degrees, three-tip occupancy 0.00,
+  drop/violation 1.00, index p95 0 N, total force p95 49.78 N.
+- Unseen: success 0.00, rotation 228.66 degrees, three-tip occupancy 0.00,
+  drop/violation 1.00, index p95 0 N, total force p95 48.75 N.
+- Rotation reward: 0.0/step because unsupported motion receives no credit.
+- Contact reward: -3.48/-3.51 per step on fixed/unseen sets.
+
+### Visual Evidence
+- Representative failure:
+  `runs/20260823-1730-two-phase-force-pose-smoke-seed0-R00-s400-mu4-iter0-seed0/videos/revolute_best_00_seed10000_rot222deg_tilt0deg_steps25_contact_support.mp4`
+- Video integrity: 26 frames, 640x480, 25 FPS, all frames decoded.
+- Curriculum state:
+  `runs/curricula/20260823-1730-two-phase-force-pose-smoke-seed0/state.json`
+
+### Interpretation
+The apparent >180-degree displacement is unsupported transient hinge motion, not
+task success. The evidence rejects the contact-basin hypothesis and prevents a
+meaningful pressing-force reference from being defined. Longer PPO would train
+almost exclusively on 25-step contact-support failures.
+
+### Decision
+investigate a new bug (`DBG-20260823-003`); do not launch long training.
+
+### Next Step
+Run a pose-specific kinematic/reset search that changes only the initial Allegro
+joint vector (not the saved palm pose), requiring 3/3 contacts and finite stable
+dynamics in revolute and bottom tip-connect at `s=400` and `s=1`. Then repeat the
+same strict Phase R `s=400` smoke.
+
+## EXP-20260823-008: Saved-pose companion grasp recovery
+- Run ID: `20260823-1740-my-grasp-shared-reset-audit-seed0`
+- Date: 2026-08-23
+- Status: completed with one rejected condition
+- Parent or baseline run: `20260823-1730-two-phase-force-pose-smoke-seed0`
+- Random seed: 0–9
+- Device: CPU
+- Duration: 4.7 s final audit; bounded search candidates preserved in session evidence
+- Checkpoint: none
+
+### Question
+Can one 12-DoF reset/grasp vector support the fixed saved palm pose at both mass
+endpoints and in both physics modes?
+
+### Hypothesis
+A shallow, joint-limit-safe three-pad preload will provide stable support without
+moving the palm root.
+
+### Change from Baseline
+- Changed only reset/grasp joint targets and reset ramp.
+- Preserved `my_grasp.json` byte-for-byte.
+- Used a -1 mm signed tip/rod distance target, `grasp_ramp_steps=1`,
+  `grasp_hold_steps=100`, and reset noise 0.0075 rad.
+
+### Success Criteria
+Ten fixed-noise seeds per mode/mass, 100 steps each, 3/3 occupancy 1.0, finite
+observations, no support termination, no non-tip rod collision, and bounded
+constraint error.
+
+### Result
+The shared vector passes both revolute masses and tip-connect `s=1`, but fails
+heavy tip-connect. It is therefore recorded as a revolute companion, not a
+universal preset.
+
+### Key Metrics
+- Revolute `s=400`: 10/10; median forces `[3.276, 3.851, 1.187]` N.
+- Revolute `s=1`: 10/10; median forces `[2.238, 3.471, 1.238]` N.
+- Tip-connect `s=400`: 0/10; minimum occupancy 0.765; median forces
+  `[0.382, 1.023, 1.089]` N.
+- Tip-connect `s=1`: 10/10; median forces `[0.711, 1.352, 1.139]` N.
+- Maximum non-tip rod contacts: 0 in all conditions.
+
+### Visual Evidence
+- Metrics: `runs/20260823-1740-my-grasp-shared-reset-audit-seed0/metrics.csv`
+- Summary: `runs/20260823-1740-my-grasp-shared-reset-audit-seed0/summary.json`
+
+### Interpretation
+One shared vector is insufficient under the declared robustness criterion because
+the heavy equality-constrained rod intermittently loses the index pad. Separate
+tip-connect preload work is justified only after Phase R passes.
+
+### Decision
+Adopt for revolute; reject as universal.
+
+### Next Step
+Train and gate revolute `s=400` using the companion config.
+
+## EXP-20260823-009: Recovered-reset revolute s400 adaptive training
+- Run IDs: `20260823-1800-two-phase-grasp-recovery-smoke-seed0`, `20260823-1810-two-phase-grasp-recovery-seed0`, `20260823-1820-two-phase-grasp-recovery-cont-seed0`, `20260823-1830-two-phase-grasp-recovery-cont2-seed0`
+- Date: 2026-08-23
+- Status: failed at Phase R `s=400`; Phase T not started
+- Parent or baseline run: EXP-20260823-008
+- Random seed: training 0; fixed evaluation 10000–10009; unseen 20000–20009
+- Device: RTX 3090 GPU 1
+- Duration: 18.5 s smoke; approximately 69, 79, and 79 s per 100k increment
+- Best checkpoint: `runs/20260823-1820-two-phase-grasp-recovery-cont-seed0-R00-s400-mu4-iter0-seed0/checkpoints/final_model.zip`
+
+### Question
+Does the corrected reset enable an accepted supported-rotation policy at the
+first revolute mass stage?
+
+### Hypothesis
+Once reset support is restored and the contact bonus is reduced to +0.3, PPO
+will learn positive supported rotation without sacrificing the rolling contact gate.
+
+### Change from Baseline
+Only training exposure was increased: 2k, 100k, 200k, then 300k cumulative steps.
+Mass `s=400`, friction scale 4.0, pose, grasp, reward, and evaluation seeds stayed fixed.
+
+### Success Criteria
+The predeclared two-phase gate in `METRICS.md`.
+
+### Result
+The 200k checkpoint crossed the total-rotation threshold but still failed support
+and sustained-speed gates. A final equal-budget extension regressed violations
+and increased normal force, so training stopped.
+
+### Key Metrics
+- 2k fixed/unseen: rotation -28.26°/-37.00°, violations 1.0/1.0.
+- 100k: 179.12°/180.49°, violations 1.0/1.0.
+- 200k: 200.56°/192.06°, violations 0.20/0.50, total force p95
+  163.98/168.72 N, success 0/0.
+- 300k: 183.18°/188.97°, violations 1.0/0.9, total force p95
+  231.39/233.83 N, success 0/0.
+
+### Visual Evidence
+- Comparison plot: `reports/comparisons/20260823-grasp-recovery-s400-training.png`
+- Representative 200k rollout:
+  `runs/20260823-1820-two-phase-grasp-recovery-cont-seed0-R00-s400-mu4-iter0-seed0/videos/revolute_best_00_seed10000_rot211deg_tilt0deg_steps500_none.mp4`
+- Video integrity: 501 frames, H.264, 640x480, 25 FPS, 20.04 s; first and last frames decoded.
+
+### Interpretation
+Reset geometry is no longer the dominant failure. The current optimizer/reward
+lineage improves angle but does not produce sustained speed and becomes less
+stable with further training.
+
+### Decision
+Investigate `DBG-20260823-004`; do not accept a pressing-force reference, anneal
+mass, or start Phase T.
+
+### Next Step
+Preserve per-step omega traces for 100k and 200k checkpoints and run a
+checkpoint/evaluation ablation before changing reward or success definitions.
+
+## EXP-20260823-010: Rotation-credit and support-termination ablations
+- Run IDs: `20260823-1858-rotation-credit-ablation-A-s400-seed0`, `20260823-1902-rotation-credit-ablation-B-no-support-term-s400-seed0`
+- Date: 2026-08-23
+- Status: completed; both rejected by original task-quality gate
+- Parent or baseline run: `20260823-1820-two-phase-grasp-recovery-cont-seed0`
+- Matched control: `20260823-1830-two-phase-grasp-recovery-cont2-seed0`
+- Random seed: training 0; fixed evaluation 10000–10009; unseen 20000–20009
+- Device: RTX 3090 GPU 1
+- Duration: approximately 61–62 s training per ablation
+- Checkpoints: each run's `checkpoints/final_model.zip`
+
+### Question
+Does the rule that zeroes rotation reward below three contacts prevent the policy
+from learning useful rotation, and does the hard support termination mask that effect?
+
+### Hypothesis
+A will increase genuine rotation credit without changing contact termination. If
+all A episodes still terminate on support, B will reveal whether longer ungated
+trajectories develop sustained supported rotation.
+
+### Change from Baseline
+- Control, A, and B all warm-start from the same 200k model and VecNormalize state
+  and train for 100k with identical hyperparameters.
+- A changes only `rotation_requires_three_contacts: true -> false`.
+- B retains A and additionally changes
+  `contact_support_termination_enabled: true -> false`. It is explicitly a
+  two-factor diagnostic.
+
+### Configuration
+- Algorithm/network/optimizer: PPO, `[512,256,128]`, Adam, learning rate 3e-4
+- Environment: revolute, bottom anchor, `s=400`, friction scale 4.0
+- Reward: DexScrew plus discrete +0.3 three-contact bonus
+- Contact gate: 25 steps / 18 three-contact hits, still computed in all runs
+- Evaluation: deterministic 10 fixed and 10 unseen episodes, 20 s each
+
+### Success Criteria
+Original two-phase gate: success >=0.5, rotation >180°, three-contact occupancy
+>=0.72, violations <=0.15, positive dominant rotation reward, and 10-second
+sustained omega. Disabling termination does not waive the occupancy criterion.
+
+### Result
+A increased angle and rotation reward but terminated all episodes on support. B
+completed all horizons only because termination was disabled; occupancy collapsed
+and sustained-omega success stayed zero. Neither permits curriculum progression.
+
+### Key Metrics
+- Matched control fixed/unseen: rotation 183.18°/188.97°, occupancy 0.975/0.975,
+  violations 1.0/0.9, success 0/0.
+- A: rotation 294.01°/277.39°, occupancy 0.878/0.871, support terminations
+  10/10 and 10/10, force p95 184.22/191.48 N, success 0/0.
+- B: rotation 374.04°/379.20°, occupancy 0.288/0.335, original-gate failure
+  10/10 and 10/10, force p95 230.82/217.18 N, success 0/0.
+- Maximum mean omega hold: control 0.948 s, A 1.012 s, B 0.924 s.
+
+### Visual Evidence
+- Comparison: `reports/comparisons/20260823-rotation-credit-ablation.md`
+- Plot: `reports/comparisons/20260823-rotation-credit-ablation.png`
+- A video: `runs/20260823-1858-rotation-credit-ablation-A-s400-seed0/videos/revolute_best_00_seed10002_rot359deg_tilt0deg_steps76_contact_support.mp4`
+- B video: `runs/20260823-1902-rotation-credit-ablation-B-no-support-term-s400-seed0/videos/revolute_best_00_seed10003_rot478deg_tilt0deg_steps500_none.mp4`
+- Both videos decoded through their final H.264 frame at 640x480, 25 FPS.
+
+### Interpretation
+The credit rule suppresses transient rotation learning, but it is not the sole
+cause of task failure. Without hard termination, PPO exploits under-supported
+rotation instead of acquiring sustained three-tip manipulation.
+
+### Decision
+Reject A and B for progression. Do not define a force reference, reduce mass, or
+start tip-connect.
+
+### Next Step
+The smallest discriminating follow-up is a separately predeclared continuous
+contact-loss penalty ablation with A's ungated rotation credit and the original
+hard termination restored.
+
+## EXP-20260823-011: Continuous missing-contact penalty
+- Run ID: none allocated
+- Date: 2026-08-23
+- Status: interrupted before training by user redirect
+- Parent or baseline run: `20260823-1820-two-phase-grasp-recovery-cont-seed0`
+
+### Question
+Would a penalty proportional to missing fingertip contacts retain A's rotation
+while reducing support termination?
+
+### Result
+Interrupted before any run directory, checkpoint, or training process was
+created. The unexecuted penalty implementation was removed rather than silently
+included in the redirected experiment.
+
+### Decision
+Do not run; preserve this negative/redirected planning result.
+
+## EXP-20260823-012: Predeclared s400 finger-gait contact-scale ablation C
+- Run ID: `20260823-1812-finger-gait-contact-scale010-C-s400-seed0`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: `20260823-1820-two-phase-grasp-recovery-cont-seed0`
+- Matched diagnostic baseline: `20260823-1902-rotation-credit-ablation-B-no-support-term-s400-seed0`
+- Random seed: training 0; fixed 10000–10009; unseen 20000–20009
+- Device: RTX 3090 GPU 1
+
+### Question
+Does substantially reducing contact reward pressure allow repeatable
+leave-and-return finger gaits without collapsing into unsupported ballistic spin?
+
+### Hypothesis
+Scaling the complete discrete contact component by 0.10 will make transient
+one/two-contact phases inexpensive while retaining a -1 penalty for zero contact.
+
+### Change from Baseline
+Relative to B, only `contact_reward_scale` changes from 1.0 to 0.10.
+Rotation credit remains ungated and support termination remains disabled.
+
+### Configuration
+The scaled contact ladder for counts 0/1/2/3 is exactly
+`[-1.0, -0.1, +0.01, +0.03]`; raw ladder remains
+`[-10.0, -1.0, +0.1, +0.3]`.
+
+### Scale Rationale
+In A fixed evaluation, rotation reward averaged +4.069/step and contact reward
++0.222/step; contact counts 0/1/2/3 occupied 0.0043/0.0158/0.1022/0.8777.
+Scale 0.10 preserves a meaningful complete-loss penalty (-1) but makes one- and
+two-contact gait phases at least an order of magnitude smaller than typical
+rotation credit. Exactly one scale is predeclared.
+
+### Success Criteria
+This diagnostic is accepted as gait evidence only if fixed and unseen sets have:
+finite 20-second rollouts; no numerical instability; mean net rotation >360°;
+at least one leave-return event per fingertip on average; >=2-contact fraction
+>=0.70; complete unsupported longest duration <=0.5 s; and improved three-contact
+occupancy over B while preserving repeated rotation cycles. Original curriculum
+success additionally still requires the ten-second omega hold and original task
+quality; no lower mass or tip-connect progression is authorized regardless.
+
+### Result
+C increases net rotation and produces leave-return events on every finger, but
+reduces support below both the predeclared gait criterion and B. Sustained omega
+success remains zero. No second contact scale was tried.
+
+### Key Metrics
+- Fixed/unseen net rotation: 533.97°/546.98°.
+- Cumulative absolute rotation: 1040.33°/982.70°.
+- Mean completed net cycles: 1.1/1.1; episodes with >=2 cycles: 1/10 and 1/10.
+- Mean per-tip leave-return events: `[8.3,4.1,2.8]` /
+  `[7.9,5.7,2.9]`.
+- >=1-contact fraction: 0.946/0.929; >=2-contact fraction: 0.604/0.578.
+- Three-contact occupancy: 0.179/0.262 versus B 0.288/0.335.
+- Longest zero-contact interval: 1.76/1.68 s.
+- Omega hold mean maximum: 1.20/1.19 s; success 0/0.
+- Force p95: 158.40/167.61 N; numerical instability 0/0.
+
+### Visual Evidence
+- Report: `reports/comparisons/20260823-finger-gait-contact-scale010-C.md`
+- Plot: `reports/comparisons/20260823-finger-gait-contact-scale010-C.png`
+- Video: `runs/20260823-1812-finger-gait-contact-scale010-C-s400-seed0/videos/revolute_best_00_seed10009_rot770deg_tilt0deg_steps500_none.mp4`
+- Video integrity: 501 H.264 frames, 640x480, 25 FPS, 20.04 s; first and last frames decoded.
+
+### Interpretation
+The lower contact ladder encourages disengagement and recontact, but not a stable
+continuous gait. Large angle includes long one/zero-contact intervals and cannot
+be called supported manipulation or ballistic-free success.
+
+### Decision
+Reject. Stop at this one scale. Keep all lower mass and tip-connect stages paused.
+
+### Next Step
+At `s=400` only, expose or reward an explicit leave-then-return gait phase rather
+than further reducing contact reward pressure.
+
+## EXP-20260823-013: Predeclared two-support finger-gait lattice D
+- Run ID: `20260823-1840-finger-gait-two-support-D-s400-seed0`
+- Date: 2026-08-23
+- Status: completed; not selected after C passed the revised gate
+- Parent or baseline run: `20260823-1820-two-phase-grasp-recovery-cont-seed0`
+- Comparisons: strict, A, B, and C
+- Random seed: training 0; fixed 10000–10009; unseen 20000–20009
+- Device: RTX 3090 GPU 1
+
+### Question
+Can a contact lattice that treats two- and three-contact support equally permit
+one-finger gaiting while discouraging one/zero-contact spinning?
+
+### Hypothesis
+The exact 0/1/2/3 lattice `[-2.0,-0.5,0.0,0.0]` removes pressure against
+single-finger release while making one- and zero-support states costly.
+
+### Change from Baseline
+Relative to B, only `contact_reward_mode` changes from `discrete` to
+`gait_two_support`. Reward scale is 1.0. Rotation credit and support termination
+remain disabled. The model and VecNormalize state warm-start from the same 200k
+parent as A/B/C, not from C.
+
+### Lattice Rationale
+C's fixed distribution is 0/1/2/3 =
+0.0536/0.3422/0.4250/0.1792 and rotation reward averages +0.861/step. Under the
+new lattice, its measured-state expected contact contribution would be
+`-2*0.0536 - 0.5*0.3422 = -0.2783/step`, about 32% of rotation reward: strong
+enough to distinguish one from two contacts without dominating genuine rotation.
+Exactly one lattice is predeclared.
+
+### Success Criteria
+On both fixed and unseen sets: >=2-contact fraction >=0.80; longest <2-contact
+interval <=1.0 s; longest zero-contact interval <=0.5 s; mean >=1 leave-return
+event for each finger; net rotation >360°; at least 3/10 episodes complete >=2
+net positive cycles; mean maximum omega hold >=1.5 s; finite rollouts, zero
+numerical instability, and tip/constraint error <0.02 m. Forces are reported.
+High angle with long zero/one-contact periods is rejected. Lower mass and
+tip-connect remain paused regardless of outcome.
+
+### Result
+D completed before the success-definition redirect. Fixed/unseen angle was
+479.40°/537.43° and >=2-contact fraction improved to 0.717/0.732, but it missed
+the predeclared 0.80 support threshold and longest below-two-contact intervals
+reached 9.00/9.84 s. It was preserved and not substituted for C.
+
+### Decision
+Reject under D's declared gait-quality criteria. The later curriculum uses C
+because C passed the newly authorized net-angle task gate.
+
+## EXP-20260823-014: C net-angle reevaluation and force reference
+- Run ID: `20260823-1847-C-net-angle-reeval-fixed-s400-seed10000`
+- Companion runs: unseen `20260823-1847-C-net-angle-reeval-unseen-s400-seed20000`;
+  conditioned-force iter1 runs at `20260823-1851-C-conditioned-force-reference-*`
+- Date: 2026-08-23
+- Status: completed
+- Parent or baseline run: `20260823-1812-finger-gait-contact-scale010-C-s400-seed0`
+- Random seed: fixed 10000–10009; unseen 20000–20009
+
+### Question
+Does C pass the newly declared per-episode positive net-angle criterion on both
+held-out sets, and what is its supported-positive-rotation pressing-force
+reference?
+
+### Success Criteria
+Per episode: net unwrapped angle >=pi, tilt <0.25 rad, tip error <0.02 m,
+finite/stable, and no physical drop. Fixed and unseen success rates must each be
+>=0.5. Contact quality is diagnostic.
+
+### Result
+C passes 10/10 fixed and 10/10 unseen episodes. Mean net angle is
+533.97°/546.98°, tip error is below `5e-17 m`, physical drop and numerical
+instability are zero. Legacy omega-hold success remains 0/20.
+
+The predeclared pressing-force condition is `axial_omega > 0.5 rad/s AND
+contact_count >= 2`. The fixed-set conditioned total median is 98.058 N and is
+the Phase-R reference; 908/5000 steps (18.16%) are eligible and 81.84% are
+explicitly excluded. Unseen median is 95.296 N over 16.90% eligible steps.
+
+### Decision
+Adopt C as the `s=400` parent and permit the monotone revolute curriculum.
+
+## EXP-20260823-015: Net-angle C force-matched revolute curriculum
+- Run ID: `20260823-1855-net-angle-C-force-curriculum-seed0`
+- Date: 2026-08-23
+- Status: failed at force calibration; task policy remained successful
+- Parent or baseline run: `20260823-1812-finger-gait-contact-scale010-C-s400-seed0`
+- Random seed: training 0; fixed 10000–10009; unseen 20000–20009
+- Device: RTX 3090 GPU 1
+- Duration: 700.7 s
+- Best accepted checkpoint:
+  `runs/20260823-1855-net-angle-C-force-curriculum-seed0-R03-s50-mu0.39604-iter1-seed0/checkpoints/final_model.zip`
+
+### Question
+Can C transfer through `400,200,100,50,25,...,1` while retaining fixed+unseen
+net-angle success and the `s=400` conditioned force within +/-20%?
+
+### Change from Baseline
+Only rod mass and explicitly recorded rod/pad sliding-friction scale change by
+stage. C's reward, permissive contact settings, palm pose, grasp, optimizer,
+normalization transfer, success mode, seeds, and 100k-step stage budget remain
+fixed.
+
+### Success Criteria
+Both fixed and unseen net-angle success rates >=0.5. The fixed conditioned total
+normal-force median must lie in `[78.447,117.670] N`. Contact occupancy remains
+diagnostic.
+
+### Result
+- `s=400, mu=4.0`: accepted parent, success 1.0/1.0, force 98.058 N.
+- `s=200, mu=2.0`: accepted, success 1.0/1.0, force 98.208 N.
+- `s=100, mu=1.0`: accepted, success 1.0/1.0, force 96.651 N.
+- `s=50, mu=0.5`: task passed but force 77.670 N failed narrowly.
+- `s=50, mu=0.396040`: accepted, success 1.0/1.0, force 81.298 N.
+- `s=25, mu=0.25/0.168020/0.100933/0.10`: task success remained 1.0/1.0,
+  but fixed conditioned medians were 65.903/58.906/54.900/53.386 N.
+
+At the final `s=25` trial, fixed/unseen angle was 3126.81°/3047.00°, eligible
+force fractions were 15.70%/14.48%, tip error was negligible, and drop rate was
+zero. Thus task success did not mask the force failure.
+
+### Visual Evidence
+- Accepted `s=50` video:
+  `runs/20260823-1855-net-angle-C-force-curriculum-seed0-R03-s50-mu0.39604-iter1-seed0/videos/net_angle-iter1/revolute_success_00_seed10000_rot2881deg_tilt0deg_steps500_none.mp4`
+- Integrity: 501 decoded frames, 640x480, 25 FPS, 20.04 s.
+- State: `runs/curricula/20260823-1855-net-angle-C-force-curriculum-seed0/state.json`
+
+### Interpretation
+The physical `mu(s)` initialization works through `s=100`; one bounded correction
+recovers `s=50`. At `s=25`, reducing friction toward the safe lower bound lowers,
+rather than restores, the learned policy's conditioned force. The declared
+calibration budget cannot establish equivalence. This does not prove that every
+safe friction value is impossible.
+
+### Decision
+Stop at `s=25`. Do not run `s=12.5` or below and do not enter tip-connect.
+
+## EXP-20260823-016: Predeclared below-bound s25 friction diagnostic
+- Run IDs:
+  - `20260823-1915-s25-low-friction-diagnostic-mu005-seed0`
+  - `20260823-1915-s25-low-friction-diagnostic-mu0025-seed0`
+- Date: 2026-08-23
+- Status: completed; both scales rejected
+- Parent checkpoint:
+  `runs/20260823-1855-net-angle-C-force-curriculum-seed0-R03-s50-mu0.39604-iter1-seed0/checkpoints/final_model.zip`
+- Random seed: training 0; fixed 10000–10009; unseen 20000–20009
+- Training budget: exactly 100000 steps per scale, independently from the same
+  accepted `s=50` parent and VecNormalize state
+
+### Question
+Was the original friction-scale lower bound 0.10 conservative, and can friction
+alone restore the `s=400` conditioned pressing-force target at `s=25`?
+
+### Predeclared Scales and Vectors
+Exactly two additional scales will be tested; no post-result additions:
+- scale 0.05: rod and each pad `[0.09, 0.05, 0.001]`;
+- scale 0.025: rod and each pad `[0.045, 0.05, 0.001]`.
+
+For reference, scale 0.10 is `[0.18, 0.05, 0.001]`. Only sliding friction is
+scaled; torsional 0.05 and rolling 0.001 remain fixed. All coefficients are
+strictly positive, finite, directly accepted by MuJoCo, and remain within a
+physically plausible low-friction diagnostic range. This explicitly extends the
+diagnostic lower bound to 0.025 without changing or reinterpreting
+`EXP-20260823-015`.
+
+### Fixed Controls
+Revolute `s=25`; saved palm pose and grasp; C reward and permissive contact
+settings; net-angle success; network, optimizer, normalization, 32 environments,
+and 100k budget. No force reward or task-reward change.
+
+### Success Criteria
+The first scale in declared order (0.05, then 0.025) is accepted only if:
+- fixed and unseen net-angle success rates are each >=0.50;
+- fixed conditioned force median lies in `[78.447,117.670] N`;
+- rollouts are finite with no numerical instability.
+
+Report conditioned-force eligibility, tip error, 0/1/2/3 contact distribution,
+>=1 and >=2 contact fractions, axial-slip proxy, all-step/conditioned force p95,
+and whether force increases monotonically as friction falls from 0.10 to 0.05 to
+0.025. If neither passes, stop at `s=25`; lower masses and tip-connect remain
+blocked.
+
+### Result
+Both policies pass fixed+unseen net-angle success at 1.0/1.0 with zero numerical
+instability and negligible revolute tip error, but both miss the force band.
+
+- Scale 0.05: fixed/unseen conditioned medians 54.669/54.972 N, eligibility
+  0.176/0.170, conditioned p95 100.573/105.380 N, all-step p95
+  74.628/78.996 N, and >=2-contact fraction 0.260/0.266.
+- Scale 0.025: medians 49.427/47.272 N, eligibility 0.100/0.105, conditioned
+  p95 95.461/80.244 N, all-step p95 62.193/61.157 N, and >=2-contact fraction
+  0.157/0.152.
+
+Fixed force is 53.386 N at the prior scale 0.10, 54.669 N at 0.05, and
+49.427 N at 0.025. It is not monotone in the physically expected increasing
+direction as friction falls. The axial-slip proxy p95 remains around
+`1.85e-15–1.93e-15 m/s`; it is a kinematic proxy and does not override the
+measured contact/support degradation.
+
+### Visual Evidence
+No stage was accepted, so no acceptance video was generated. Full metrics and
+logs are in both run directories. Comparison:
+`reports/comparisons/20260823-s25-low-friction-bound-extension.md`.
+Plot: `reports/comparisons/20260823-s25-low-friction-bound-extension.png`.
+Machine-readable comparison:
+`reports/comparisons/20260823-s25-low-friction-bound-extension.json`.
+
+### Decision
+Reject both scales. The prior block remains: friction-only adaptation is
+insufficient at `s=25` under this transfer protocol. Do not run lower mass or
+tip-connect.
+
+## EXP-20260823-017: Corrected proportional-physics curriculum
+- Curriculum ID: `20260823-2015-proportional-physics-C-seed0`
+- Controlled validation: `20260823-2010-proportional-required-force-validation`
+- Date: 2026-08-23
+- Status: completed Phase R; failed Phase T at s400
+- Parent: C `s=400` checkpoint
+- Random seed: training 0; fixed 10000–10009; unseen 20000–20009
+
+### Question
+Does a full friction vector and every explicit rod axial passive term scaled
+proportionally from the `s=400` reference permit net-angle policy transfer
+without using learned-policy contact force as a gate?
+
+### Physics Declaration
+- Mass/inertia: existing `body_mass/body_inertia * s`.
+- Friction multiplier: exactly `4*s/400` at
+  `400,200,100,50,25,12.5,6.25,3.125,1.5625,1`.
+- Scale all three per-geom friction inputs on rod and all pads.
+- Scale rod DOF damping, armature, and frictionloss by `s/400` relative to their
+  `s=400` model values.
+- Axis stabilizer is exactly zero.
+- No other applied torque is used during policy rollouts.
+- Point-connect is not entered unless revolute reaches `s=1`; its axial
+  constraint torque must be audited before Phase T.
+
+### Controlled Validation Declaration
+At `s=400,25,1`, apply axial disturbance `tau=5*s/400 N m` while tracking the
+stationary angular trajectory for two seconds. Sweep exactly preload multipliers
+`[0,0.25,0.5,0.75,1,1.5,2,3]`. Pass thresholds: angle error <5 degrees, axial
+speed <0.2 rad/s, >=2 contacts for >=90% of steps, finite values. Compare the
+first passing median total normal force against
+`N_min ~= tau/(mu_slide*0.01 + mu_torsion)`.
+
+Validation attempt A is preserved under
+`20260823-2010-proportional-required-force-validation`. Its 5 N m reference
+disturbance immediately ejects the contacts at every preload and is outside the
+validated hand/contact holding regime, so it cannot estimate a minimum. Before
+policy curriculum interpretation, validation B is separately predeclared at a
+0.5 N m `s=400` reference (10% of A), with the identical mass scaling, preload
+sweep, seeds, duration, and thresholds. No further torque values will be added.
+
+### Stage Gate
+Only net-angle success: fixed and unseen success rates each >=0.50, with
+per-episode positive net angle >=pi, tilt <0.25 rad, tip error <0.02 m,
+finite/stable, and no physical drop. Policy contact force and gait metrics are
+diagnostic only.
+
+### Tip-Connect Transfer Contingency
+The first `s=400` tip-connect transfer and one same-hyperparameter extension
+both produce zero training success with episode length near 35 and PPO KL
+roughly 0.6–0.8. This is an optimizer incompatibility at the physics transition,
+not evidence about lower mass. One controlled retry is predeclared from the
+original T00 checkpoint with only learning rate reduced from `3e-4` to `3e-5`.
+If fixed or unseen net-angle success remains below 0.50, Phase T stops at
+`s=400`; no other hyperparameter or lower mass will be tried.
+
+### Result
+Phase R accepted all ten stages. Fixed/unseen success is 1.0/1.0 at every mass,
+with zero numerical instability and zero revolute drop. Mean fixed/unseen net
+angle progresses from 544.43/616.82 degrees at `s=400` to
+11,384.68/11,337.89 degrees at `s=1`. Contact quality degrades sharply:
+fixed/unseen >=2-contact fraction is 0.0146/0.0180 at `s=1`.
+
+The controlled preload validation's analytical estimate is constant:
+18.382 N for attempt A and 1.838 N for attempt B. Attempt A ejects contacts at
+all declared preloads. In B, no preload through multiplier 3 meets the strict
+tracking criterion at `s=400` or `s=25`; measured force at the upper bound is
+24.144 and 19.561 N respectively. `s=1` first passes at multiplier 1.5 with
+9.314 N median force. This disproves exact simulator-level invariance under the
+current compliant hand/contact system, while preserving the proportional
+analytical derivation.
+
+The point-connect axial audit finds effectively zero equality-constraint axial
+resistance at 1 rad/s with contacts disabled. Phase T nevertheless fails at
+`s=400`. The predeclared low-LR retry records fixed/unseen success 0.0/0.0,
+rotation 177.02/175.45 degrees, drop 1.0/1.0, and `axis_tilt` on all 20 episodes.
+
+### Decision
+Adopt the corrected measurement methodology and the revolute `s=1` checkpoint.
+Stop Phase T at `s=400`; do not start lower tip-connect masses. The exact blocker
+is lateral tilt after the revolute-to-point-connect dynamics transition, not
+policy-force mismatch or point-connect axial resistance.
+
+### Artifacts
+- State: `runs/curricula/20260823-2015-proportional-physics-C-seed0/state.json`
+- Controlled sweeps: `runs/20260823-2010-proportional-required-force-validation/`
+  and `runs/20260823-2012-proportional-required-force-validation-B/`
+- Revolute video:
+  `runs/20260823-2015-proportional-physics-C-seed0-R09-s1-mu0.01-seed0/videos/revolute_success_00_seed10000_rot11271deg_tilt0deg_steps500_none.mp4`
+- Tip failure video:
+  `runs/20260823-2040-proportional-physics-C-tip-seed0-T00-s400-mu4-lr3e5-seed0/videos/tip_connect_best_00_seed10000_rot179deg_tilt86deg_steps34_axis_tilt.mp4`
+- Comparison: `reports/comparisons/20260823-proportional-physics-C-curriculum.md`

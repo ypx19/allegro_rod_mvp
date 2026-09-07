@@ -1,0 +1,265 @@
+{
+  "artifact_id": "20260823-2016-revolute-stage-demos-seed10000",
+  "generated_at": "2026-08-23T20:20:38.840264-07:00",
+  "source_curriculum_id": "20260823-2015-proportional-physics-C-seed0",
+  "source_state": "/data/ypx/allegro_rod_mvp/runs/curricula/20260823-2015-proportional-physics-C-seed0/state.json",
+  "source_state_sha256_after_export": "3de888bb2888935b058fc55f5ff280ae2362c304370a39827a349a9f546f97ec",
+  "artifact_scope": "export only; no training or policy changes",
+  "protocol": {
+    "deterministic": true,
+    "seed": 10000,
+    "episode_seconds": 20.0,
+    "steps": 500,
+    "fps": 25,
+    "success_mode": "net_angle",
+    "hand_pose_config": "/data/ypx/allegro_rod_mvp/configs/hand_poses/my_grasp.json",
+    "hand_pose_sha256": "2d8ac7f17a6693855543395d52022524c1a2956422915ee2962544019f6e7c9f",
+    "hand_grasp_config": "/data/ypx/allegro_rod_mvp/configs/hand_grasps/my_grasp_revolute_shared.json",
+    "hand_grasp_sha256": "fdd9ead60842eca3167f98ecda3c496ea752cff3fa9e053de47a4544e061b03a",
+    "contact_friction_scaling_mode": "full_vector",
+    "scale_rod_joint_dynamics_from_s400": true
+  },
+  "provenance_note": "s=400 uses the accepted C checkpoint. s=200/100/50 use the accepted net-angle proportional-curriculum checkpoints. s=25 uses the canonical proportional-friction scale-0.25 checkpoint; no low-friction diagnostic checkpoint was substituted.",
+  "entries": [
+    {
+      "stage": "s=400",
+      "mass_scale": 400.0,
+      "friction_scale": 4.0,
+      "effective_pair_friction_vector": [
+        7.2,
+        7.2,
+        0.2,
+        0.004,
+        0.004
+      ],
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R00-s400-mu4-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-1812-finger-gait-contact-scale010-C-s400-seed0/checkpoints/final_model.zip",
+      "checkpoint_sha256": "17be546270edaa638ce63b8b4e8d60dc8ce62d3923d865af08f137c1984fc0cc",
+      "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-1812-finger-gait-contact-scale010-C-s400-seed0/checkpoints/vecnormalize.pkl",
+      "vecnormalize_sha256": "9cc0cda1b896060eb8dd0cc7407b8c8f759644ff4325c1b732bce7955392fade",
+      "video": "/data/ypx/allegro_rod_mvp/runs/20260823-2016-revolute-stage-demos-seed10000/revolute_s400.mp4",
+      "seed": 10000,
+      "steps": 500,
+      "episode_return": 196.4608706649391,
+      "net_rotation_deg": 563.7825839175703,
+      "tilt_deg": 0.0,
+      "tip_error_m": 1.3877787807814457e-17,
+      "success": true,
+      "contact_count_final": 2,
+      "contact_count_mean": 2.03,
+      "contact_count_distribution": {
+        "0": 0.086,
+        "1": 0.08,
+        "2": 0.552,
+        "3": 0.282
+      },
+      "terminated": false,
+      "truncated": true,
+      "termination_reason": "none",
+      "integrity": {
+        "full_decode_passed": true,
+        "decoded_frame_count": 501,
+        "resolution": [
+          640,
+          480
+        ],
+        "fps": 25,
+        "duration_seconds": 20.04,
+        "file_size_bytes": 546682,
+        "video_sha256": "f6606b6a1c27e5c44fd5ea66b7b2e05144ef32ab07397f20d40c05b41808680b"
+      }
+    },
+    {
+      "stage": "s=200",
+      "mass_scale": 200.0,
+      "friction_scale": 2.0,
+      "effective_pair_friction_vector": [
+        3.6,
+        3.6,
+        0.1,
+        0.002,
+        0.002
+      ],
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R01-s200-mu2-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R01-s200-mu2-seed0/checkpoints/final_model.zip",
+      "checkpoint_sha256": "09180abb9693ed1475890665e363c4f976a378ef7f07520baa96141f131e8f7a",
+      "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R01-s200-mu2-seed0/checkpoints/vecnormalize.pkl",
+      "vecnormalize_sha256": "b79b32ae5621f47e0483d79edf898d491e72d0e7c45d9dbbb902e20117fb5e3d",
+      "video": "/data/ypx/allegro_rod_mvp/runs/20260823-2016-revolute-stage-demos-seed10000/revolute_s200.mp4",
+      "seed": 10000,
+      "steps": 500,
+      "episode_return": 539.7535917381936,
+      "net_rotation_deg": 780.387396240248,
+      "tilt_deg": 0.0,
+      "tip_error_m": 1.7763568394002505e-17,
+      "success": true,
+      "contact_count_final": 1,
+      "contact_count_mean": 2.016,
+      "contact_count_distribution": {
+        "0": 0.02,
+        "1": 0.23,
+        "2": 0.464,
+        "3": 0.286
+      },
+      "terminated": false,
+      "truncated": true,
+      "termination_reason": "none",
+      "integrity": {
+        "full_decode_passed": true,
+        "decoded_frame_count": 501,
+        "resolution": [
+          640,
+          480
+        ],
+        "fps": 25,
+        "duration_seconds": 20.04,
+        "file_size_bytes": 610584,
+        "video_sha256": "d6f2f62a2d21db7a0bf5e221f06a32c25b52feafdee7dd71195ad32703709d13"
+      }
+    },
+    {
+      "stage": "s=100",
+      "mass_scale": 100.0,
+      "friction_scale": 1.0,
+      "effective_pair_friction_vector": [
+        1.8,
+        1.8,
+        0.05,
+        0.001,
+        0.001
+      ],
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0/checkpoints/final_model.zip",
+      "checkpoint_sha256": "58a3402a0d0c101913344311b6a9e278cc0e009bfa603bd0cdb1e3c3d5bf8a19",
+      "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0/checkpoints/vecnormalize.pkl",
+      "vecnormalize_sha256": "c8803e46dfbaab4317e777b314e497d6f1f4cb7f93559759c6afb1cf6e6460de",
+      "video": "/data/ypx/allegro_rod_mvp/runs/20260823-2016-revolute-stage-demos-seed10000/revolute_s100.mp4",
+      "seed": 10000,
+      "steps": 500,
+      "episode_return": 861.5187463300668,
+      "net_rotation_deg": 1516.5425430724067,
+      "tilt_deg": 0.0,
+      "tip_error_m": 1.962615573354719e-17,
+      "success": true,
+      "contact_count_final": 1,
+      "contact_count_mean": 1.26,
+      "contact_count_distribution": {
+        "0": 0.158,
+        "1": 0.448,
+        "2": 0.37,
+        "3": 0.024
+      },
+      "terminated": false,
+      "truncated": true,
+      "termination_reason": "none",
+      "integrity": {
+        "full_decode_passed": true,
+        "decoded_frame_count": 501,
+        "resolution": [
+          640,
+          480
+        ],
+        "fps": 25,
+        "duration_seconds": 20.04,
+        "file_size_bytes": 798686,
+        "video_sha256": "abe37ee38423e414600775d75d1a995a0c5dc4d273c30a081ccfff6184858e14"
+      }
+    },
+    {
+      "stage": "s=50",
+      "mass_scale": 50.0,
+      "friction_scale": 0.5,
+      "effective_pair_friction_vector": [
+        0.9,
+        0.9,
+        0.025,
+        0.0005,
+        0.0005
+      ],
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R03-s50-mu0.5-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R03-s50-mu0.5-seed0/checkpoints/final_model.zip",
+      "checkpoint_sha256": "675fdc7171f69b3838807680040d7d6ac668151b80c87dff90a5681fe3105c87",
+      "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R03-s50-mu0.5-seed0/checkpoints/vecnormalize.pkl",
+      "vecnormalize_sha256": "0b7d887453035a468e05abb32f392aa71db68f8a08879b680591dee2cdce0ca2",
+      "video": "/data/ypx/allegro_rod_mvp/runs/20260823-2016-revolute-stage-demos-seed10000/revolute_s50.mp4",
+      "seed": 10000,
+      "steps": 500,
+      "episode_return": 2177.348069475895,
+      "net_rotation_deg": 4455.6884250192525,
+      "tilt_deg": 0.0,
+      "tip_error_m": 5.8286708792820724e-18,
+      "success": true,
+      "contact_count_final": 1,
+      "contact_count_mean": 0.834,
+      "contact_count_distribution": {
+        "0": 0.354,
+        "1": 0.482,
+        "2": 0.14,
+        "3": 0.024
+      },
+      "terminated": false,
+      "truncated": true,
+      "termination_reason": "none",
+      "integrity": {
+        "full_decode_passed": true,
+        "decoded_frame_count": 501,
+        "resolution": [
+          640,
+          480
+        ],
+        "fps": 25,
+        "duration_seconds": 20.04,
+        "file_size_bytes": 916750,
+        "video_sha256": "3ea1e01d6a3220878a7cd2b90ae541e33ff81e611df6177131be18efb334c27a"
+      }
+    },
+    {
+      "stage": "s=25",
+      "mass_scale": 25.0,
+      "friction_scale": 0.25,
+      "effective_pair_friction_vector": [
+        0.45,
+        0.45,
+        0.0125,
+        0.00025,
+        0.00025
+      ],
+      "run_id": "20260823-2015-proportional-physics-C-seed0-R04-s25-mu0.25-seed0",
+      "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R04-s25-mu0.25-seed0/checkpoints/final_model.zip",
+      "checkpoint_sha256": "4ca3d1a32d147f5848f07dddad4714f1925aeec79409f8c8a84fa8ff2eb1857b",
+      "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260823-2015-proportional-physics-C-seed0-R04-s25-mu0.25-seed0/checkpoints/vecnormalize.pkl",
+      "vecnormalize_sha256": "e6d0c667ac1309354c6c53d9368e1005707246495466afd957cf986b7dcac512",
+      "video": "/data/ypx/allegro_rod_mvp/runs/20260823-2016-revolute-stage-demos-seed10000/revolute_s25.mp4",
+      "seed": 10000,
+      "steps": 500,
+      "episode_return": 2350.1523782228865,
+      "net_rotation_deg": 5194.42244802802,
+      "tilt_deg": 0.0,
+      "tip_error_m": 1.942890293094024e-18,
+      "success": true,
+      "contact_count_final": 0,
+      "contact_count_mean": 0.606,
+      "contact_count_distribution": {
+        "0": 0.498,
+        "1": 0.412,
+        "2": 0.076,
+        "3": 0.014
+      },
+      "terminated": false,
+      "truncated": true,
+      "termination_reason": "none",
+      "integrity": {
+        "full_decode_passed": true,
+        "decoded_frame_count": 501,
+        "resolution": [
+          640,
+          480
+        ],
+        "fps": 25,
+        "duration_seconds": 20.04,
+        "file_size_bytes": 935475,
+        "video_sha256": "42613e32f8cf1ed6a0289d08fdd0c512672127f2df5ef4c324a4e9ada5e5e863"
+      }
+    }
+  ]
+}
