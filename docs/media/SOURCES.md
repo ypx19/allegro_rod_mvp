@@ -23,7 +23,17 @@
 | ablation/side_by_side_seed1.mp4 | ablation comparison | Seed 1 side-by-side |
 | ablation/side_by_side_seed2.mp4 | ablation comparison | Seed 2 side-by-side |
 
-| cinematic-screwdriver.mp4 | `20260818-2345-cinematic-c0-screwdriver-seed0` | Hero / homepage front clip |
+| cinematic-allegro-tip-bottom.mp4 | T00 `20260823-2040-…-T00-s400-mu4-lr3e5` seed 6; flipped `my_grasp.json`; policy from frame 0; 30-frame non-tilt prefix looped 10×; 仰视 orbit `elev 10±4°` | Hero / homepage left clip |
+| cinematic-allegro-tip-bottom.jpg | frame ~2.4 s of the 仰视 loop | Hero / gallery poster |
+| cinematic-allegro-tip-bottom-unflipped-c3.mp4 | archived C3 `20260823-0405-…-C3-mass-1` seed 0; default unflipped palm | Unused hero (palm on floor) |
+| cinematic-allegro-tip-bottom-unflipped-c3.jpg | hold frame of the unflipped C3 fly-in | Unused poster |
+| cinematic-allegro-tip-c3.mp4 | same unflipped C3 policy, close side orbit (superseded) | Unused hero candidate |
+| cinematic-allegro-tip-c3.jpg | frame ~7.2 s of the orbit clip | Unused poster |
+| partial-allegro-t00-flipped.mp4 | T00 eval `tip_connect_best_00_seed10000` (34 steps, axis_tilt) | Overlay of the flipped T00 episode |
+| partial-allegro-tip-c3-stand.mp4 | `stage_videos_20260823-130800/07_C3-mass-1_seed0_final.mp4` | Overlay eval of unflipped C3 |
+| hand_surrogate_45h.png | `reports/decks/assets/hand_surrogate_45h.png` | v1 9-DoF planar surrogate, 45° |
+| hand_allegro_45h.png | `reports/decks/assets/hand_allegro_45h.png` | v2 12-DoF Allegro-like wrap, 45° |
+| cinematic-screwdriver.mp4 | `20260818-2345-cinematic-c0-screwdriver-seed0` | Retired hero / homepage front clip (9-DoF revolute) |
 | cinematic-screwdriver.jpg | first frame of `cinematic-screwdriver.mp4` | Hero / gallery poster |
 | cinematic-screwdriver-oval.mp4 | `20260818-2350-cinematic-c0-screwdriver-oval-seed0` | Hero / homepage front clip |
 | cinematic-isaacgym.mp4 | `20260818-2325-cinematic-viz-seed0` | Hero / homepage right clip: Isaac Gym mosaic, n=16 |
