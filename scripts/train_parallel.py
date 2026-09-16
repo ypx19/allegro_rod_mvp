@@ -81,6 +81,12 @@ def make_env(
     hand_model: str = "allegro",
     hand_pose_config: str | None = None,
     hand_grasp_config: str | None = None,
+    obs_history_len: int = 1,
+    support_aware_reward_enabled: bool = False,
+    rotation_contact_scale_0: float = 0.0,
+    rotation_contact_scale_1: float = 0.1,
+    rotation_contact_scale_2plus: float = 1.0,
+    low_support_wobble_scale: float = 0.5,
     rank: int = 0,
     seed: int = 0,
 ) -> gym.Env:
@@ -135,6 +141,12 @@ def make_env(
             hand_model=hand_model,
             hand_pose_config=hand_pose_config,
             hand_grasp_config=hand_grasp_config,
+            obs_history_len=obs_history_len,
+            support_aware_reward_enabled=support_aware_reward_enabled,
+            rotation_contact_scale_0=rotation_contact_scale_0,
+            rotation_contact_scale_1=rotation_contact_scale_1,
+            rotation_contact_scale_2plus=rotation_contact_scale_2plus,
+            low_support_wobble_scale=low_support_wobble_scale,
         )
     )
     env.reset(seed=seed + rank)
@@ -341,6 +353,12 @@ def build_vec_env(
             hand_model=args.hand_model,
             hand_pose_config=args.hand_pose_config,
             hand_grasp_config=args.hand_grasp_config,
+            obs_history_len=args.obs_history_len,
+            support_aware_reward_enabled=args.support_aware_reward_enabled,
+            rotation_contact_scale_0=args.rotation_contact_scale_0,
+            rotation_contact_scale_1=args.rotation_contact_scale_1,
+            rotation_contact_scale_2plus=args.rotation_contact_scale_2plus,
+            low_support_wobble_scale=args.low_support_wobble_scale,
             rank=rank,
             seed=args.seed,
         )
@@ -447,6 +465,12 @@ def write_run_artifacts(
         "hand_model": args.hand_model,
         "hand_pose_config": args.hand_pose_config,
         "hand_grasp_config": args.hand_grasp_config,
+        "obs_history_len": args.obs_history_len,
+        "support_aware_reward_enabled": args.support_aware_reward_enabled,
+        "rotation_contact_scale_0": args.rotation_contact_scale_0,
+        "rotation_contact_scale_1": args.rotation_contact_scale_1,
+        "rotation_contact_scale_2plus": args.rotation_contact_scale_2plus,
+        "low_support_wobble_scale": args.low_support_wobble_scale,
         "dexscrew_tip_penalty_scale": args.dexscrew_tip_penalty_scale,
         "dexscrew_tip_sigma": args.dexscrew_tip_sigma,
         "dexscrew_tilt_scale": (
@@ -765,6 +789,33 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=1.0,
         help="Scale the full contact reward component; one preserves prior rewards.",
     )
+    parser.add_argument(
+        "--obs-history-len",
+        type=int,
+        default=1,
+        help="Frame-stack length over the full observation. 1 reproduces 48-D T00.",
+    )
+    parser.add_argument(
+        "--support-aware-reward",
+        dest="support_aware_reward_enabled",
+        action="store_true",
+        help="Enable contact-gated rotation and low-support wobble penalty.",
+    )
+    parser.add_argument(
+        "--no-support-aware-reward",
+        dest="support_aware_reward_enabled",
+        action="store_false",
+    )
+    parser.set_defaults(support_aware_reward_enabled=False)
+    parser.add_argument("--rotation-contact-scale-0", type=float, default=0.0)
+    parser.add_argument("--rotation-contact-scale-1", type=float, default=0.1)
+    parser.add_argument("--rotation-contact-scale-2plus", type=float, default=1.0)
+    parser.add_argument(
+        "--low-support-wobble-scale",
+        type=float,
+        default=0.5,
+        help="lambda for -lambda*||omega_perp||^2 when n_contact < 2. Ignored unless support-aware reward is on.",
+    )
     parser.add_argument("--learning-rate", type=float, default=None)
     parser.add_argument("--ent-coef", type=float, default=None)
     parser.add_argument("--checkpoint-freq", type=int, default=50_000)
@@ -783,6 +834,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--skip-load-smoke", action="store_true")
     args = parser.parse_args(argv)
 
+    if args.obs_history_len < 1:
+        parser.error("--obs-history-len must be >= 1")
+    if args.low_support_wobble_scale < 0.0:
+        parser.error("--low-support-wobble-scale must be non-negative")
     if (args.axis_stabilizer_min is None) != (args.axis_stabilizer_max is None):
         parser.error("--axis-stabilizer-min and --axis-stabilizer-max must be provided together")
     if args.num_envs < 1:

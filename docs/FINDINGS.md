@@ -1,5 +1,148 @@
 # Findings
 
+## FIND-20260914-004: 300k A/B vs C/D share the seed-6 2→1→0→axis_tilt sequence
+- Confidence: medium (one deterministic seed; matches the 1748 video returns)
+- Supporting runs: `20260914-1805-t00-ablation-demos-300k`, videos `20260914-1748-t00-ablation-videos-300k`, ckpts `20260914-1712-t00-ablation-{A,B,C,D}-continue300k-seed0` step 306432
+- Related debug issues: `DBG-20260823-006`, FIND-20260914-001, FIND-20260914-003
+- Applies to: T00 300k continue policies, seed 6, tilt_terminate=1.2
+- Does not apply to: claiming task success, other seeds, λ retunes, T01
+
+### Finding
+On the same seed-6 collapse demo used for the transfer timeline, the four
+300k continue policies all follow **2-contact hold → 1-contact support loss →
+n=0 → axis_tilt**. None recontact. Support-aware C/D lose 2+ contact a few
+steps later (50 / 53 vs A 49 / B 43) and then gate rotation / apply wobble,
+but that does not change the narrative or prevent tilt-kill. D’s post-loss
+window is the shortest (9 steps).
+
+### Evidence
+Re-rolled traces (not video-filename parsing):
+
+| Cond | 2+→≤1 | n=0 | Kill | Loss→kill | Recontact |
+|---|---:|---:|---:|---:|---|
+| A | 49 | 57 | 65 | 16 | no |
+| B | 43 | 54 | 61 | 18 | no |
+| C | 50 | 60 | 65 | 15 | no |
+| D | 53 | 57 | 62 | 9 | no |
+
+Returns match the 1748 export (A +278.7 / B +258.7 / C +213.7 / D +204.2).
+Page: `docs/pages/t00-ablation-demos-300k/`.
+
+### Implication
+Do not treat C/D as a collapse-timeline fix. Do not retune λ. Next work stays
+on physical recoverability of ≥2-contact support.
+
+### Caveats
+Single seed 6. One checkpoint (306432). 3-contact exists only at reset.
+
+
+## FIND-20260914-002: 4-frame history already lengthens T00 episodes at 100k
+- Confidence: medium (online length only; low on collapse/eval)
+- Supporting runs: `20260914-1638-t00-ablation-A-hist1-rewbase-seed0`, `...-B-hist4-rewbase-seed0`, `...-C-hist1-rewsup-seed0`, `...-D-hist4-rewsup-seed0`
+- Related debug issues: `DBG-20260823-006`; revises FIND-20260914-001 for the 100k snapshot
+- Applies to: T00 bottom tip-connect s=400, from-scratch PPO `[512,256,128]`, online Monitor at ~100k, seed 0
+- Does not apply to: eval success, re-contact, GRU/LSTM, other seeds, claiming the task is solved
+
+### Finding
+At the 100k cutoff, 4-frame observation history already produces longer online
+episodes than hist1. B (192-D hist4, baseline reward) and D (192-D hist4,
+support-aware) last 53.7 / 54.6 steps versus A / C at 40.0 / 46.8. History
+stacking is effective as an early online-length signal before full convergence.
+
+This revises FIND-20260914-001’s “H1 not supported at history_len=4” for the
+100k *training* snapshot only. H1 is still unproven on collapse and eval metrics.
+
+### Evidence
+Last `metrics.csv` row (step 106,496), Monitor episode length: A 40.0, B 53.7,
+C 46.8, D 54.6. Length panel of
+`reports/comparisons/20260914-t00-ablation-train-curves.png`. Standalone page:
+`docs/pages/t00-ablation-history.html`. Seed-6 collapse demo (inherit later
+with this page): `runs/20260914-t00-seed6-tilt-collapse/index.html` and
+`docs/pages/t00-seed6-tilt-collapse/index.html`. Integration note:
+`docs/pages/README.md`.
+
+A has the highest train return (+22.1) but the shortest length. C/D returns are
+lower (−47.5 / −17.9) under the wobble penalty, not as a failed-train signal.
+
+### Implication
+Do not discard frame stacking solely from the 100k eval (80/80 `axis_tilt`).
+Keep history as an observability factor when reading later 300k curves. Do not
+treat longer episodes as contact recovery.
+
+### Caveats
+100k is not converged (returns/lengths still rising). Eval success is 0.
+Single seed 0. Episode length ≠ re-contact. Reward hacking of rotation before
+tilt-death remains plausible for A’s high return.
+The 300k continuation (FIND-20260914-003) shows this early length gap
+**narrowed**: at 303k, A 62.4 / B 64.4 / C 68.6 / D 62.4.
+
+
+## FIND-20260914-003: Hist4 length lead at 100k does not persist at 300k
+- Confidence: medium (online Monitor only; single seed)
+- Supporting runs: `20260914-1712-t00-ablation-{A,B,C,D}-continue300k-seed0` plus parents `20260914-1638-…`
+- Related debug issues: FIND-20260914-002, FIND-20260914-001, `DBG-20260823-006`
+- Applies to: T00 from-scratch PPO, seed 0, cumulative ~300k snapshot
+- Does not apply to: eval success, re-contact, GRU/LSTM, other seeds
+
+### Finding
+The 100k online-length advantage of 4-frame history (B/D > A/C) **narrowed
+and largely disappeared** by 300k. C (hist1 + support-aware) is longest
+(68.6). B is only +2 vs A (64.4 vs 62.4). D equals A (62.4). Treat the 100k
+hist4 length signal as early / transient, not as a lasting T00 fix.
+
+### Evidence
+Step 303,104 Monitor: return A +221.8, B +197.9, C +169.6, D +164.1;
+length A 62.4, B 64.4, C 68.6, D 62.4; KL ~0.01; EV 0.975–0.992.
+Figure: `reports/comparisons/20260914-t00-ablation-train-curves-300k.png`.
+Page: `docs/pages/t00-ablation-history.html`.
+
+### Implication
+Do not adopt hist4 as a T00 solution on the 100k length snapshot. Do not
+retune λ. Next work stays on physical recoverability, not another PPO trick.
+
+### Caveats
+Single seed. Eval not re-run at 300k. Returns and lengths are still rising
+(not a plateau). Jobs actually reached ~410k because SB3 adds the current
+timestep counter when `reset_num_timesteps=False`; the claim uses the 303k
+slice. Episode length ≠ contact recovery.
+
+
+## FIND-20260914-001: Short history and support-gated rotation do not stop T00 support collapse
+- Confidence: medium
+- Supporting runs: `20260914-1638-t00-ablation-A-hist1-rewbase-seed0`, `...-B-hist4-rewbase-seed0`, `...-C-hist1-rewsup-seed0`, `...-D-hist4-rewsup-seed0`; published T00 smoke `20260914-t00-ablation-eval-smoke`
+- Related debug issues: `DBG-20260823-006`
+- Applies to: T00 bottom tip-connect s=400, from-scratch PPO `[512,256,128]`, 100k *eval*, `history_len=4`, rotation contact scales `{0,0.1,1.0}`, `λ_wobble=0.5`
+- Does not apply to: GRU/LSTM, longer history, λ sweeps, revolute-transfer fine-tunes, other masses; the 100k *online-length* snapshot (see FIND-20260914-002)
+
+### Finding
+Neither 160 ms frame stacking nor contact-gated rotation plus a low-support
+wobble penalty teaches T00 re-contact. All 80 eval episodes still die on
+`axis_tilt`. On **eval** collapse metrics, history-only (B) is ~A. Support-aware
+reward alone (C) shortens episodes and increases post-loss `‖ω_perp‖` (~8 vs
+~2 rad/s). Both together (D) does not recover A. Do not treat this as a
+coefficient-tuning problem next.
+
+Revision (100k online Monitor, FIND-20260914-002): H1 has an early
+episode-length signal (B/D > A/C). That does not overturn the eval/collapse
+rejection.
+
+### Evidence
+Fixed/unseen recontact: A 0.17/0.09, B 0.09/0.09, C 0.00/0.00, D 0.00/0.00.
+Eval episode length: A 54/54, C 37/37. Every split is 10/10 `axis_tilt`.
+Comparison: `reports/comparisons/20260914-t00-ablation-A-B-C-D.md`.
+
+### Implication
+The failure is not isolated by cheap temporal observability or this particular
+credit-assignment patch. Next experiments should test physical recoverability
+of ≥2-contact support (grasp geometry, contact mechanics, force-signal latency).
+
+### Caveats
+Single training seed. From-scratch A is not the published revolute-transfer T00
+(177°, length ~35). A longer budget or GRU could still matter; this 2×2 does not
+test those. Online length at 100k (FIND-20260914-002) is a separate, weaker
+signal than eval re-contact.
+
+
 ## FIND-20260824-001: DexScrew tilt-growth penalty fires during monotonic collapse but does not restore the 0.25 rad gate
 - Confidence: medium
 - Supporting runs: `20260824-0000-dexscrew-tilt-growth-s100-tip-seed0`; recovery sibling `20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0`; zero-shot parent `20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0`

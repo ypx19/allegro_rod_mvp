@@ -8,12 +8,163 @@ from collections import Counter
 import json
 import sys
 from pathlib import Path
+from typing import Any
+import math
 
 import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 from allegro_rod_mvp import RodRotationEnv
+from allegro_rod_mvp.support_collapse_metrics import (
+    DEFAULT_COLLAPSE_LOOKBACK,
+    DEFAULT_RECONTACT_WINDOW,
+    aggregate_support_collapse_metrics,
+    episode_support_collapse_metrics,
+    plot_support_collapse_trace,
+)
+
+
+def _jsonable(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(k): _jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(v) for v in value]
+    if isinstance(value, np.ndarray):
+        return _jsonable(value.tolist())
+    if isinstance(value, (np.floating, float)):
+        number = float(value)
+        return number if math.isfinite(number) else None
+    if isinstance(value, (np.integer,)):
+        return int(value)
+    if isinstance(value, (np.bool_,)):
+        return bool(value)
+    return value
+
+
+def _write_trace_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+    if not rows:
+        return
+    keys = list(rows[0].keys())
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        f.write(",".join(keys) + "\n")
+        for row in rows:
+            values = []
+            for key in keys:
+                value = row[key]
+                if isinstance(value, (list, tuple, np.ndarray)):
+                    values.append(" ".join(str(float(x)) for x in np.asarray(value).reshape(-1)))
+                else:
+                    values.append(str(value))
+            f.write(",".join(values) + "\n")
+
+
+def _rollout_diagnostic_trace(
+    env: RodRotationEnv,
+    model: PPO,
+    vecnorm: VecNormalize | None,
+    seed: int,
+    out_dir: Path,
+) -> dict:
+    obs, _ = env.reset(seed=seed)
+    terminated = False
+    truncated = False
+    info: dict = {}
+    rows: list[dict] = []
+    n_contacts: list[int] = []
+    omegas: list[float] = []
+    tilts: list[float] = []
+    forces: list[list[float]] = []
+    net_angles: list[float] = []
+    axials: list[float] = []
+    t = 0
+    while not (terminated or truncated):
+        model_obs = obs
+        if vecnorm is not None:
+            model_obs = vecnorm.normalize_obs(
+                np.asarray(obs, dtype=np.float32).reshape(1, -1)
+            )[0]
+        action, _ = model.predict(model_obs, deterministic=True)
+        action = np.asarray(action, dtype=np.float64).reshape(-1)
+        obs, reward, terminated, truncated, info = env.step(action)
+        t += 1
+        touch = np.asarray(
+            info.get("finger_contact_forces_n", [0.0, 0.0, 0.0]), dtype=np.float64
+        )
+        fingers = np.asarray(info.get("finger_contacts", [0, 0, 0]), dtype=np.int64)
+        n_contact = int(info.get("contact_count", 0))
+        omega_perp = float(info.get("omega_perp_norm", info.get("lateral_omega", 0.0)))
+        tilt = float(info.get("axis_tilt_rad", 0.0))
+        n_contacts.append(n_contact)
+        omegas.append(omega_perp)
+        tilts.append(tilt)
+        forces.append(touch.tolist())
+        net_angles.append(float(info.get("axis_rotation", 0.0)))
+        axials.append(float(info.get("axial_omega", 0.0)))
+        row = {
+            "timestep": t,
+            "net_angle": float(info.get("axis_rotation", 0.0)),
+            "axial_omega": float(info.get("axial_omega", 0.0)),
+            "omega_perp_norm": omega_perp,
+            "tilt": tilt,
+            "tip_error": float(info.get("tip_error_m", 0.0)),
+            "n_contact": n_contact,
+            "finger0_contact": int(fingers[0]) if fingers.size else 0,
+            "finger1_contact": int(fingers[1]) if fingers.size > 1 else 0,
+            "finger2_contact": int(fingers[2]) if fingers.size > 2 else 0,
+            "finger0_force": float(touch[0]) if touch.size else 0.0,
+            "finger1_force": float(touch[1]) if touch.size > 1 else 0.0,
+            "finger2_force": float(touch[2]) if touch.size > 2 else 0.0,
+            "reward_rotation_before_support_gate": float(
+                info.get("reward_rotation_before_support_gate", info.get("reward_rotation", 0.0))
+            ),
+            "reward_rotation_after_support_gate": float(info.get("reward_rotation", 0.0)),
+            "reward_low_support_wobble": float(info.get("reward_low_support_wobble", 0.0)),
+            "reward_total": float(info.get("reward_total", reward)),
+        }
+        for i, value in enumerate(action.tolist()):
+            row[f"action_{i}"] = float(value)
+        rows.append(row)
+    summary = episode_support_collapse_metrics(
+        n_contacts,
+        omegas,
+        tilts,
+        termination_reason=str(info.get("termination_reason", "none")),
+    )
+    out_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = out_dir / f"trace_seed{seed}.csv"
+    json_path = out_dir / f"trace_seed{seed}.json"
+    plot_path = out_dir / f"trace_seed{seed}.png"
+    _write_trace_csv(csv_path, rows)
+    payload = {
+        "seed": seed,
+        "termination_reason": info.get("termination_reason", "none"),
+        "episode_length": t,
+        "axis_rotation_deg": float(info.get("axis_rotation_deg", 0.0)),
+        "metrics": summary,
+        "csv": str(csv_path),
+        "plot": str(plot_path),
+    }
+    json_path.write_text(json.dumps(_jsonable(payload), indent=2) + "\n", encoding="utf-8")
+    plot_support_collapse_trace(
+        {
+            "timestep": [row["timestep"] for row in rows],
+            "n_contact": n_contacts,
+            "omega_perp_norm": omegas,
+            "tilt": tilts,
+            "axial_omega": axials,
+            "net_angle": net_angles,
+            "finger_force": np.asarray(forces, dtype=np.float64),
+            "support_loss_steps": summary["support_loss_steps"],
+            "recontact_steps": summary["recontact_steps"],
+            "tilt_cross_0_25_steps": summary["tilt_cross_0_25_steps"],
+        },
+        str(plot_path),
+        title=f"seed {seed}  {info.get('termination_reason', 'none')}  {t} steps",
+        termination_step=t if (terminated or truncated) else None,
+    )
+    return payload
 
 
 def evaluate(
@@ -59,6 +210,16 @@ def evaluate(
     hand_model: str = "allegro",
     hand_pose_config: str | None = None,
     hand_grasp_config: str | None = None,
+    obs_history_len: int = 1,
+    support_aware_reward_enabled: bool = False,
+    rotation_contact_scale_0: float = 0.0,
+    rotation_contact_scale_1: float = 0.1,
+    rotation_contact_scale_2plus: float = 1.0,
+    low_support_wobble_scale: float = 0.5,
+    recontact_window_steps: int = DEFAULT_RECONTACT_WINDOW,
+    collapse_lookback_steps: int = DEFAULT_COLLAPSE_LOOKBACK,
+    trace_dir: str | None = None,
+    trace_seeds: list[int] | None = None,
 ) -> dict:
     def _make_env() -> RodRotationEnv:
         return RodRotationEnv(
@@ -101,6 +262,12 @@ def evaluate(
             hand_model=hand_model,
             hand_pose_config=hand_pose_config,
             hand_grasp_config=hand_grasp_config,
+            obs_history_len=obs_history_len,
+            support_aware_reward_enabled=support_aware_reward_enabled,
+            rotation_contact_scale_0=rotation_contact_scale_0,
+            rotation_contact_scale_1=rotation_contact_scale_1,
+            rotation_contact_scale_2plus=rotation_contact_scale_2plus,
+            low_support_wobble_scale=low_support_wobble_scale,
         )
 
     env = _make_env()
@@ -154,12 +321,18 @@ def evaluate(
         "reward_proximity",
         "reward_force_penalty",
         "reward_action_rate_penalty",
+        "reward_rotation_before_support_gate",
+        "reward_support_gating_effect",
+        "reward_low_support_wobble",
+        "reward_total",
     )
     reward_episode_means = {key: [] for key in reward_keys}
     normal_forces = [[], [], []]
     total_normal_forces = []
     conditioned_normal_forces = [[], [], []]
     conditioned_total_normal_forces = []
+    collapse_episodes: list[dict] = []
+    episode_lengths: list[int] = []
 
     for ep in range(episodes):
         obs, _ = env.reset(seed=seed + ep)
@@ -174,6 +347,9 @@ def evaluate(
         ep_dtheta: list[float] = []
         ep_tip_errors: list[float] = []
         ep_axis_tilts: list[float] = []
+        ep_n_contact: list[int] = []
+        ep_omega_perp: list[float] = []
+        ep_tilt_rad: list[float] = []
         ep_max_hold = 0.0
         while not (terminated or truncated):
             model_obs = obs
@@ -211,6 +387,11 @@ def evaluate(
             ep_dtheta.append(float(info.get("dtheta", 0.0)))
             ep_tip_errors.append(float(info.get("tip_error_m", 0.0)))
             ep_axis_tilts.append(float(info.get("axis_tilt_deg", 0.0)))
+            ep_n_contact.append(count)
+            ep_omega_perp.append(
+                float(info.get("omega_perp_norm", info.get("lateral_omega", 0.0)))
+            )
+            ep_tilt_rad.append(float(info.get("axis_tilt_rad", 0.0)))
             axial_omega_values.append(float(info.get("axial_omega", 0.0)))
             axial_slip_values.append(float(info.get("axial_slip_proxy", 0.0)))
             total_contact_steps += 1
@@ -219,6 +400,17 @@ def evaluate(
             for key in reward_keys:
                 reward_values[key].append(float(info.get(key, 0.0)))
 
+        episode_lengths.append(len(ep_n_contact))
+        collapse_episodes.append(
+            episode_support_collapse_metrics(
+                ep_n_contact,
+                ep_omega_perp,
+                ep_tilt_rad,
+                termination_reason=str(info.get("termination_reason", "none")),
+                recontact_window=recontact_window_steps,
+                collapse_lookback=collapse_lookback_steps,
+            )
+        )
         rotations.append(float(info.get("axis_rotation_deg", 0.0)))
         tip_errors.append(float(info.get("tip_error_m", 0.0)))
         contacts.append(float(info.get("contact_count", 0.0)))
@@ -292,7 +484,16 @@ def evaluate(
         for key in reward_keys:
             reward_episode_means[key].append(float(np.mean(reward_values[key])))
 
-    env.close()
+    trace_manifest: list[dict] = []
+    if trace_dir:
+        trace_path = Path(trace_dir)
+        seeds_to_trace = list(trace_seeds or [])
+        if not seeds_to_trace:
+            seeds_to_trace = [seed, seed + min(5, max(episodes - 1, 0))]
+        for trace_seed in seeds_to_trace:
+            trace_manifest.append(
+                _rollout_diagnostic_trace(env, model, vecnorm, int(trace_seed), trace_path)
+            )
 
     rotations_arr = np.asarray(rotations, dtype=np.float64)
     tip_arr = np.asarray(tip_errors, dtype=np.float64)
@@ -359,6 +560,12 @@ def evaluate(
         "hand_grasp_config": env.hand_grasp_config_path,
         "hand_grasp_config_sha256": env.hand_grasp_config_sha256,
         "hand_grasp_config_content": env.hand_grasp_config_content,
+        "obs_history_len": int(obs_history_len),
+        "support_aware_reward_enabled": bool(support_aware_reward_enabled),
+        "rotation_contact_scale_0": float(rotation_contact_scale_0),
+        "rotation_contact_scale_1": float(rotation_contact_scale_1),
+        "rotation_contact_scale_2plus": float(rotation_contact_scale_2plus),
+        "low_support_wobble_scale": float(low_support_wobble_scale),
         "dexscrew_tip_penalty_scale": dexscrew_tip_penalty_scale,
         "vecnormalize": vecnormalize,
         "axis_rotation_deg_mean": float(rotations_arr.mean()),
@@ -538,6 +745,14 @@ def evaluate(
         "legacy_omega_success_rate": float(np.mean(legacy_omega_successes)),
         "net_angle_success_rate": float(np.mean(net_angle_successes)),
         "drop_rate": drop_rate,
+        "episode_length_mean": float(np.mean(episode_lengths)) if episode_lengths else 0.0,
+        "episode_length_std": float(np.std(episode_lengths)) if episode_lengths else 0.0,
+        "support_collapse": aggregate_support_collapse_metrics(
+            collapse_episodes,
+            recontact_window=recontact_window_steps,
+            collapse_lookback=collapse_lookback_steps,
+        ),
+        "diagnostic_traces": trace_manifest,
         "passed": False,
     }
 
@@ -555,6 +770,7 @@ def evaluate(
             and metrics["tip_error_m_mean"] < 0.02
             and metrics["drop_rate"] <= 0.15
         )
+    env.close()
     return metrics
 
 
@@ -627,6 +843,51 @@ def main() -> int:
     parser.add_argument("--hand-model", choices=["allegro", "surrogate"], default="allegro")
     parser.add_argument("--hand-pose-config", type=str, default=None)
     parser.add_argument("--hand-grasp-config", type=str, default=None)
+    parser.add_argument(
+        "--obs-history-len",
+        type=int,
+        default=1,
+        help="Must match training. 1 = 48-D, 4 = 192-D at the current 48-D frame.",
+    )
+    parser.add_argument(
+        "--support-aware-reward",
+        dest="support_aware_reward_enabled",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--no-support-aware-reward",
+        dest="support_aware_reward_enabled",
+        action="store_false",
+    )
+    parser.set_defaults(support_aware_reward_enabled=False)
+    parser.add_argument("--rotation-contact-scale-0", type=float, default=0.0)
+    parser.add_argument("--rotation-contact-scale-1", type=float, default=0.1)
+    parser.add_argument("--rotation-contact-scale-2plus", type=float, default=1.0)
+    parser.add_argument("--low-support-wobble-scale", type=float, default=0.5)
+    parser.add_argument(
+        "--recontact-window-steps",
+        type=int,
+        default=DEFAULT_RECONTACT_WINDOW,
+        help="Steps allowed to recover n_contact>=2 after a support-loss event.",
+    )
+    parser.add_argument(
+        "--collapse-lookback-steps",
+        type=int,
+        default=DEFAULT_COLLAPSE_LOOKBACK,
+        help="Lookback window for axis_tilt preceded-by-support-loss.",
+    )
+    parser.add_argument(
+        "--trace-dir",
+        type=str,
+        default=None,
+        help="If set, save per-step CSV/JSON/PNG traces for --trace-seeds.",
+    )
+    parser.add_argument(
+        "--trace-seeds",
+        type=str,
+        default="6,10000",
+        help="Comma-separated env reset seeds for diagnostic traces.",
+    )
     parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
     parser.add_argument("--privileged-obs", action="store_true")
     parser.add_argument("--omega-success-threshold", type=float, default=0.5)
@@ -726,13 +987,27 @@ def main() -> int:
         hand_model=args.hand_model,
         hand_pose_config=args.hand_pose_config,
         hand_grasp_config=args.hand_grasp_config,
+        obs_history_len=args.obs_history_len,
+        support_aware_reward_enabled=args.support_aware_reward_enabled,
+        rotation_contact_scale_0=args.rotation_contact_scale_0,
+        rotation_contact_scale_1=args.rotation_contact_scale_1,
+        rotation_contact_scale_2plus=args.rotation_contact_scale_2plus,
+        low_support_wobble_scale=args.low_support_wobble_scale,
+        recontact_window_steps=args.recontact_window_steps,
+        collapse_lookback_steps=args.collapse_lookback_steps,
+        trace_dir=args.trace_dir,
+        trace_seeds=[
+            int(part) for part in str(args.trace_seeds).split(",") if part.strip()
+        ]
+        if args.trace_dir
+        else None,
     )
-    print(json.dumps(metrics, indent=2))
+    print(json.dumps(_jsonable(metrics), indent=2))
 
     if args.out:
         out = Path(args.out)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(metrics, indent=2))
+        out.write_text(json.dumps(_jsonable(metrics), indent=2))
 
     return 0 if metrics["passed"] else 1
 

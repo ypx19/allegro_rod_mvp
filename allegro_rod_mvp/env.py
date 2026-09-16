@@ -16,7 +16,9 @@ from allegro_rod_mvp.hand_pose import (
     model_variant_for_physics,
 )
 from allegro_rod_mvp.hand_grasp import load_hand_grasp
+from allegro_rod_mvp.obs_history import ObservationHistoryBuffer
 from allegro_rod_mvp.rewards_dexscrew import DexScrewRewardConfig, compute_dexscrew_reward
+from allegro_rod_mvp.support_aware_reward import apply_support_aware_rotation
 
 
 class RodRotationEnv(gym.Env):
@@ -118,6 +120,12 @@ class RodRotationEnv(gym.Env):
         reset_joint_noise: float | None = None,
         grasp_ramp_steps: int | None = None,
         grasp_hold_steps: int | None = None,
+        obs_history_len: int = 1,
+        support_aware_reward_enabled: bool = False,
+        rotation_contact_scale_0: float = 0.0,
+        rotation_contact_scale_1: float = 0.1,
+        rotation_contact_scale_2plus: float = 1.0,
+        low_support_wobble_scale: float = 0.5,
     ) -> None:
         super().__init__()
         root = Path(__file__).resolve().parents[1]
@@ -411,9 +419,24 @@ class RodRotationEnv(gym.Env):
         # checkpoint transfer is possible. Do not concat raw model qpos/qvel.
         # hand_q(nu)+hand_v(nu)+touch(3)+centers(6)+tip_err(3)+omega_feats(3)
         # +sincos(2)+rod_axis(3)+tilt(1)+rod_linvel(3); Allegro nu=12 => 48.
+        # Optional frame stack: history_len=1 is the historical 48-D observation.
+        self.obs_history_len = int(obs_history_len)
+        if self.obs_history_len < 1:
+            raise ValueError("obs_history_len must be >= 1")
+        self.support_aware_reward_enabled = bool(support_aware_reward_enabled)
+        self.rotation_contact_scale_0 = float(rotation_contact_scale_0)
+        self.rotation_contact_scale_1 = float(rotation_contact_scale_1)
+        self.rotation_contact_scale_2plus = float(rotation_contact_scale_2plus)
+        self.low_support_wobble_scale = float(low_support_wobble_scale)
+        if self.low_support_wobble_scale < 0.0:
+            raise ValueError("low_support_wobble_scale must be non-negative")
         self._base_obs_dim = self.nu + self.nu + 3 + 6 + 3 + 3 + 2 + 3 + 1 + 3
         self._priv_dim = 3 + 1 + 2 + 1 + 3 + 3 if self.privileged_obs else 0
-        obs_dim = self._base_obs_dim + self._priv_dim
+        self._frame_obs_dim = self._base_obs_dim + self._priv_dim
+        self._obs_history = ObservationHistoryBuffer(
+            self.obs_history_len, self._frame_obs_dim
+        )
+        obs_dim = self._obs_history.stacked_dim
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(obs_dim,), dtype=np.float32)
 
     def _configure_tip_anchor(self) -> None:
@@ -733,7 +756,7 @@ class RodRotationEnv(gym.Env):
             dists[i] = float(np.linalg.norm(tip_xy - rod_xy))
         return dists
 
-    def _get_obs(self) -> np.ndarray:
+    def _frame_obs(self) -> np.ndarray:
         tip = self.data.site_xpos[self.tip_site]
         tip_error = tip - self.target_tip
         axial_omega = self._axial_omega()
@@ -785,11 +808,30 @@ class RodRotationEnv(gym.Env):
             obs = np.concatenate([obs, priv])
         return obs.astype(np.float32)
 
-    def _get_obs_safe(self) -> np.ndarray:
-        obs = self._get_obs()
-        if not np.isfinite(obs).all():
+    def _get_obs(self) -> np.ndarray:
+        """Return the stacked observation without mutating history.
+
+        Callers that need to advance history (env.step) should use
+        `_push_obs()`. Reset fills the buffer via `_obs_history.reset`.
+        history_len=1 makes this identical to `_frame_obs()`.
+        """
+        if not self._obs_history.initialized:
+            return self._obs_history.reset(self._frame_obs())
+        return self._obs_history.stacked()
+
+    def _push_obs(self) -> np.ndarray:
+        frame = self._frame_obs()
+        if not np.isfinite(frame).all():
             return np.zeros(self.observation_space.shape, dtype=np.float32)
-        return obs
+        return self._obs_history.push(frame)
+
+    def _get_obs_safe(self) -> np.ndarray:
+        frame = self._frame_obs()
+        if not np.isfinite(frame).all():
+            return np.zeros(self.observation_space.shape, dtype=np.float32)
+        if not self._obs_history.initialized:
+            return np.zeros(self.observation_space.shape, dtype=np.float32)
+        return self._obs_history.stacked()
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None):
         super().reset(seed=seed)
@@ -861,10 +903,13 @@ class RodRotationEnv(gym.Env):
         self._omega_hold_satisfied = False
         self.step_count = 0
         self.data.xfrc_applied[:] = 0.0
-        return self._get_obs(), {
+        frame = self._frame_obs()
+        stacked = self._obs_history.reset(frame)
+        return stacked, {
             "curriculum_stage": self.curriculum_stage,
             "physics_mode": self.physics_mode,
             "reward_style": self.reward_style,
+            "obs_history_len": self.obs_history_len,
         }
 
     def _axis_stabilizer_scale(self) -> float:
@@ -1049,6 +1094,23 @@ class RodRotationEnv(gym.Env):
                 - action_rate_penalty
             )
             dex_comp = {}
+        gated_rotation, support_gating_effect, wobble_penalty = apply_support_aware_rotation(
+            rotation_reward,
+            contact_count,
+            lateral_omega,
+            enabled=self.support_aware_reward_enabled,
+            scale_0=self.rotation_contact_scale_0,
+            scale_1=self.rotation_contact_scale_1,
+            scale_2plus=self.rotation_contact_scale_2plus,
+            wobble_scale=self.low_support_wobble_scale,
+        )
+        rotation_before_support_gate = float(rotation_reward)
+        if (
+            gated_rotation != rotation_reward
+            or wobble_penalty != 0.0
+        ):
+            reward = float(reward - rotation_reward + gated_rotation + wobble_penalty)
+            rotation_reward = float(gated_rotation)
         self.last_action = action.copy()
 
         self.step_count += 1
@@ -1150,6 +1212,7 @@ class RodRotationEnv(gym.Env):
             "axis_tilt_rad": axis_tilt,
             "axis_tilt_deg": np.degrees(axis_tilt),
             "lateral_omega": lateral_omega,
+            "omega_perp_norm": lateral_omega,
             "contact_count": contact_count,
             "finger_contact_forces_n": touch.tolist(),
             "contact_force_total_n": float(np.sum(touch)),
@@ -1173,6 +1236,11 @@ class RodRotationEnv(gym.Env):
             "physics_mode": self.physics_mode,
             "reward_style": self.reward_style,
             "reward_rotation": float(rotation_reward),
+            "reward_rotation_before_support_gate": float(rotation_before_support_gate),
+            "reward_support_gating_effect": float(support_gating_effect),
+            "reward_low_support_wobble": float(wobble_penalty),
+            "support_aware_reward_enabled": self.support_aware_reward_enabled,
+            "obs_history_len": self.obs_history_len,
             "reward_tip_penalty": float(-tip_penalty),
             "reward_axis_tilt_penalty": float(-axis_tilt_penalty),
             "reward_axis_tilt_penalty_raw": float(-axis_tilt_penalty_raw),
@@ -1231,7 +1299,8 @@ class RodRotationEnv(gym.Env):
                     info[k] = v
         if self.render_mode == "human":
             self.render()
-        return self._get_obs(), float(reward), terminated, truncated, info
+        info["reward_total"] = float(reward)
+        return self._push_obs(), float(reward), terminated, truncated, info
 
     def render(self):
         if self.render_mode == "human":

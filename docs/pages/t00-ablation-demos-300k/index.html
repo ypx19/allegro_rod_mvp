@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T00 300k A/B/C/D · seed 6 frame analysis</title>
+  <meta name="description" content="Seed-6 step slider with per-frame rotation velocity, tilt, tilt velocity, contacts, and forces. All four 300k policies die axis_tilt. Not task success." />
+  <meta name="theme-color" content="#0c1218" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="page.css?v=noscroll" />
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="mark" href="../t00-ablation-history.html">Rod Rotation MVP</a>
+    <nav class="nav">
+      <a href="../t00-ablation-history.html">2×2 history</a>
+      <a href="../t00-seed6-tilt-collapse/index.html">Seed 6 (T00 transfer)</a>
+      <a href="#compare">Compare</a>
+      <a href="#viewer">Frame slider</a>
+    </nav>
+  </div>
+
+  <div class="kicker">Phase T · T00 · EXP-20260914-002 · ckpt 306432 · seed 6</div>
+  <h1>Four 300k demos, one collapse sequence</h1>
+  <p class="sub">
+    Deterministic seed-6 replays of continue policies A–D. Analysis is a
+    <strong>step slider + still frame</strong> at 25 Hz (dt = 0.04 s), matching the
+    seed-6 transfer timeline — not a video player. Drag the bar or use ← →.
+    This is <strong>not</strong> task success.
+  </p>
+  <div class="pills">
+    <span class="pill bad">4 / 4 axis_tilt</span>
+    <span class="pill bad">recontact 0</span>
+    <span class="pill warn">n=0 at last step</span>
+    <span class="pill accent">slider · stills · per-frame metrics</span>
+  </div>
+
+  <div class="callout bad">
+    <h2>Cross-condition finding</h2>
+    <p>
+      <strong>A/B vs C/D do not differ on the collapse narrative.</strong>
+      All four stay on 2-contact after a step-0 3-finger reset, then drop
+      2→1→0 and die <span class="mono">axis_tilt</span>. None recontact.
+      Support-aware C/D lose 2+ contact a few steps later (50 / 53 vs A 49 / B 43)
+      and then gate rotation + apply wobble, but that does not produce recovery.
+      D’s post-loss window is the shortest (9 steps). B loses support earliest (43)
+      and lasts longest after loss (18) — still no re-grasp.
+    </p>
+    <p>
+      Shared sequence: <strong>2-contact hold → 1-contact support loss → n=0 → tilt runaway → axis_tilt</strong>.
+      Do not read longer episodes or later loss as a T00 fix.
+    </p>
+  </div>
+
+  <div class="callout defs">
+    <h2>Per-frame quantities</h2>
+    <p>
+      <strong>ω_axial</strong> = −ω·â, same sign as unwrap (rad/s and °/s).
+      <strong>tilt θ</strong> = rod-axis angle from vertical (rad and °).
+      <strong>tilt vel dθ/dt</strong> = finite difference of consecutive tilt angles / 0.04 s — <em>not</em> ω_perp.
+      <strong>ω_perp</strong> = ||ω − (ω·â)â||, lateral angular rate (shown separately so the two are not confused).
+      <strong>n_contact</strong> = number of fingertips with <code>_touch()</code> force &gt; 0.05 N.
+      <strong>F_i</strong> = per-tip sum of |mj_contactForce[0]| from <code>_touch()</code>; panel also shows the total.
+      C/D also show gated rotation reward and low-support wobble.
+    </p>
+  </div>
+
+  <section id="compare">
+    <h2 class="section-h">Seed-6 event table</h2>
+    <p class="sub">Re-rolled traces, not video-filename parsing. Overlay / checkpoint step 306432. Click a key step to open that condition on the slider (one still at a time).</p>
+    <div class="table-wrap panel" style="margin-bottom:1rem">
+      <table>
+        <thead>
+          <tr>
+            <th>Cond</th>
+            <th>Setup</th>
+            <th class="num">Len</th>
+            <th class="num">Return</th>
+            <th class="num">Rot</th>
+            <th class="num">Tilt</th>
+            <th class="num">2+ → ≤1</th>
+            <th class="num">n=0</th>
+            <th class="num">Tilt-kill</th>
+            <th class="num">Loss→kill</th>
+            <th>Recontact</th>
+            <th>Term</th>
+          </tr>
+        </thead>
+        <tbody id="cmp-body"></tbody>
+      </table>
+    </div>
+    <div class="cmp" id="key-grid"></div>
+  </section>
+
+  <section id="viewer">
+    <h2 class="section-h">Frame-by-frame analysis</h2>
+    <p class="sub">
+      Tabs A–D are independent scrubbers (last step is remembered). Slide to a timestamp, then only that step’s still and numbers are shown — no filmstrip of every frame.
+      Optional 25 Hz play is below the still. The MP4 is a small link, not the view.
+    </p>
+    <div class="tabs" id="tabs"></div>
+    <div class="stage">
+      <div class="panel viz">
+        <img class="frame" id="frame" alt="env still frame" />
+        <div class="time"><span id="tlabel"></span><span id="winlabel">support-loss → kill highlighted</span></div>
+        <input id="scr" type="range" min="0" max="0" value="0" step="1" />
+        <div class="btns">
+          <button id="prev" type="button">−1 step</button>
+          <button id="play" type="button">Play 25 Hz</button>
+          <button id="next" type="button">+1 step</button>
+          <button id="jumpLoss" type="button">Jump support-loss</button>
+          <button id="jumpZero" type="button">Jump n=0</button>
+          <button id="jumpKill" type="button">Jump tilt-kill</button>
+        </div>
+        <canvas id="chart" width="900" height="360"></canvas>
+        <p class="fname chart-legend">Vertical cursor = current step · green bars n_contact · gold tilt · blue ω_axial · red dθ/dt. Click the chart to seek. Gold band = support-loss → kill. Chart is an overview plot, not a frame gallery.</p>
+        <p class="clip-row"><a id="cliplink" href="#" target="_blank" rel="noopener">Open MP4 clip</a> <span class="fname">(optional; not the analysis UI)</span></p>
+      </div>
+      <div class="panel nums">
+        <div class="kpis">
+          <div class="kpi" id="k_tilt">
+            <div class="l">Tilt θ</div>
+            <div class="v" id="v_tilt"></div>
+            <div class="u" id="v_tilt_u"></div>
+          </div>
+          <div class="kpi" id="k_dtilt">
+            <div class="l">Tilt vel dθ/dt</div>
+            <div class="v" id="v_dtilt"></div>
+            <div class="u" id="v_dtilt_u"></div>
+          </div>
+          <div class="kpi" id="k_c">
+            <div class="l">n_contact</div>
+            <div class="v" id="v_c"></div>
+            <div class="u" id="v_c_u"></div>
+          </div>
+          <div class="kpi">
+            <div class="l">ω_axial (rot. vel.)</div>
+            <div class="v" id="v_w"></div>
+            <div class="u" id="v_w_u"></div>
+          </div>
+          <div class="kpi">
+            <div class="l">ω_perp (lateral |ω|)</div>
+            <div class="v" id="v_lat"></div>
+            <div class="u" id="v_lat_u"></div>
+          </div>
+          <div class="kpi" id="k_ftot">
+            <div class="l">Σ F_contact</div>
+            <div class="v" id="v_ftot"></div>
+            <div class="u" id="v_ftot_u"></div>
+          </div>
+          <div class="kpi">
+            <div class="l">Net rotation</div>
+            <div class="v" id="v_rot"></div>
+          </div>
+          <div class="kpi">
+            <div class="l">Reward</div>
+            <div class="v" id="v_rew"></div>
+          </div>
+          <div class="kpi">
+            <div class="l">Tip error</div>
+            <div class="v" id="v_tip"></div>
+          </div>
+          <div class="kpi">
+            <div class="l">R_rot (gated if C/D)</div>
+            <div class="v" id="v_grot"></div>
+          </div>
+          <div class="kpi">
+            <div class="l">Wobble (C/D)</div>
+            <div class="v" id="v_wob"></div>
+          </div>
+          <div class="kpi">
+            <div class="l">Condition</div>
+            <div class="v" id="v_gated_note" style="font-size:12px;font-weight:550"></div>
+          </div>
+        </div>
+        <div class="fgrid" id="fingers"></div>
+        <p class="fname" style="margin:.8rem 0 .3rem">Rod / tip / reward</p>
+        <table class="side-table">
+          <tr><th>tip error</th><td id="v_tip_tbl"></td></tr>
+          <tr><th>ncon (MuJoCo)</th><td id="v_ncon"></td></tr>
+          <tr><th>rod axis</th><td id="v_axis"></td></tr>
+          <tr><th>term</th><td id="v_term"></td></tr>
+          <tr><th>eval kill?</th><td id="v_kill"></td></tr>
+          <tr><th>rot before gate</th><td id="v_rot0"></td></tr>
+        </table>
+        <p class="fname" style="margin:.8rem 0 .3rem">Key steps (seek only; no extra images)</p>
+        <div class="keyjumps" id="keythumbs"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Inheritable analysis page. Canonical traces:
+      <span class="mono">runs/20260914-1805-t00-ablation-demos-300k/</span>.
+      Optional clips:
+      <span class="mono">runs/20260914-1748-t00-ablation-videos-300k/</span>.
+      Do not overwrite
+      <span class="mono">runs/20260914-t00-seed6-tilt-collapse/</span>.
+      Physics: T00 tip_connect bottom s=400 μ=4 25 Hz 500-horizon tilt_terminate=1.2.
+      No λ retune. No T01.
+    </p>
+  </footer>
+</div>
+<script src="analyze.js?v=noscroll"></script>
+</body>
+</html>

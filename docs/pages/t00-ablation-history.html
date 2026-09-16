@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T00 2×2 ablation — observation history · Rod Rotation MVP</title>
+  <meta name="description" content="Early 100k finding and 300k continuation of the T00 2×2 ablation: frame stacking × support-aware reward. Task still unsolved; eval success remains 0." />
+  <meta name="theme-color" content="#0c1218" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c1218;
+      --bg-elev: #141c26;
+      --bg-soft: #1a2533;
+      --ink: #e8eef4;
+      --muted: #8b9aab;
+      --line: rgba(232, 238, 244, 0.12);
+      --accent: #e8a54b;
+      --accent-dim: rgba(232, 165, 75, 0.16);
+      --ok: #5cb8a0;
+      --ok-dim: rgba(92, 184, 160, 0.14);
+      --bad: #c45c48;
+      --bad-dim: rgba(196, 92, 72, 0.14);
+      --warn: #d4a017;
+      --warn-dim: rgba(212, 160, 23, 0.14);
+      --max: 1080px;
+      --radius: 14px;
+      --font-display: "Fraunces", Georgia, serif;
+      --font-body: "Sora", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      --a: #4c8dde;
+      --b: #e8a54b;
+      --c: #5cb8a0;
+      --d: #c45c48;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(232, 165, 75, 0.12), transparent 55%),
+        radial-gradient(900px 500px at -10% 20%, rgba(92, 184, 160, 0.08), transparent 50%),
+        linear-gradient(180deg, #0a1016 0%, var(--bg) 40%, #0e1620 100%);
+      line-height: 1.55;
+      font-size: 16px;
+    }
+    a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { color: #f0c27a; }
+    .wrap { width: min(var(--max), calc(100% - 2.5rem)); margin-inline: auto; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(12, 18, 24, 0.72);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; padding: 0.7rem 0;
+    }
+    .topbar .mark {
+      font-family: var(--font-display);
+      font-weight: 700; font-size: 1.05rem;
+      color: var(--ink); text-decoration: none;
+    }
+    .nav { display: flex; flex-wrap: wrap; gap: 0.85rem 1.1rem; font-size: 0.84rem; color: var(--muted); }
+    .nav a { color: inherit; text-decoration: none; }
+    .nav a:hover { color: var(--accent); }
+    .banner {
+      margin: 1.4rem 0 0;
+      padding: 0.85rem 1.05rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(212, 160, 23, 0.35);
+      background: var(--warn-dim);
+      color: #e6c86a;
+      font-size: 0.92rem;
+    }
+    .banner strong { color: #f0d47a; letter-spacing: 0.04em; }
+    .banner .zh { display: block; margin-top: 0.25rem; color: #d8c27a; }
+    .hero { padding: 2.2rem 0 0.4rem; }
+    .kicker {
+      font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600; margin-bottom: 0.65rem;
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4.4vw, 3.15rem);
+      letter-spacing: -0.03em; line-height: 1.08;
+      margin: 0 0 0.7rem; font-weight: 700;
+    }
+    .lede { color: var(--muted); max-width: 62ch; margin: 0 0 1.4rem; }
+    section { padding: 2.4rem 0 0.4rem; scroll-margin-top: 4rem; }
+    section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.45rem, 3vw, 1.95rem);
+      letter-spacing: -0.02em; margin: 0 0 0.45rem; font-weight: 700;
+    }
+    .section-lead { color: var(--muted); max-width: 70ch; margin: 0 0 1.25rem; }
+    .zh-caption { color: var(--ink); margin: 0 0 0.35rem; }
+    .en-caption { color: var(--muted); font-size: 0.92rem; margin: 0 0 1.1rem; }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin: 0 0 1.4rem;
+    }
+    @media (max-width: 720px) {
+      .legend { grid-template-columns: 1fr; }
+      .nav { display: none; }
+    }
+    .cell {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0.95rem 1.05rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .cell::before {
+      content: "";
+      position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    }
+    .cell.a::before { background: var(--a); }
+    .cell.b::before { background: var(--b); }
+    .cell.c::before { background: var(--c); }
+    .cell.d::before { background: var(--d); }
+    .cell .id {
+      font-family: var(--font-display); font-weight: 700; font-size: 1.35rem;
+      margin: 0 0 0.2rem;
+    }
+    .cell.a .id { color: var(--a); }
+    .cell.b .id { color: var(--b); }
+    .cell.c .id { color: var(--c); }
+    .cell.d .id { color: var(--d); }
+    .cell h3 { margin: 0 0 0.25rem; font-size: 0.98rem; }
+    .cell p { margin: 0; color: var(--muted); font-size: 0.86rem; }
+    .figure {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .figure img, .figure video { width: 100%; height: auto; display: block; background: #000; }
+    .caption {
+      padding: 0.75rem 1rem 0.95rem;
+      color: var(--muted); font-size: 0.86rem;
+      background: var(--bg-elev);
+    }
+    .caption .zh { color: var(--ink); margin: 0 0 0.25rem; }
+    .caption .en { margin: 0; }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--bg-elev);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 640px; }
+    th, td {
+      text-align: left; padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--line); vertical-align: top;
+    }
+    th {
+      color: var(--muted); font-weight: 500;
+      background: rgba(255,255,255,0.02);
+      font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    td.num, th.num { text-align: right; font-family: var(--font-mono); font-size: 0.82rem; }
+    tr:last-child td { border-bottom: 0; }
+    td.hi { color: var(--accent); font-weight: 600; }
+    .callout {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.2rem;
+      margin: 0 0 1rem;
+    }
+    .callout.accent { background: var(--accent-dim); border-color: rgba(232, 165, 75, 0.32); }
+    .callout.bad { background: var(--bad-dim); border-color: rgba(196, 92, 72, 0.28); }
+    .callout h3 { margin: 0 0 0.4rem; font-size: 1rem; }
+    .callout p { margin: 0 0 0.55rem; color: var(--muted); }
+    .callout p:last-child { margin-bottom: 0; }
+    .pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1rem; }
+    .pill {
+      display: inline-block; font-size: 0.7rem; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 999px; font-weight: 600;
+    }
+    .pill.warn { background: var(--warn-dim); color: #e6c86a; }
+    .pill.bad { background: var(--bad-dim); color: #f0b8ae; }
+    .pill.ok { background: var(--ok-dim); color: var(--ok); }
+    .pill.accent { background: var(--accent-dim); color: var(--accent); }
+    ul.clean { margin: 0.4rem 0 0; padding: 0; list-style: none; }
+    ul.clean li { padding: 0.28rem 0 0.28rem 1rem; position: relative; color: var(--muted); }
+    ul.clean li::before {
+      content: ""; width: 0.36rem; height: 0.36rem; border-radius: 50%;
+      background: var(--accent); position: absolute; left: 0; top: 0.68rem;
+    }
+    .placeholder {
+      border: 1px dashed rgba(232, 238, 244, 0.22);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.2rem;
+      color: var(--muted);
+      background: rgba(20, 28, 38, 0.55);
+    }
+    footer {
+      margin-top: 3.2rem; padding: 2rem 0 3rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted); font-size: 0.86rem;
+    }
+    .mono { font-family: var(--font-mono); font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="mark" href="../demo.html">Rod Rotation MVP</a>
+      <nav class="nav">
+        <a href="#legend">2×2</a>
+        <a href="#early">100k</a>
+        <a href="#metrics-100k">Metrics</a>
+        <a href="#finding">Finding</a>
+        <a href="#at-300k">300k</a>
+        <a href="#videos-300k">300k videos</a>
+        <a href="#demos-300k">300k timelines</a>
+        <a href="#integrate">Project page</a>
+        <a href="t00-seed6-tilt-collapse/index.html">Seed 6 timeline</a>
+        <a href="t00-ablation-demos-300k/index.html">A–D seed 6</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="banner" role="status">
+      <strong>EARLY · NOT CONVERGED · EVAL SUCCESS STILL 0</strong>
+      <span class="zh">早期快照，尚未收敛；80/80 评测仍全部死于 axis_tilt。这不是任务已解决。</span>
+    </div>
+
+    <header class="hero">
+      <div class="kicker">Phase T · T00 · EXP-20260914-001 / 002</div>
+      <h1>4-frame history already lengthens episodes at 100k</h1>
+      <p class="lede">
+        T00 2×2 ablation of observation history × support-aware reward on bottom
+        tip-connect, <span class="mono">s=400</span>, seed 0. History stacking
+        shows an early online-length signal; collapse and eval metrics are still unsolved.
+      </p>
+      <div class="pills">
+        <span class="pill warn">early snapshot</span>
+        <span class="pill warn">not converged</span>
+        <span class="pill bad">eval success 0</span>
+        <span class="pill accent">single seed 0</span>
+      </div>
+    </header>
+
+    <section id="legend">
+      <h2>2×2 legend</h2>
+      <p class="section-lead">Only <span class="mono">obs_history_len ∈ {1,4}</span> and support-aware reward on/off change. Physics, PPO, and tilt-kill stay fixed.</p>
+      <div class="legend">
+        <article class="cell a">
+          <div class="id">A</div>
+          <h3>hist1 + baseline</h3>
+          <p>48-D single frame. Ungated DexScrew rotation. Control.</p>
+        </article>
+        <article class="cell b">
+          <div class="id">B</div>
+          <h3>hist4 + baseline</h3>
+          <p>192-D stack, newest-first, reset-repeat. Same reward as A.</p>
+        </article>
+        <article class="cell c">
+          <div class="id">C</div>
+          <h3>hist1 + support-aware</h3>
+          <p>48-D. Rotation gated ×0 / ×0.1 / ×1 plus λ=0.5 wobble.</p>
+        </article>
+        <article class="cell d">
+          <div class="id">D</div>
+          <h3>hist4 + support-aware</h3>
+          <p>192-D stack plus the same support-aware terms as C.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="early">
+      <h2>100k training curves</h2>
+      <p class="zh-caption">约 10 万步时，B、D 的回合长度已经明显高于 A、C，说明 4 帧观测历史已经有效。</p>
+      <p class="en-caption">At the 100k cutoff, B and D last longer than A and C, suggesting 4-frame observation history is already effective — before full convergence.</p>
+      <figure class="figure">
+        <img src="20260914-t00-ablation-train-curves.png" alt="T00 2x2 ablation training curves through 100k steps: return, episode length, KL, explained variance, clip fraction, action std" />
+        <figcaption class="caption">
+          <p class="zh">图 1 · 在线 Monitor，13 个 rollout，截止 106,496 步。长度面板上 B（橙）与 D（红）已经高于 A（蓝）与 C（绿）。</p>
+          <p class="en">Fig. 1 · Online Monitor, 13 rollouts, cutoff 106,496 steps. Length panel: B (orange) and D (red) already sit above A (blue) and C (green).</p>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="metrics-100k">
+      <h2>Last-step metrics at ~100k</h2>
+      <p class="section-lead">Last <span class="mono">metrics.csv</span> row (step 106,496). Episode return / length come from SB3 Monitor. Extra unlabeled columns are approx_kl, clip_fraction, clip_range, entropy_loss, explained_variance, …, std, value_loss.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cond</th>
+              <th>Setup</th>
+              <th class="num">Return</th>
+              <th class="num">Length</th>
+              <th class="num">KL</th>
+              <th class="num">EV</th>
+              <th class="num">Clip frac</th>
+              <th class="num">Action std</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A</td>
+              <td>48-D hist1, baseline</td>
+              <td class="num">+22.1</td>
+              <td class="num">40.0</td>
+              <td class="num">0.0104</td>
+              <td class="num">0.704</td>
+              <td class="num">0.115</td>
+              <td class="num">0.991</td>
+            </tr>
+            <tr>
+              <td>B</td>
+              <td>192-D hist4, baseline</td>
+              <td class="num">−8.9</td>
+              <td class="num hi">53.7</td>
+              <td class="num">0.0107</td>
+              <td class="num">0.746</td>
+              <td class="num">0.116</td>
+              <td class="num">0.992</td>
+            </tr>
+            <tr>
+              <td>C</td>
+              <td>48-D hist1, support-aware</td>
+              <td class="num">−47.5</td>
+              <td class="num">46.8</td>
+              <td class="num">0.0109</td>
+              <td class="num">0.690</td>
+              <td class="num">0.121</td>
+              <td class="num">0.994</td>
+            </tr>
+            <tr>
+              <td>D</td>
+              <td>192-D hist4, support-aware</td>
+              <td class="num">−17.9</td>
+              <td class="num hi">54.6</td>
+              <td class="num">0.0103</td>
+              <td class="num">0.720</td>
+              <td class="num">0.109</td>
+              <td class="num">0.990</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="finding">
+      <h2>Early finding</h2>
+      <div class="callout accent">
+        <h3>中文</h3>
+        <p>在约 10 万步截断时，带 4 帧历史的 B、D 在线回合长度（53.7 / 54.6）已经明显高于无历史的 A、C（40.0 / 46.8）。这说明在完全收敛之前，观测历史堆叠就已经有效。这还不是任务成功：评测成功率为 0，且长度不等于接触恢复。</p>
+      </div>
+      <div class="callout">
+        <h3>English</h3>
+        <p>At the 100k cutoff, B (192-D hist4, baseline reward) and D (192-D hist4, support-aware) already last longer online than A/C (48-D hist1). History stacking has an early length signal before convergence. This does <em>not</em> mean the task is solved.</p>
+      </div>
+      <div class="callout bad">
+        <h3>Caveats that stay attached to this claim</h3>
+        <ul class="clean">
+          <li>100k is not converged: returns and lengths are still rising.</li>
+          <li>Eval success is still 0 (80/80 <span class="mono">axis_tilt</span>).</li>
+          <li>A has the highest train return (+22) but the shortest length — reward hacking of rotation before tilt-death is plausible.</li>
+          <li>C/D returns are lower because of the wobble penalty, not because training failed.</li>
+          <li>Single seed 0. Episode length ≠ contact recovery.</li>
+          <li>This revises FIND-20260914-001’s “H1 not supported at history_len=4” for the 100k snapshot only: H1 has an early online-length signal, still unproven on collapse / eval metrics.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="at-300k">
+      <h2>300k continuation</h2>
+      <div class="pills">
+        <span class="pill warn">still not converged</span>
+        <span class="pill warn">eval not re-run</span>
+        <span class="pill accent">B/D length lead narrowed</span>
+      </div>
+      <p class="zh-caption">续训到累计约 30 万步后，B/D 相对 A/C 的回合长度优势已经收窄，几乎消失。C 反而最长。回报仍在上升，尚未平台。</p>
+      <p class="en-caption">By ~300k the early B/D length lead narrowed and largely disappeared. C is now longest. Returns are still rising; this is not a plateau and not task success.</p>
+      <figure class="figure">
+        <img src="20260914-t00-ablation-train-curves-300k.png" alt="T00 2x2 ablation training curves through 300k steps: return, episode length, KL, explained variance, clip fraction, action std" />
+        <figcaption class="caption">
+          <p class="zh">图 2 · 合并 0–106k 与续训 metrics，截到 303,104 步。长度面板上四条线已经挤在 62–69 步；C（绿）最高，B 只比 A 高约 2 步，D ≈ A。</p>
+          <p class="en">Fig. 2 · Merged 0–106k + resume metrics, cutoff 303,104. Lengths sit in a 62–69 band. C (green) is highest; B is only ~2 steps above A; D ≈ A.</p>
+        </figcaption>
+      </figure>
+      <div class="table-wrap" style="margin-top:1.1rem">
+        <table>
+          <thead>
+            <tr>
+              <th>Cond</th>
+              <th>Setup</th>
+              <th class="num">Return 300k</th>
+              <th class="num">Length 300k</th>
+              <th class="num">KL</th>
+              <th class="num">EV</th>
+              <th class="num">Length 100k</th>
+              <th class="num">Δ length</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A</td>
+              <td>48-D hist1, baseline</td>
+              <td class="num">+221.8</td>
+              <td class="num">62.4</td>
+              <td class="num">0.0104</td>
+              <td class="num">0.987</td>
+              <td class="num">40.0</td>
+              <td class="num">+22.4</td>
+            </tr>
+            <tr>
+              <td>B</td>
+              <td>192-D hist4, baseline</td>
+              <td class="num">+197.9</td>
+              <td class="num">64.4</td>
+              <td class="num">0.0105</td>
+              <td class="num">0.975</td>
+              <td class="num hi">53.7</td>
+              <td class="num">+10.6</td>
+            </tr>
+            <tr>
+              <td>C</td>
+              <td>48-D hist1, support-aware</td>
+              <td class="num">+169.6</td>
+              <td class="num hi">68.6</td>
+              <td class="num">0.0094</td>
+              <td class="num">0.992</td>
+              <td class="num">46.8</td>
+              <td class="num">+21.8</td>
+            </tr>
+            <tr>
+              <td>D</td>
+              <td>192-D hist4, support-aware</td>
+              <td class="num">+164.1</td>
+              <td class="num">62.4</td>
+              <td class="num">0.0108</td>
+              <td class="num">0.984</td>
+              <td class="num hi">54.6</td>
+              <td class="num">+7.8</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout accent" style="margin-top:1rem">
+        <h3>中文 · 300k 解读</h3>
+        <p>100k 时 B/D 更长，说明 4 帧历史有早期在线长度信号。到 300k，这个优势收窄：B 64.4 vs A 62.4，D 62.4 vs C 68.6。C（无历史 + support-aware）现在最长。回报仍在爬（A +222，B +198），EV 已接近 0.98，但回合长度和回报都还没平台。这不是任务解决，也没有重跑评测。</p>
+      </div>
+      <div class="callout">
+        <h3>English · 300k interpretation</h3>
+        <p>The 100k B/D length advantage <strong>narrowed and largely reversed as a hist4 signal</strong>. At step 303,104: A 62.4, B 64.4, C 68.6, D 62.4. C (hist1 + support-aware) is now longest. Returns are still rising; EV is near 0.98 and KL stays ~0.01, so optimization looks stable but the length curves are not a plateau. Episode length still ≠ contact recovery. Eval was not re-run.</p>
+      </div>
+      <div class="callout">
+        <h3>Resume note</h3>
+        <p>New run dirs <span class="mono">20260914-1712-t00-ablation-{A,B,C,D}-continue300k-seed0</span> loaded the ~106k zip + VecNormalize. SB3 2.9 <span class="mono">reset_num_timesteps=False</span> adds the current counter, so jobs actually continued to ~410k. The figure and table above are sliced at 303,104 as requested.</p>
+      </div>
+    </section>
+
+    <section id="videos-300k">
+      <h2>300k demo videos</h2>
+      <div class="pills">
+        <span class="pill bad">collapse demos</span>
+        <span class="pill warn">ckpt 306432</span>
+        <span class="pill warn">seeds 6 · 10000</span>
+        <span class="pill bad">success 0</span>
+      </div>
+      <p class="zh-caption">四个续训策略的确定性回放。这是倾倒演示，不是任务成功。评测仍是 80/80 <span class="mono">axis_tilt</span>。</p>
+      <p class="en-caption">Deterministic rollouts of the four continue policies at saved step 306432. Representative tilt-collapse demos, not a solved-task claim. Overlay: run id, checkpoint step, seed, return, success, length, terminate reason, n_contact.</p>
+      <figure class="figure">
+        <video controls playsinline poster="t00-ablation-videos-300k/ABCD_grid_seed6_poster.jpg" src="t00-ablation-videos-300k/ABCD_grid_seed6.mp4"></video>
+        <figcaption class="caption">
+          <p class="zh">图 3 · A/B/C/D 2×2，seed 6（与 tilt-collapse 时间线同一 seed）。四条都在约 61–65 步死于 axis_tilt，终态 n=0。</p>
+          <p class="en">Fig. 3 · A/B/C/D grid, seed 6 (same seed as the tilt-collapse timeline). All four die on axis_tilt at 61–65 steps with n=0.</p>
+        </figcaption>
+      </figure>
+      <p class="en-caption" style="margin-top:1rem">Also: <a href="t00-ablation-videos-300k/ABCD_grid_seed10000.mp4">grid seed 10000</a> ·
+        <a href="t00-ablation-videos-300k/A_seed6_rot457_tilt75_axis_tilt.mp4">A</a>
+        <a href="t00-ablation-videos-300k/B_seed6_rot410_tilt77_axis_tilt.mp4">B</a>
+        <a href="t00-ablation-videos-300k/C_seed6_rot368_tilt71_axis_tilt.mp4">C</a>
+        <a href="t00-ablation-videos-300k/D_seed6_rot387_tilt75_axis_tilt.mp4">D</a> (seed 6) ·
+        <a href="t00-ablation-videos-300k/index.html">all clips</a>.
+        Canonical: <span class="mono">runs/20260914-1748-t00-ablation-videos-300k/</span>.</p>
+    </section>
+
+    <section id="demos-300k">
+      <h2>300k seed-6 analysis page</h2>
+      <div class="pills">
+        <span class="pill bad">same 2→1→0→axis_tilt</span>
+        <span class="pill warn">A/B vs C/D: no recovery gap</span>
+        <span class="pill bad">recontact 0</span>
+      </div>
+      <p class="zh-caption">四个 300k 策略在 seed 6 上的逐步接触 / 倾角时间线。这不是任务成功。</p>
+      <p class="en-caption">Per-step contact / tilt timelines for the four 300k continue policies on seed 6 (same seed as the transfer collapse page). All four die <span class="mono">axis_tilt</span>. Support-aware C/D do not change the collapse narrative.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cond</th>
+              <th>Setup</th>
+              <th class="num">2+ → ≤1</th>
+              <th class="num">n=0</th>
+              <th class="num">Tilt-kill</th>
+              <th class="num">Loss→kill</th>
+              <th>Recontact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>A</td><td>48-D hist1, baseline</td><td class="num">49</td><td class="num">57</td><td class="num">65</td><td class="num">16</td><td>no</td></tr>
+            <tr><td>B</td><td>192-D hist4, baseline</td><td class="num">43</td><td class="num">54</td><td class="num">61</td><td class="num">18</td><td>no</td></tr>
+            <tr><td>C</td><td>48-D hist1, support-aware</td><td class="num">50</td><td class="num">60</td><td class="num">65</td><td class="num">15</td><td>no</td></tr>
+            <tr><td>D</td><td>192-D hist4, support-aware</td><td class="num">53</td><td class="num">57</td><td class="num">62</td><td class="num">9</td><td>no</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="en-caption" style="margin-top:1rem">Open the tabbed scrubber:
+        <a href="t00-ablation-demos-300k/index.html">t00-ablation-demos-300k/</a>
+        (step slider, contact vs tilt, frame strip). Canonical traces:
+        <span class="mono">runs/20260914-1805-t00-ablation-demos-300k/</span>.
+      </p>
+    </section>
+
+    <section id="integrate">
+      <h2>Future project page integration</h2>
+      <p class="zh-caption">这两页都按现有 GitHub Pages / <span class="mono">docs/demo.html</span> 的深色视觉语言写成，之后可以直接挂进公开项目页。</p>
+      <p class="en-caption">Both pages match the existing GitHub Pages / <span class="mono">docs/demo.html</span> visual language so they can be copied into the public project page later. Do not treat either as a solved-task claim.</p>
+      <div class="legend">
+        <article class="cell b">
+          <div class="id">1</div>
+          <h3>T00 2×2 ablation + early history finding</h3>
+          <p>This page: <span class="mono">docs/pages/t00-ablation-history.html</span>. 100k / 300k curves, 2×2 legend, bilingual captions. Relative assets sit beside the HTML.</p>
+        </article>
+        <article class="cell d">
+          <div class="id">2</div>
+          <h3>T00 seed 6 contact / tilt timeline</h3>
+          <p>Demo page for DBG-20260823-006: 2-contact at 29 → 1 at 30 → 0 at 34 → eval <span class="mono">axis_tilt</span> at 40. Canonical original stays under <span class="mono">runs/</span>; inheritable copy is <a href="t00-seed6-tilt-collapse/index.html">t00-seed6-tilt-collapse/</a>.</p>
+        </article>
+        <article class="cell a">
+          <div class="id">3</div>
+          <h3>T00 300k A/B/C/D seed-6 analysis</h3>
+          <p>Tabbed comparison of the four continue policies on seed 6. Same scrubber language as the transfer timeline. Inheritable copy: <a href="t00-ablation-demos-300k/index.html">t00-ablation-demos-300k/</a>.</p>
+        </article>
+      </div>
+      <div class="callout">
+        <h3>How to copy / link into the public site</h3>
+        <ul class="clean">
+          <li>GitHub Pages already publishes <span class="mono">docs/</span> as <a href="https://ypx19.github.io/allegro_rod_mvp/demo.html">ypx19.github.io/allegro_rod_mvp</a>. <span class="mono">docs/index.html</span> redirects to <span class="mono">demo.html</span>.</li>
+          <li>Keep these fragments under <span class="mono">docs/pages/</span>. After Pages deploy they resolve as <span class="mono">/pages/t00-ablation-history.html</span>, <span class="mono">/pages/t00-seed6-tilt-collapse/</span>, and <span class="mono">/pages/t00-ablation-demos-300k/</span>.</li>
+          <li>On <span class="mono">docs/demo.html</span>, add a Phase T / failure-mode section with two cards that link those URLs. Reuse the existing Fraunces/Sora, <span class="mono">#0c1218</span> / gold accent tokens — do not restyle.</li>
+          <li>Copy assets next to the HTML (already done for the 100k PNG and the seed-6 <span class="mono">frames/</span>). Do not point the public page at <span class="mono">runs/</span>; that tree is not published.</li>
+          <li>Canonical seed-6 analysis remains <span class="mono">runs/20260914-t00-seed6-tilt-collapse/index.html</span>. The <span class="mono">docs/pages</span> copy is inheritance-only and should stay in sync if the original is edited.</li>
+          <li>See <a href="README.md">docs/pages/README.md</a> for the short integration checklist.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>Inheritable project-page fragment. Physics: T00 tip_connect, bottom tip, s=400, μ=4, 25 Hz, 500-step horizon, tilt_terminate=1.2. PPO MLP [512,256,128], 32 envs, n_steps=256, batch=256, LR 3e-5, ent 0. Do not treat this page as a solved-task claim.</p>
+      <p>Parent comparison: <a href="../../reports/comparisons/20260914-t00-ablation-A-B-C-D.md">20260914-t00-ablation-A-B-C-D.md</a>. Source 100k plot: <a href="../../reports/comparisons/20260914-t00-ablation-train-curves.png">20260914-t00-ablation-train-curves.png</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

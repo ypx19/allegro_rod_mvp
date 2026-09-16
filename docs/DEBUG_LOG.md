@@ -1,5 +1,52 @@
 # Debug Log
 
+## DBG-20260915-001: 300k A–D analysis page used MP4 as the UI
+- Date: 2026-09-15
+- Status: resolved
+- Related runs: `20260914-1805-t00-ablation-demos-300k`, `20260914-1748-t00-ablation-videos-300k`
+- Related files: `docs/pages/t00-ablation-demos-300k/index.html`, `analyze.js`, `page.css`, `scripts/export_t00_ablation_timelines.py`
+- Severity: medium (measurement/analysis UX, not a training bug)
+- First observed: user review of http://127.0.0.1:8767/pages/t00-ablation-demos-300k/
+
+### Symptom
+The four-demo page presented a video player as the primary analysis control.
+That is not usable for frame-level contact/tilt/ω readouts.
+
+### Expected Behavior
+Same interaction as the seed-6 transfer timeline: range slider over 25 Hz
+stills; every frame shows ω_axial, tilt, dθ/dt, n_contact, per-tip and total
+force, plus ω_perp / tip error / reward (and C/D gated rotation + wobble).
+MP4 is optional.
+
+### Reproduction
+Open the 8767 page and observe a `<video>` column before the still/slider.
+
+### Evidence
+- Reference: `runs/20260914-t00-seed6-tilt-collapse/index.html` (slider + stills)
+- Traces already contained the quantities; replay was not required
+
+### Root Cause
+Layout treated the demo MP4 as the main view (first grid column).
+
+### Resolution
+Rebuilt the page as a 2-column seed-6-style scrubber. Video element removed.
+JSON enriched with `axial_omega_deg_s`, `lateral_omega_deg_s`,
+`contact_force_total_n`. Chart has a vertical cursor on n_contact, tilt,
+ω_axial, and dθ/dt. Copies synced to the 1805 run dir and 1748 `analysis/`.
+
+### Verification
+Live: http://127.0.0.1:8767/pages/t00-ablation-demos-300k/?v=scrub20260915
+No `<video>` in `index.html`. Per-frame panel IDs: tilt, dθ/dt, n_contact,
+ω_axial, ω_perp, ΣF, per-finger bars, reward, gated rot, wobble.
+
+### Prevention
+Exporter documents quantity sources in `meta.*_source`. Do not put an MP4
+player in the analysis stage.
+
+### Lessons Learned
+A demo clip is evidence, not a frame-analysis tool. Match the seed-6 slider.
+
+---
 ## DBG-20260802-001: PPO action std explosion → NaN on long Stage 0 parallel run
 - Date: 2026-08-02
 - Status: open
@@ -845,6 +892,13 @@ revolute policy to the free-rotation point-connect dynamics. Whether improved
 tip-connect grasp geometry or a dedicated tilt curriculum is sufficient remains
 unconfirmed. Recovery-only shaping does not create on-policy decrease events.
 Growth-only shaping at `g=50` is on-policy but does not hold the 0.25 rad gate.
+
+### Follow-up (2026-09-14 seed-6 replay)
+A T00 checkpoint replay of seed 6 (tilt kill raised only for visualization)
+shows 2-finger support at step 29, middle-finger release at step 30, then
+rising lateral ω and tilt, then 0-contact at step 34. Eval `axis_tilt`
+fires later. This is the working support-collapse hypothesis tested by
+EXP-20260914-001. HTML: `runs/20260914-t00-seed6-tilt-collapse/index.html`.
 
 ### Resolution
 None. Phase T remains blocked. Lower masses were not started after the `s=100`

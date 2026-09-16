@@ -69,6 +69,12 @@ def _make_env(args: argparse.Namespace) -> RodRotationEnv:
         tip_anchor=args.tip_anchor,
         hand_pose_config=args.hand_pose_config,
         hand_grasp_config=args.hand_grasp_config,
+        obs_history_len=args.obs_history_len,
+        support_aware_reward_enabled=args.support_aware_reward_enabled,
+        rotation_contact_scale_0=args.rotation_contact_scale_0,
+        rotation_contact_scale_1=args.rotation_contact_scale_1,
+        rotation_contact_scale_2plus=args.rotation_contact_scale_2plus,
+        low_support_wobble_scale=args.low_support_wobble_scale,
     )
 
 
@@ -208,6 +214,22 @@ def main() -> int:
     parser.add_argument("--tip-anchor", choices=["top", "bottom"], default="top")
     parser.add_argument("--hand-pose-config", type=str, default=None)
     parser.add_argument("--hand-grasp-config", type=str, default=None)
+    parser.add_argument("--obs-history-len", type=int, default=1)
+    parser.add_argument(
+        "--support-aware-reward",
+        dest="support_aware_reward_enabled",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--no-support-aware-reward",
+        dest="support_aware_reward_enabled",
+        action="store_false",
+    )
+    parser.set_defaults(support_aware_reward_enabled=False)
+    parser.add_argument("--rotation-contact-scale-0", type=float, default=0.0)
+    parser.add_argument("--rotation-contact-scale-1", type=float, default=0.1)
+    parser.add_argument("--rotation-contact-scale-2plus", type=float, default=1.0)
+    parser.add_argument("--low-support-wobble-scale", type=float, default=0.5)
     parser.add_argument("--dexscrew-tip-penalty-scale", type=float, default=0.5)
     parser.add_argument("--dexscrew-tip-sigma", type=float, default=0.025)
     parser.add_argument(

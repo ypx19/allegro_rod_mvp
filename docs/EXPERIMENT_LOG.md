@@ -1,5 +1,185 @@
 # Experiment Log
 
+## EXP-20260914-002: T00 2×2 continuation from ~100k to cumulative 300k
+- Run ID: `20260914-1712-t00-ablation-{A,B,C,D}-continue300k-seed0`
+- Date: 2026-09-14
+- Status: completed
+- Parent or baseline run: `20260914-1638-t00-ablation-{A,B,C,D}-hist{1|4}-rew{base|sup}-seed0` (EXP-20260914-001, ~106k)
+- Git commit: dirty (ablation + history page)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: 0
+- Device: cuda:4 (`CUDA_VISIBLE_DEVICES=4`, `--device cuda:0`)
+- Duration: ~24 min wall (A–D sequential; A already finished ~410k because SB3 adds the current counter)
+- Checkpoint: `runs/20260914-1712-t00-ablation-{A,B,C,D}-continue300k-seed0/checkpoints/final_model.zip`
+
+### Question
+Does the 100k online episode-length advantage of 4-frame history (B/D > A/C)
+persist, narrow, or reverse by a cumulative 300k steps? Do the curves look
+closer to a plateau?
+
+### Hypothesis
+If history stacking is a real early observability effect rather than a
+transient, B and D should remain longer than A and C at 300k. Support-aware
+C/D should still show lower return from the wobble penalty. Eval success is
+not expected to leave 0.
+
+### Change from Baseline
+No hyperparameter or physics change. Resume each 100k `final_model.zip` plus
+VecNormalize with `--continue-timesteps` and `total_timesteps=300000`.
+New run directories so 100k artifacts are not overwritten. SB3 2.9
+`reset_num_timesteps=False` **adds** `num_timesteps`, so jobs continued to
+~410k; the reported snapshot is the 303,104 row.
+
+### Configuration
+- Same as EXP-20260914-001 except resume to a 300k snapshot
+- Resume-in-new-dir, not from scratch
+- Sequential A→B→C→D on GPU 4
+
+### Success Criteria
+Record last-step return / length / KL / EV for A–D. State whether the B/D
+length advantage persisted. Do **not** treat longer episodes as task success.
+Eval is not required for this continuation unless a condition plateaus with
+clear recovery.
+
+### Result
+Completed. The 100k B/D length lead **narrowed**. At 303k, C is longest
+(68.6); B is only +2 vs A; D equals A. Returns still rising. EV ~0.98.
+No eval re-run. No NaN. Task still unsolved.
+
+### Key Metrics
+| Metric | A | B | C | D |
+|---|---:|---:|---:|---:|
+| Last-step return (100k) | +22.1 | −8.9 | −47.5 | −17.9 |
+| Last-step length (100k) | 40.0 | 53.7 | 46.8 | 54.6 |
+| Return (303k) | +221.8 | +197.9 | +169.6 | +164.1 |
+| Length (303k) | 62.4 | 64.4 | 68.6 | 62.4 |
+| KL (303k) | 0.0104 | 0.0105 | 0.0094 | 0.0108 |
+| EV (303k) | 0.987 | 0.975 | 0.992 | 0.984 |
+
+### Visual Evidence
+- 100k curves: `reports/comparisons/20260914-t00-ablation-train-curves.png`
+- 300k curves: `reports/comparisons/20260914-t00-ablation-train-curves-300k.png`
+- Page: `docs/pages/t00-ablation-history.html`
+- Seed-6 demo: `runs/20260914-t00-seed6-tilt-collapse/index.html`
+- 300k A/B/C/D videos (ckpt 306432, seeds 6 and 10000; all `axis_tilt`):
+  `runs/20260914-1748-t00-ablation-videos-300k/`
+  (grid: `ABCD_grid_seed6.mp4`; browser copy: `docs/pages/t00-ablation-videos-300k/`)
+- Seed-6 A–D contact/tilt **frame sliders** (re-rolled traces, ckpt 306432):
+  `runs/20260914-1805-t00-ablation-demos-300k/index.html`
+  (inheritable: `docs/pages/t00-ablation-demos-300k/`; live
+  http://127.0.0.1:8767/pages/t00-ablation-demos-300k/?v=scrub20260915)
+
+### Interpretation
+H1’s early online-length signal does not persist as a hist4 advantage at
+300k. C/D still have lower return (wobble penalty), not failed training.
+EV/KL look stable; return and length have not plateaued. This is not a
+solved-task claim.
+
+### Decision
+reject hist4 as a lasting T00 fix on length. Keep FIND-20260914-002 as an
+early-only snapshot. Do not retune λ. Do not start T01.
+
+### Next Step
+Probe whether ≥2-contact recovery is physically feasible under the current
+tip-connect grasp. Inherit the ablation page and the seed-6 timeline into
+the public project page when that site is updated.
+
+
+## EXP-20260914-001: T00 2×2 ablation (observation history × support-aware reward)
+- Run ID: `20260914-1638-t00-ablation-{A,B,C,D}-hist{1|4}-rew{base|sup}-seed0`
+- Date: 2026-09-14
+- Status: completed
+- Parent or baseline run: `20260823-2040-proportional-physics-C-tip-seed0-T00-s400-mu4-lr3e5-seed0` (published transfer T00; A–D trained from scratch)
+- Git commit: `c948861` (dirty: ablation implementation)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: training 0; fixed 10000–10009; unseen 20000–20009; traces 6 and 10000
+- Device: cuda:4 (`CUDA_VISIBLE_DEVICES=4`)
+- Duration: ~9.1 min wall (A–D sequential, ~800–2000 fps)
+- Checkpoint: `runs/20260914-1638-t00-ablation-{A,B,C,D}-hist{1|4}-rew{base|sup}-seed0/checkpoints/final_model.zip`
+
+### Question
+Does short observation history (H1) and/or a support-aware rotation/wobble
+objective (H2) reduce T00 support collapse, even if net rotation temporarily
+falls?
+
+### Hypothesis
+H1: the 48-D single-frame MLP cannot distinguish unloading vs recovery, so
+4-frame stacks (160 ms) should raise re-contact rate.
+H2: rotation reward remains large while support is released, so contact-gated
+rotation (×1 / ×0.1 / ×0) plus `-0.5 ||ω_perp||^2` on `n_contact<2` should
+make recovery preferable to spinning until `axis_tilt`.
+If B≈A and C≈A but D≫A, both factors are required together.
+
+### Change from Baseline
+Only `obs_history_len` ∈ {1,4} and `support_aware_reward_enabled` ∈ {false,true}.
+T00 physics, grasp, s=400, μ=4, tilt kill 1.2 rad, PPO `[512,256,128]`,
+32 envs, n_steps 256, batch 256, LR `3e-5`, ent_coef 0, 100k steps, seed 0,
+and eval seeds are shared. No GRU/LSTM, no joint torque, no T01, no new
+contact termination.
+
+### Configuration
+- Algorithm: SB3 PPO from scratch on T00 (not a new curriculum stage)
+- Environment: bottom tip-connect, `s=400`, μ=4, solref 0.008, stabilizer 0
+- Reward terms: existing DexScrew + discrete contact ×0.10; C/D add support gating and wobble
+- Observation space: A/C 48-D; B/D 192-D stacked
+- Action space: 12-D
+- Network: [512, 256, 128] (input dim only changes)
+- Learning rate: 3e-5
+- Number of environments: 32
+- Training steps: 100,000
+- Curriculum stage: T00 only
+- Evaluation protocol: net-angle, 10 fixed + 10 unseen; traces seeds 6 and 10000
+
+### Success Criteria
+Directional success does **not** require net-angle ≥ 0.50. Treat as positive if
+re-contact rate, 1-contact duration, post-loss ω_perp, axis_tilt-after-loss
+fraction, and episode length improve even if rotation drops (e.g. 177°→150°
+but length 34→150). If A≈B≈C≈D, do not retune λ; inspect grasp/mechanics next.
+
+### Result
+Completed. No condition resolved support collapse. All 80 eval episodes terminate
+on `axis_tilt`. Versus from-scratch A (the matched control):
+- B (history): similar or slightly worse collapse metrics; recontact 0.09 vs A's 0.17/0.09.
+- C (support-aware reward): **worse** — episode length 37 vs 54, recontact 0,
+  post-loss Δω_perp ~8 vs ~2, 100% of axis_tilt deaths preceded by support loss.
+- D (both): no complementary win; recontact 0, length ~50, rotation highest (327°).
+
+From-scratch A itself rotates more and lives longer than the published *transfer*
+T00 (305° / 54 steps vs 177° / 35), but that is a different initialization, not
+evidence that history or the new reward helped.
+
+### Key Metrics
+| Metric | T00 transfer | A | B | C | D |
+|---|---:|---:|---:|---:|---:|
+| Success rate | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| Episode length (fixed) | ~35 | 54.0 | 50.0 | 36.5 | 49.7 |
+| Rotation progress (fixed) | 177.0° | 304.9° | 297.0° | 275.2° | 326.5° |
+| Recontact success rate (fixed) | 0.00 | 0.17 | 0.09 | 0.00 | 0.00 |
+| Fraction axis_tilt preceded by support loss (fixed) | ~1 (seed 6) | 0.40 | 0.80 | 1.00 | 0.50 |
+| Δω_perp after support loss (fixed) | — | 2.18 | 2.87 | 7.87 | 2.45 |
+
+### Visual Evidence
+- Diagnostic traces: `runs/20260914-1638-t00-ablation-{A,B,C,D}-*/traces/{fixed,unseen}/`
+- Comparison: `reports/comparisons/20260914-t00-ablation-A-B-C-D.md`
+- Known failure replay: `runs/20260914-t00-seed6-tilt-collapse/index.html`
+
+### Interpretation
+H1 is not supported at `history_len=4`. H2 as implemented (rotation gate +
+λ=0.5 wobble) does not induce re-contact and makes C's unsupported interval more
+violent. D is not a joint rescue. This matches the predeclared "none of A/B/C/D
+improves collapse → do not retune λ" branch.
+
+### Decision
+reject B, C, and D as T00 fixes. Keep A only as the from-scratch control. Do not
+start T01 and do not sweep `low_support_wobble_scale`.
+
+### Next Step
+Inspect whether ≥2-contact recovery is physically feasible with the current
+tip-connect grasp, including load redistribution in the force observations and
+actuator delay. A T-Balance / grasp-redesign experiment is the next smallest
+discriminating step.
+
+
 ## EXP-20260824-001: DexScrew tilt-growth penalty at tip-connect s=100
 - Run ID: `20260824-0000-dexscrew-tilt-growth-s100-tip-seed0`
 - Date: 2026-08-24

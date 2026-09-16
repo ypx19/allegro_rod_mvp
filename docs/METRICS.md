@@ -417,3 +417,125 @@ max tilt equals final tilt (monotonic collapse).
 Implementation:
 `allegro_rod_mvp/rewards_dexscrew.py`, `RodRotationEnv.step`,
 `scripts/train_parallel.py`, `scripts/eval_policy.py`.
+
+## Observation Frame Stack
+Definition:
+`obs_stack_t = [obs_t, obs_{t-1}, ..., obs_{t-H+1}]` with newest frame first.
+On reset, missing frames repeat the initial observation. `H=1` is the
+historical 48-D T00 observation. `H=4` is 192-D (~160 ms at 25 Hz).
+Unit:
+Dimensionless concatenated observation.
+Aggregation:
+Not averaged; the policy input dimension is `48 * H` for the current Allegro
+layout (`privileged_obs=False`).
+Implementation:
+`allegro_rod_mvp/obs_history.py`, `RodRotationEnv`, flag `obs_history_len`.
+
+## Support-Gated Rotation Reward
+Definition:
+Existing axial rotation reward multiplied by
+`scale_0` if `n_contact==0`, `scale_1` if `n_contact==1`, `scale_2plus` if
+`n_contact>=2`. Defaults `{0.0, 0.1, 1.0}`. Disabled unless
+`support_aware_reward_enabled`.
+Unit:
+Same as the DexScrew rotation term (`rotate_scale * clip(ω_axial, -4, 4)`).
+Logged names:
+`reward_rotation_before_support_gate`, `reward_rotation` (after gate),
+`reward_support_gating_effect` (after − before).
+Implementation:
+`allegro_rod_mvp/support_aware_reward.py`, `RodRotationEnv.step`.
+
+## Low-Support Lateral Wobble Penalty
+Definition:
+`ω_perp = ω - (ω · axis_hat) axis_hat`. When `n_contact < 2`,
+`r = -λ ||ω_perp||^2`. When `n_contact >= 2` or the support-aware flag is off,
+the term is 0. Default `λ=0.5`.
+Unit:
+Reward units; `||ω_perp||` in rad/s. This is the same quantity already logged
+as `lateral_omega` / `omega_perp_norm`.
+Logged name:
+`reward_low_support_wobble`.
+Implementation:
+`allegro_rod_mvp/support_aware_reward.py`. Contact force remains
+`mj_contactForce(...)[0]` vs rod, threshold 0.05 N.
+
+## Support-Loss and Re-contact
+Definition:
+Support loss: `n_contact(t-1) >= 2` and `n_contact(t) <= 1`.
+Successful re-contact: return to `n_contact >= 2` within
+`recontact_window_steps` (default 10 = 400 ms at 25 Hz).
+`recontact_success_rate = recovered_events / support_loss_events`.
+Also log mean/max 1-contact run length, time in 0/1/≥2 contact, and
+fraction of episodes with at least one support-loss event.
+Implementation:
+`allegro_rod_mvp/support_collapse_metrics.py`, `scripts/eval_policy.py`
+key `support_collapse`.
+
+## Post-Support-Loss Lateral Instability
+Definition:
+At each support-loss time `t`, record `||ω_perp||_t`,
+`max_{k=0..5} ||ω_perp||_{t+k}`, and
+`Δ = max(ω_perp[t:t+5]) - ω_perp[t-1]`.
+Unit:
+rad/s.
+Implementation:
+`episode_support_collapse_metrics`.
+
+## Tilt Excursion and Recovery (diagnostic, not termination)
+Definition:
+An excursion starts at an upward crossing of 0.25 rad and recovers if tilt
+later falls below 0.20 rad before physical termination. 0.25 rad is **not**
+a kill; `tilt_terminate_rad` remains 1.2 on T00.
+Logged:
+max/final tilt, time above 0.25 rad, upward crossings, excursion count,
+recovery rate, mean time-to-recover, mean peak tilt of recovered excursions.
+
+## Axis Tilt Angle
+Definition:
+Angle between the rod long axis and the world vertical target axis,
+`arccos(|â · ẑ|)`.
+Unit:
+Radians in code; degrees also shown on analysis pages.
+Implementation:
+`RodRotationEnv` info `axis_tilt_rad` / `axis_tilt_deg`.
+
+## Tilt Velocity dθ/dt (finite difference)
+Definition:
+`(tilt[t] - tilt[t-1]) / dt` with `dt = 1 / policy_hz` (0.04 s at 25 Hz).
+Step 0 is defined as 0. This is the rate of change of the **tilt angle
+scalar**, not a component of body ω.
+Unit:
+rad/s and deg/s.
+Does not apply to:
+`ω_perp` / `lateral_omega` (those are `||ω − (ω·â)â||`).
+Implementation:
+`scripts/export_t00_ablation_timelines.py` `_annotate_velocities`.
+Logged names: `tilt_vel_rad_s`, `tilt_vel_deg_s`.
+
+## Axial Rotation Velocity ω_axial
+Definition:
+`ω_axial = −ω · â`, same sign convention as unwrapped axial progress.
+Unit:
+rad/s; analysis pages also show deg/s.
+Implementation:
+`RodRotationEnv._axial_omega`; info `axial_omega`.
+
+## Lateral Angular Rate ω_perp
+Definition:
+`||ω − (ω·â)â||`. This is the magnitude of angular velocity orthogonal
+to the rod axis. It is **not** d(tilt)/dt.
+Unit:
+rad/s.
+Implementation:
+env info `omega_perp_norm` / `lateral_omega`.
+
+## Axis-Tilt Death Preceded by Support Loss
+Definition:
+For every `termination_reason=axis_tilt` episode, a support-loss event in the
+last `collapse_lookback_steps` (default 10) counts as preceded-by-collapse.
+Also mean delay from that event to termination and to the post-loss ω_perp
+spike.
+Logged name:
+`fraction_axis_tilt_deaths_preceded_by_support_loss`.
+This is the primary T00 mechanism metric for EXP-20260914-001.
+Diagnostic traces: `runs/<run_id>/traces/{fixed,unseen}/trace_seed<seed>.{csv,json,png}`.
