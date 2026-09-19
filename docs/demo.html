@@ -446,12 +446,61 @@
       display: block;
       background: #000;
     }
+    .compare img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
     .compare .panel p {
       margin: 0;
       padding: 0.85rem 1rem 1.05rem;
       color: var(--muted);
       font-size: 0.88rem;
     }
+
+    .photo-frame {
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background: var(--bg-elev);
+    }
+    .photo-frame img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+    .photo-frame .cap {
+      margin: 0;
+      padding: 0.85rem 1rem 1.05rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .iter {
+      display: grid;
+      gap: 0.65rem;
+      margin-bottom: 1.25rem;
+    }
+    .iter-step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.85rem;
+      align-items: start;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+    }
+    .iter-id {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 2.2rem;
+    }
+    .iter-step p { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.86rem; }
 
     footer {
       margin-top: 3.5rem;
@@ -681,7 +730,9 @@
     <div class="wrap topbar-inner">
       <a class="mark" href="#top">Rod Rotation MVP</a>
       <nav class="nav" aria-label="Sections">
+        <a href="https://ypx19.github.io">Homepage</a>
         <a href="#findings">Findings</a>
+        <a href="#hand">Hand</a>
         <a href="#stages">Curriculum</a>
         <a href="#demos">Demos</a>
         <a href="#ablations">Ablations</a>
@@ -693,8 +744,8 @@
 
   <section class="hero" id="top">
     <div class="hero-media" aria-hidden="true">
-      <video autoplay muted loop playsinline poster="media/cinematic-screwdriver.jpg" aria-label="Cinematic screwdriver view">
-        <source src="media/cinematic-screwdriver.mp4" type="video/mp4" />
+      <video autoplay muted loop playsinline poster="media/cinematic-allegro-tip-bottom.jpg" aria-label="Flipped Allegro 12-DoF Phase T T00 cinematic, low upward view of the hanging wrap">
+        <source src="media/cinematic-allegro-tip-bottom.mp4" type="video/mp4" />
       </video>
       <video autoplay muted loop playsinline poster="media/cinematic-isaacgym.jpg" aria-label="IsaacGym parallel cinematic env view">
         <source src="media/cinematic-isaacgym.mp4" type="video/mp4" />
@@ -709,7 +760,9 @@
       </p>
       <div class="cta-row">
         <a class="btn btn-primary" href="#stages">Curriculum ablation</a>
+        <a class="btn btn-ghost" href="#hand">Hand design</a>
         <a class="btn btn-ghost" href="#demos">Success &amp; failure</a>
+        <a class="btn btn-ghost" href="https://ypx19.github.io" id="home-link">Homepage</a>
         <a class="btn btn-ghost" href="https://github.com/ypx19/allegro_rod_mvp" id="repo-link">Repository</a>
       </div>
     </div>
@@ -749,6 +802,153 @@
             <h3>Contact bonus was a silent bug</h3>
             <p>DexScrew path computed a three-finger contact term but never added it to reward until fixed—reward engineering had been flying blind.</p>
           </article>
+          <article>
+            <h3>First hand could not wrap</h3>
+            <p>Teleop plus a 60k-configuration coverage test showed the 9-DoF surrogate’s third finger was 67 mm off the rod. The Allegro-like 12-DoF wrap replaced it, then a 180° world-X palm flip (<code>my_grasp.json</code>) became the training pose.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="hand">
+      <div class="wrap reveal">
+        <h2>Hand design iteration</h2>
+        <p class="section-lead">
+          Geometry was a hard upper bound. Before more PPO, we asked whether a human
+          or a dense joint-space search could even make three fingertip contacts.
+          The first hand failed both tests, so we replaced it.
+        </p>
+
+        <div class="iter">
+          <div class="iter-step">
+            <div class="iter-id">01</div>
+            <div>
+              <strong>Teleop as a human upper bound</strong>
+              <p>
+                Keyboard teleop (<code>scripts/teleop_hand.py</code>) is the ceiling check:
+                if a person cannot wrap three pads on the rod, PPO cannot either.
+                On the 9-DoF planar surrogate the third finger never reached, no matter
+                how the other joints were driven.
+              </p>
+            </div>
+          </div>
+          <div class="iter-step">
+            <div class="iter-id">02</div>
+            <div>
+              <strong>Configuration coverage test</strong>
+              <p>
+                EXP-20260724-004: no learning. Hold the rod pose fixed and uniformly
+                sample joint limits — 20,000 configurations × 3 seeds = 60,000 poses.
+                Exact MuJoCo capsule distances, then dynamic replay of the closest
+                candidates. This is a coverage test of the declared joint box, not an RL eval.
+              </p>
+            </div>
+          </div>
+          <div class="iter-step">
+            <div class="iter-id">03</div>
+            <div>
+              <strong>v1 mismatch, measured</strong>
+              <p>
+                Fingers 0 and 1 reached the rod (min signed distance ≈ −24 mm, reset forces 32–54 N).
+                Finger 2 stayed <strong>+66.7 to +68.3 mm</strong> away on every sample.
+                Result: 4,166 two-contact states, <strong>zero</strong> three-contact states.
+                Cause: planar finger 2 lived at world Y = +0.04 m; the rod at Y ≈ −0.05 m.
+                Contact reward was measuring an unreachable state.
+              </p>
+            </div>
+          </div>
+          <div class="iter-step">
+            <div class="iter-id">04</div>
+            <div>
+              <strong>v2 — Allegro-like 12-DoF wrap</strong>
+              <p>
+                Replace the planar 9-DoF debug hand with primitive index / middle / thumb
+                copies of Allegro V3 joint frames, axes, ranges, and thumb opposition.
+                Mesh-free collision kept for speed. Reset audits: 50/50 three-contact wraps
+                in both revolute and tip-connect. Action/obs stay 12 / 48.
+              </p>
+            </div>
+          </div>
+          <div class="iter-step">
+            <div class="iter-id">05</div>
+            <div>
+              <strong>Flip the palm, then train</strong>
+              <p>
+                Default MJCF had the palm under the rod (fingers up). We then applied a
+                rigid ≈180° world-X rotation
+                (<code>configs/hand_poses/my_grasp.json</code>) so the palm sits above
+                and fingers hang down around the rod — the screwdriver pose. All later
+                Phase R / Phase T runs, including the left hero, use this pose.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="compare" style="margin-bottom: 1.25rem;">
+          <div class="panel bad">
+            <header>v1 — 9-DoF planar surrogate · rejected</header>
+            <img src="media/hand_surrogate_45h.png" alt="9-DoF planar surrogate: two fingers on the rod, third finger hanging off-plane" />
+            <p>
+              Same 45° camera as v2. Reset forces 56.6 / 57.7 / <strong>0</strong> N.
+              Teleop and the 60k coverage search both fail to close a three-pad wrap.
+            </p>
+          </div>
+          <div class="panel ok">
+            <header>v2 — 12-DoF Allegro-like · adopted</header>
+            <img src="media/hand_allegro_45h.png" alt="12-DoF Allegro-like index, middle, and thumb wrapping the rod" />
+            <p>
+              Reset forces 1.35 / 5.56 / 1.78 N. Three-contact occupancy is now a reset
+              property, not an exploration miracle. Same flipped hanging wrap as the left hero.
+            </p>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-bottom: 1.25rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>Check</th>
+                <th>v1 surrogate</th>
+                <th>v2 Allegro-like</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DoF / fingers</td>
+                <td>9-DoF, three planar chains</td>
+                <td class="ok">12-DoF index + middle + thumb</td>
+              </tr>
+              <tr>
+                <td>Teleop three-pad wrap</td>
+                <td class="bad">Cannot</td>
+                <td class="ok">Can</td>
+              </tr>
+              <tr>
+                <td>Coverage test</td>
+                <td class="bad">0 / 60,000 three-contact samples</td>
+                <td class="ok">50/50 three-contact reset audits</td>
+              </tr>
+              <tr>
+                <td>Finger-2 min gap</td>
+                <td class="bad">+66.7 mm</td>
+                <td class="ok">In contact</td>
+              </tr>
+              <tr>
+                <td>Phase T (tip-connect) demo</td>
+                <td class="mid">Old cinematic was this hand, revolute</td>
+                <td class="ok">T00 @ s=400, flipped <code>my_grasp</code>, bottom tip, ~190° prefix</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <p style="margin:0;">
+            <strong>What this unblocked.</strong>
+            After the wrap became reachable and the palm was flipped, remaining Phase T
+            failures are lateral tilt under a spherical tip constraint — not a missing
+            third finger. The homepage hero is a T00 prefix before that drop.
+          </p>
         </div>
       </div>
     </section>
@@ -872,8 +1072,16 @@
     <section id="pipeline">
       <div class="wrap reveal">
         <h2>Research arc</h2>
-        <p class="section-lead">From Stage 0 anchors to mass curriculum and bottom-tip 3-touch — each step isolates one transfer hypothesis.</p>
+        <p class="section-lead">From hand geometry through Stage 0 anchors, mass curriculum, and bottom-tip 3-touch — each step isolates one transfer hypothesis.</p>
         <div class="pipeline">
+          <div class="pipe-step">
+            <div class="pipe-id">00</div>
+            <div>
+              <strong>Hand geometry</strong>
+              <p>Teleop + 60k-config coverage: 9-DoF cannot three-touch. Adopt Allegro-like 12-DoF wrap, then flip the palm 180° about world X.</p>
+            </div>
+            <span class="badge badge-ok">adopted</span>
+          </div>
           <div class="pipe-step">
             <div class="pipe-id">01</div>
             <div>
@@ -933,9 +1141,9 @@
 
         <div class="compare" style="margin-bottom: 1.75rem;">
           <div class="panel ok">
-            <header>Front demo — MuJoCo cinematic</header>
-            <video controls playsinline preload="metadata" poster="media/cinematic-screwdriver.jpg" src="media/cinematic-screwdriver.mp4"></video>
-            <p>Left clip: MuJoCo cinematic fly-in for the screwdriver view (used as the homepage left half).</p>
+            <header>Front demo — MuJoCo Phase T, flipped palm</header>
+            <video controls playsinline preload="metadata" poster="media/cinematic-allegro-tip-bottom.jpg" src="media/cinematic-allegro-tip-bottom.mp4"></video>
+            <p>Left clip: Phase T T00 on the flipped <code>my_grasp.json</code> palm, bottom tip, s=400. Policy from frame 0; the ~1.2 s non-tilt prefix (~190°, tilt &lt; 8°) is looped while the camera orbits slightly upward so the palm box does not fill the frame. Full T00 eval still dies on axis_tilt.</p>
           </div>
           <div class="panel bad">
             <header>Front demo — IsaacGym parallel cinematic</header>
@@ -982,6 +1190,17 @@
                 <span class="badge badge-ok">success</span>
               </div>
               <p>Raised mount so rod spans finger plane; dense discrete contact + hard window. Full 500-step episodes, ~500°.</p>
+            </div>
+          </article>
+
+          <article class="clip" data-tags="partial">
+            <video controls playsinline preload="metadata" src="media/partial-allegro-t00-flipped.mp4"></video>
+            <div class="clip-body">
+              <div class="clip-meta">
+                <h3>Phase T T00 — flipped palm, tilt death</h3>
+                <span class="badge badge-mid">partial</span>
+              </div>
+              <p>Same flipped T00 policy as the left hero, uncut eval: 34 steps, 179°, then axis_tilt ~86°. The hero is the prefix before this drop.</p>
             </div>
           </article>
 
@@ -1229,8 +1448,8 @@
             If the scientific goal is free tip, top-hang two-finger may be the right prior—not forcing surround contact.
           </div>
           <div class="callout">
-            <strong>Allegro embodiment.</strong>
-            Mesh-free 9-DoF hand is still a stand-in. Re-run reachability + best curriculum on Menagerie Allegro once the stack is chosen.
+            <strong>Allegro meshes.</strong>
+            The 12-DoF primitive wrap is now the training hand. Remaining: Menagerie collision meshes, and Phase T lateral-tilt recovery under tip-connect.
           </div>
         </div>
       </div>
