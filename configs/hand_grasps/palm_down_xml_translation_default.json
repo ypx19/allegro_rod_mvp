@@ -1,0 +1,79 @@
+{
+  "schema": "allegro_rod_mvp.hand_grasp",
+  "schema_version": 1,
+  "hand_model": "allegro",
+  "hand_pose_path": "configs/hand_poses/palm_down_xml_translation.json",
+  "hand_pose_sha256": "07c433e7fa8c4cae5e47ca4dca5d4f57db79146d2fe9894a497b3abd3ec7ed6b",
+  "joint_order": [
+    "f0_j0",
+    "f0_j1",
+    "f0_j2",
+    "f0_j3",
+    "f1_j0",
+    "f1_j1",
+    "f1_j2",
+    "f1_j3",
+    "f2_j0",
+    "f2_j1",
+    "f2_j2",
+    "f2_j3"
+  ],
+  "reset_qpos": [
+    -0.01185294,
+    0.79398684,
+    0.82384282,
+    0.7132509,
+    0.06965541,
+    0.93442049,
+    0.89022726,
+    0.71822847,
+    0.92814034,
+    0.53843836,
+    0.94458733,
+    0.8137599
+  ],
+  "grasp_qpos": [
+    -0.14,
+    0.81227255,
+    0.83463606,
+    0.71621797,
+    0.17242762,
+    0.93530435,
+    0.88562056,
+    0.71457097,
+    0.93765753,
+    0.5154483,
+    0.98571988,
+    0.80006279
+  ],
+  "reset_joint_noise": 0.05,
+  "grasp_ramp_steps": 40,
+  "grasp_hold_steps": 0,
+  "validated_for": {
+    "physics_modes": [
+      "tip_connect"
+    ],
+    "mass_scales": [
+      400.0,
+      1.0
+    ],
+    "fixed_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "steps_per_seed": 100,
+    "no_physical_drop": "10/10",
+    "minimum_three_contact_occupancy": 1.0,
+    "notes": "Zero-action hold, T00 solref 0.008, discrete contact; env default qpos."
+  },
+  "source": "RodRotationEnv._ALLEGRO_RESET_QPOS / _ALLEGRO_GRASP_QPOS at palm_down_xml_translation",
+  "notes": "Matching grasp for the palm-down XML translation. The T00 heavy qpos has 0/10 three-contact at this pose and must not be used."
+}

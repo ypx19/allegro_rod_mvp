@@ -1,0 +1,34 @@
+# T00 2x2 support-collapse ablation
+# Shared physics/PPO: tip_connect bottom, s=400, mu=4, 25 Hz, 500-step horizon,
+# MLP [512,256,128], 32 envs, n_steps=256, batch=256, LR 3e-5, seed 0,
+# tilt_terminate=1.2. Do not start T01.
+
+ablation: t00_support_collapse
+tilt_terminate_rad: 1.2
+obs_frame_dim: 48
+policy_hz: 25
+max_episode_steps: 500
+recontact_window_steps: 10
+collapse_lookback_steps: 10
+low_support_wobble_scale: 0.5
+rotation_contact_scale_0: 0.0
+rotation_contact_scale_1: 0.1
+rotation_contact_scale_2plus: 1.0
+
+conditions:
+  A:
+    obs_history_len: 1
+    observation_dim: 48
+    support_aware_reward_enabled: false
+  B:
+    obs_history_len: 4
+    observation_dim: 192
+    support_aware_reward_enabled: false
+  C:
+    obs_history_len: 1
+    observation_dim: 48
+    support_aware_reward_enabled: true
+  D:
+    obs_history_len: 4
+    observation_dim: 192
+    support_aware_reward_enabled: true

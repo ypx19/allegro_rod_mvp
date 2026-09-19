@@ -1,0 +1,6687 @@
+{
+  "meta": {
+    "condition": "B",
+    "title": "B  192-D  baseline",
+    "hist": 4,
+    "support_aware": false,
+    "obs_dim": 192,
+    "source_run": "20260914-1712-t00-ablation-B-continue300k-seed0",
+    "checkpoint": "/data/ypx/allegro_rod_mvp/runs/20260914-1712-t00-ablation-B-continue300k-seed0/checkpoints/ppo_rod_306432_steps.zip",
+    "vecnormalize": "/data/ypx/allegro_rod_mvp/runs/20260914-1712-t00-ablation-B-continue300k-seed0/checkpoints/ppo_rod_306432_steps_vecnormalize.pkl",
+    "ckpt_step": 306432,
+    "seed": 6,
+    "dt_s": 0.04,
+    "policy_hz": 25,
+    "tilt_terminate_rad_logged": 1.2,
+    "eval_tilt_terminate_rad": 1.2,
+    "eval_kill_step": 61,
+    "n_steps": 61,
+    "n_frames": 62,
+    "episode_return": 258.66338495757304,
+    "termination_reason": "axis_tilt",
+    "final_tilt_deg": 76.79709473111745,
+    "final_rotation_deg": 410.25692122286034,
+    "final_contact_count": 0,
+    "video": "B/B_seed6_rot410_tilt77_axis_tilt.mp4",
+    "highlight_steps": [
+      43,
+      54,
+      61
+    ],
+    "tilt_vel_source": "finite difference of tilt angle / dt (dt=0.04 s at 25 Hz); not \u03c9_perp",
+    "axial_omega_source": "\u03c9_axial = \u2212\u03c9\u00b7\u00e2, same sign as unwrap",
+    "omega_perp_source": "\u03c9_perp = ||\u03c9 \u2212 (\u03c9\u00b7\u00e2)\u00e2|| lateral angular rate",
+    "contact_force_source": "_touch() abs(mj_contactForce[0]) summed per tip, threshold 0.05 N"
+  },
+  "events": {
+    "first_support_loss_step": 43,
+    "first_n0_step": 54,
+    "first_tilt_kill_step": 61,
+    "steps_to_tilt_after_loss": 18,
+    "recontact_after_first_loss": false,
+    "n_support_loss_events": 1,
+    "n_recontact_events": 0,
+    "support_loss_steps": [
+      43
+    ],
+    "recontact_steps": []
+  },
+  "collapse": {
+    "episode_length": 61,
+    "n_support_loss_events": 1,
+    "n_recontact_events": 0,
+    "n_2plus_to_1_transitions": 1,
+    "n_1_to_2plus_transitions": 0,
+    "time_steps_0_contact": 8,
+    "time_steps_1_contact": 11,
+    "time_steps_2plus_contact": 42,
+    "frac_steps_0_contact": 0.13114754098360656,
+    "frac_steps_1_contact": 0.18032786885245902,
+    "frac_steps_2plus_contact": 0.6885245901639344,
+    "one_contact_duration_mean": 11.0,
+    "one_contact_duration_max": 11,
+    "had_support_loss": true,
+    "n_support_loss_recovered": 0,
+    "recontact_success_rate": 0.0,
+    "steps_to_recontact_mean": null,
+    "omega_perp_mean": 0.7326305548355349,
+    "omega_perp_max": 11.111081844503197,
+    "omega_perp_at_support_loss_mean": 0.2745920895051862,
+    "omega_perp_max_after_support_loss_mean": 0.3484703476352556,
+    "delta_omega_perp_after_support_loss_mean": 0.26649389361342735,
+    "delay_support_loss_to_omega_spike_mean": 5.0,
+    "tilt_max": 1.340362159023989,
+    "tilt_final": 1.340362159023989,
+    "time_steps_tilt_above_0_25": 6,
+    "n_tilt_upward_cross_0_25": 1,
+    "n_tilt_excursions": 1,
+    "n_tilt_excursions_recovered": 0,
+    "tilt_recovery_rate": 0.0,
+    "tilt_recovery_steps_mean": null,
+    "tilt_recovered_peak_mean": null,
+    "termination_reason": "axis_tilt",
+    "axis_tilt_preceded_by_support_loss": false,
+    "delay_support_loss_to_axis_tilt": null,
+    "support_loss_steps": [
+      43
+    ],
+    "recontact_steps": [],
+    "tilt_cross_0_25_steps": [
+      55
+    ]
+  },
+  "steps": [
+    {
+      "axis_tilt_rad": 0.0016060889420053594,
+      "axis_tilt_deg": 0.09202211789953874,
+      "lateral_omega_rad_s": 0.027116776497913806,
+      "axial_omega_rad_s": -0.11409972464068188,
+      "axis_rotation_deg": 0.0,
+      "tip_error_m": 0.0,
+      "contact_count": 3,
+      "ncon": 3,
+      "rod_axis_world": [
+        0.0010087651302977953,
+        -0.0012497649313674925,
+        -0.9999987102394324
+      ],
+      "rod_pos_m": [
+        -6.350405263845194e-05,
+        -0.04991248222841251,
+        -0.0020299947391681588
+      ],
+      "reward": null,
+      "reward_rotation": 0.0,
+      "reward_rotation_before_support_gate": 0.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": 0.0,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 0,
+      "t_s": 0.0,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.562613661683289,
+          "in_contact": true,
+          "axis_dist_m": 0.04895192704990273,
+          "local_xy_m": [
+            0.0036480373817319306,
+            -0.003171320659115788
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.047852123526679564,
+            -0.03989331082659006,
+            0.032974680020074844
+          ],
+          "force6_n": [
+            0.562613661683289,
+            -0.984918780469868,
+            -1.0176118356373016,
+            -0.020697888836799752,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 2.188217932942944,
+          "in_contact": true,
+          "axis_dist_m": 0.04079703284065424,
+          "local_xy_m": [
+            -0.001930347778437179,
+            0.013416162612338344
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.033277873803939456,
+            -0.07342312686496633,
+            0.03462494149966109
+          ],
+          "force6_n": [
+            2.188217932942944,
+            2.3870508365468965,
+            0.5029027700394597,
+            0.012701367206899898,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 1.2675930633662946,
+          "in_contact": true,
+          "axis_dist_m": 0.050555264919546865,
+          "local_xy_m": [
+            0.006705235356997047,
+            0.009327964897083891
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04215743517695332,
+            -0.021913629152134503,
+            0.033662114956004886
+          ],
+          "force6_n": [
+            1.2675930633662946,
+            2.683406572931938,
+            -0.12499507235280326,
+            0.021961761142148158,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0000.jpg",
+      "tilt_vel_deg_s": 0.0,
+      "tilt_vel_rad_s": 0.0,
+      "axial_omega_deg_s": -6.537432665515915,
+      "lateral_omega_deg_s": 1.553676847330002,
+      "contact_force_total_n": 4.018424657992528
+    },
+    {
+      "axis_tilt_rad": 0.000858169535328904,
+      "axis_tilt_deg": 0.049169492481049196,
+      "lateral_omega_rad_s": 0.06671377825575553,
+      "axial_omega_rad_s": 0.8685625060955646,
+      "axis_rotation_deg": 1.2917320970034862,
+      "tip_error_m": 0.000924691718374664,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        -0.0001680309259161073,
+        0.0008415583036802844,
+        -0.9999996317725469
+      ],
+      "rod_pos_m": [
+        -0.0003336386513418764,
+        -0.05027777212728027,
+        -0.0012035675810765538
+      ],
+      "reward": 2.1434007358724303,
+      "reward_rotation": 2.1714062652389114,
+      "reward_rotation_before_support_gate": 2.1714062652389114,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -3.27313311718501e-05,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 1,
+      "t_s": 0.04,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.05581806515704136,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 27.92622845190848,
+          "in_contact": true,
+          "axis_dist_m": 0.04053540154160511,
+          "local_xy_m": [
+            -0.0019902809390600234,
+            0.013036911762854557
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03324065361365064,
+            -0.07299088897733028,
+            0.034749745709349224
+          ],
+          "force6_n": [
+            27.92622845190848,
+            11.468760696249372,
+            -1.645254520559063,
+            1.713557352464068,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 31.87083872326237,
+          "in_contact": true,
+          "axis_dist_m": 0.05057342999235631,
+          "local_xy_m": [
+            0.006434185361947247,
+            0.008766859110773049
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04146579234006882,
+            -0.02085299083465702,
+            0.034287961076465846
+          ],
+          "force6_n": [
+            31.87083872326237,
+            23.332159701472012,
+            6.879355868412544,
+            0.5234435041479445,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0001.jpg",
+      "tilt_vel_deg_s": -1.0713156354622384,
+      "tilt_vel_rad_s": -0.018697985166911384,
+      "axial_omega_deg_s": 49.764965842581695,
+      "lateral_omega_deg_s": 3.8224179294264347,
+      "contact_force_total_n": 59.79706717517085
+    },
+    {
+      "axis_tilt_rad": 0.00810192918421102,
+      "axis_tilt_deg": 0.46420634816916156,
+      "lateral_omega_rad_s": 0.4165189026808213,
+      "axial_omega_rad_s": 3.086256435967146,
+      "axis_rotation_deg": 6.415007323734796,
+      "tip_error_m": 0.0020598027975450004,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        -0.005078375727436304,
+        -0.006312679322716386,
+        -0.9999671795512789
+      ],
+      "rod_pos_m": [
+        -0.0004248308546272515,
+        -0.04983988937086502,
+        -0.00014982857353526834
+      ],
+      "reward": 7.711015999044809,
+      "reward_rotation": 7.715641089917865,
+      "reward_rotation_before_support_gate": 7.715641089917865,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.0029173891780431226,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 2,
+      "t_s": 0.08,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.06633137196642057,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 34.82383579487089,
+          "in_contact": true,
+          "axis_dist_m": 0.04096743491200303,
+          "local_xy_m": [
+            -0.002333483890239493,
+            0.012752391295690241
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03423274183274902,
+            -0.07168441680197314,
+            0.034577403679953024
+          ],
+          "force6_n": [
+            34.82383579487089,
+            23.996142620931693,
+            3.037143794233981,
+            1.9379155707050928,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 38.17947905852254,
+          "in_contact": true,
+          "axis_dist_m": 0.0516232260175705,
+          "local_xy_m": [
+            0.006834178523133897,
+            0.007994509173823407
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.040414401825643875,
+            -0.01719342435525892,
+            0.036422177019638985
+          ],
+          "force6_n": [
+            38.17947905852254,
+            45.93395551907466,
+            19.031213510914185,
+            0.1029415426827538,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0002.jpg",
+      "tilt_vel_deg_s": 10.375921392202809,
+      "tilt_vel_rad_s": 0.1810939912220529,
+      "axial_omega_deg_s": 176.82946827600486,
+      "lateral_omega_deg_s": 23.864775211031333,
+      "contact_force_total_n": 73.00331485339342
+    },
+    {
+      "axis_tilt_rad": 0.022945303226998278,
+      "axis_tilt_deg": 1.3146690345549097,
+      "lateral_omega_rad_s": 0.3291849044089708,
+      "axial_omega_rad_s": 3.981424037659231,
+      "axis_rotation_deg": 15.026460356824284,
+      "tip_error_m": 0.002758522633715163,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        -0.005906427333508605,
+        -0.02216999473731618,
+        -0.9997367680792286
+      ],
+      "rod_pos_m": [
+        -0.0003550824844703653,
+        -0.04870448454837086,
+        0.0005864513419472443
+      ],
+      "reward": 9.9080360770317,
+      "reward_rotation": 9.953560094148077,
+      "reward_rotation_before_support_gate": 9.953560094148077,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.02339941956350656,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 3,
+      "t_s": 0.12,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.07765810301548637,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 31.28075113442927,
+          "in_contact": true,
+          "axis_dist_m": 0.04173308993272282,
+          "local_xy_m": [
+            -0.002963437563119542,
+            0.012461211028714453
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03583496977443258,
+            -0.06948743219375082,
+            0.03422976461514332
+          ],
+          "force6_n": [
+            31.28075113442927,
+            33.46705019365504,
+            1.8172409577832997,
+            1.3833311189690416,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 40.2840715077459,
+          "in_contact": true,
+          "axis_dist_m": 0.05297168163460309,
+          "local_xy_m": [
+            0.007270151639399399,
+            0.007012740181428749
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.040110087232437794,
+            -0.013696790355710389,
+            0.038544952441145953
+          ],
+          "force6_n": [
+            40.2840715077459,
+            52.91673663831019,
+            20.084307138421448,
+            -0.6659426887799856,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0003.jpg",
+      "tilt_vel_deg_s": 21.2615671596437,
+      "tilt_vel_rad_s": 0.3710843510696814,
+      "axial_omega_deg_s": 228.11879380980926,
+      "lateral_omega_deg_s": 18.860905702051472,
+      "contact_force_total_n": 71.56482264217517
+    },
+    {
+      "axis_tilt_rad": 0.02768592094427561,
+      "axis_tilt_deg": 1.5862864220398432,
+      "lateral_omega_rad_s": 0.17848769505948855,
+      "axial_omega_rad_s": 3.932128269457552,
+      "axis_rotation_deg": 24.11682530072639,
+      "tip_error_m": 0.0029838331546254856,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.00037033542047909524,
+        -0.027679906868557105,
+        -0.9996167693708546
+      ],
+      "rod_pos_m": [
+        -0.0007167935089481075,
+        -0.04831352806726267,
+        0.0008334260807202908
+      ],
+      "reward": 9.759695579470824,
+      "reward_rotation": 9.830320673643879,
+      "reward_rotation_before_support_gate": 9.830320673643879,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.034067120823674614,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 4,
+      "t_s": 0.16,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.08839728285885658,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 30.837626997445486,
+          "in_contact": true,
+          "axis_dist_m": 0.04245160158859366,
+          "local_xy_m": [
+            -0.0032897000250672937,
+            0.012126423841378369
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03673455851217898,
+            -0.06830189241320923,
+            0.03414105939676812
+          ],
+          "force6_n": [
+            30.837626997445486,
+            36.35922375633866,
+            2.224014225651467,
+            1.1774634801969295,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 39.39355735451032,
+          "in_contact": true,
+          "axis_dist_m": 0.054419051316370745,
+          "local_xy_m": [
+            0.007368453902898985,
+            0.006226670104793426
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04106588127131066,
+            -0.011797993524838714,
+            0.03952645878271644
+          ],
+          "force6_n": [
+            39.39355735451032,
+            53.36022062086993,
+            18.659197093776452,
+            -0.9339565115759102,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0004.jpg",
+      "tilt_vel_deg_s": 6.790434687123336,
+      "tilt_vel_rad_s": 0.11851544293193325,
+      "axial_omega_deg_s": 225.29435434399784,
+      "lateral_omega_deg_s": 10.22659162192673,
+      "contact_force_total_n": 70.2311843519558
+    },
+    {
+      "axis_tilt_rad": 0.024555087187075667,
+      "axis_tilt_deg": 1.4069028613952002,
+      "lateral_omega_rad_s": 0.27330905169673214,
+      "axial_omega_rad_s": 3.561928801001562,
+      "axis_rotation_deg": 32.423696084783394,
+      "tip_error_m": 0.002933630526510242,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.009965784011154994,
+        -0.022439123907185544,
+        -0.9996985389942916
+      ],
+      "rod_pos_m": [
+        -0.0013302480870258954,
+        -0.04870876118965044,
+        0.0007983379747239598
+      ],
+      "reward": 8.827224573508225,
+      "reward_rotation": 8.904822002503906,
+      "reward_rotation_before_support_gate": 8.904822002503906,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.026797880300661676,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 5,
+      "t_s": 0.2,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.09712691470274379,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 31.466896466813992,
+          "in_contact": true,
+          "axis_dist_m": 0.043078472381513855,
+          "local_xy_m": [
+            -0.003274180821337482,
+            0.011804524219998901
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03704728520430343,
+            -0.06827709584535789,
+            0.03438028842038002
+          ],
+          "force6_n": [
+            31.466896466813992,
+            37.10619497019863,
+            2.8312994953001684,
+            1.0395806416770874,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 37.50535119806236,
+          "in_contact": true,
+          "axis_dist_m": 0.05581487805430524,
+          "local_xy_m": [
+            0.007146378295506645,
+            0.005708507300725862
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.042931868449502565,
+            -0.011498469663873176,
+            0.03936182028112432
+          ],
+          "force6_n": [
+            37.50535119806236,
+            52.232920762965385,
+            16.59549079626711,
+            -0.9293779321980363,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0005.jpg",
+      "tilt_vel_deg_s": -4.484589016116075,
+      "tilt_vel_rad_s": -0.07827084392999853,
+      "axial_omega_deg_s": 204.0834872234832,
+      "lateral_omega_deg_s": 15.659455164945584,
+      "contact_force_total_n": 68.97224766487635
+    },
+    {
+      "axis_tilt_rad": 0.0236266964144265,
+      "axis_tilt_deg": 1.3537099883835133,
+      "lateral_omega_rad_s": 0.24850500249805385,
+      "axial_omega_rad_s": 3.5078019960102385,
+      "axis_rotation_deg": 40.48117384080315,
+      "tip_error_m": 0.0029279058055607012,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.018203837560308515,
+        -0.01505779595825451,
+        -0.9997209025917971
+      ],
+      "rod_pos_m": [
+        -0.0018776414646256025,
+        -0.04925963694307256,
+        0.0007968765980441976
+      ],
+      "reward": 8.681357217703882,
+      "reward_rotation": 8.769504990025595,
+      "reward_rotation_before_support_gate": 8.769504990025595,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.024809812598198845,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 6,
+      "t_s": 0.24,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.10408239569326087,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 31.183774374948243,
+          "in_contact": true,
+          "axis_dist_m": 0.04372444585563883,
+          "local_xy_m": [
+            -0.0031840141901984128,
+            0.011460393343845717
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.037404673638337944,
+            -0.06846189945388555,
+            0.03473163534213908
+          ],
+          "force6_n": [
+            31.183774374948243,
+            38.78779120667441,
+            3.191264874495294,
+            0.851086980238308,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 35.99102469117505,
+          "in_contact": true,
+          "axis_dist_m": 0.05704283265681786,
+          "local_xy_m": [
+            0.006833505717261882,
+            0.005227223614032828
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04468500671261755,
+            -0.011557989259732022,
+            0.03908174348781893
+          ],
+          "force6_n": [
+            35.99102469117505,
+            51.92499114102303,
+            15.782351513212141,
+            -0.9536675437492785,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0006.jpg",
+      "tilt_vel_deg_s": -1.3298218252921712,
+      "tilt_vel_rad_s": -0.0232097693162292,
+      "axial_omega_deg_s": 200.9822497389527,
+      "lateral_omega_deg_s": 14.238287831026465,
+      "contact_force_total_n": 67.17479906612328
+    },
+    {
+      "axis_tilt_rad": 0.026300163431083913,
+      "axis_tilt_deg": 1.5068883651054146,
+      "lateral_omega_rad_s": 0.14553967867038006,
+      "axial_omega_rad_s": 3.9582357625602804,
+      "axis_rotation_deg": 49.47760713832258,
+      "tip_error_m": 0.0029568404545527133,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.02281327937071752,
+        -0.01308026808773915,
+        -0.999654170636579
+      ],
+      "rod_pos_m": [
+        -0.002163769138051433,
+        -0.049427014769093024,
+        0.0008261768356484047
+      ],
+      "reward": 9.78200095365711,
+      "reward_rotation": 9.8955894064007,
+      "reward_rotation_before_support_gate": 9.8955894064007,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.030742159844521045,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 7,
+      "t_s": 0.28,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.10990134255114083,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 29.41317065123705,
+          "in_contact": true,
+          "axis_dist_m": 0.04446776705228964,
+          "local_xy_m": [
+            -0.00330198257323989,
+            0.010997824356721128
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03830363302176386,
+            -0.06785991115171484,
+            0.03465528349363795
+          ],
+          "force6_n": [
+            29.41317065123705,
+            41.81163937621625,
+            3.8332757587731847,
+            0.6684101046998154,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 34.682005167399716,
+          "in_contact": true,
+          "axis_dist_m": 0.058118039945422376,
+          "local_xy_m": [
+            0.006601863819145709,
+            0.004521379176796773
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04577712885536969,
+            -0.011013717315405035,
+            0.039317938807262434
+          ],
+          "force6_n": [
+            34.682005167399716,
+            50.7421588632164,
+            16.329609669243627,
+            -0.976472089281444,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0007.jpg",
+      "tilt_vel_deg_s": 3.8294594180475316,
+      "tilt_vel_rad_s": 0.06683667541643534,
+      "axial_omega_deg_s": 226.79020351245111,
+      "lateral_omega_deg_s": 8.338809339502946,
+      "contact_force_total_n": 64.09517581863676
+    },
+    {
+      "axis_tilt_rad": 0.03074978821209754,
+      "axis_tilt_deg": 1.7618330854743185,
+      "lateral_omega_rad_s": 0.1352693252017683,
+      "axial_omega_rad_s": 4.398073673038788,
+      "axis_rotation_deg": 59.60350831937386,
+      "tip_error_m": 0.003010276603055383,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.02612387865425611,
+        -0.016210936291487028,
+        -0.9995272625139402
+      ],
+      "rod_pos_m": [
+        -0.0023332199061668695,
+        -0.04921558844611886,
+        0.0008827125807110953
+      ],
+      "reward": 9.813336618401053,
+      "reward_rotation": 10.0,
+      "reward_rotation_before_support_gate": 10.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.04202442111506013,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 8,
+      "t_s": 0.32,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.11507265836474827,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 26.849209282733256,
+          "in_contact": true,
+          "axis_dist_m": 0.0452218956594959,
+          "local_xy_m": [
+            -0.0036600623946044806,
+            0.010380167609460374
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03950033720708751,
+            -0.06639037654642503,
+            0.034189566984195216
+          ],
+          "force6_n": [
+            26.849209282733256,
+            45.2766386736013,
+            4.421879869278527,
+            0.4958920170066031,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 33.47081038087654,
+          "in_contact": true,
+          "axis_dist_m": 0.0591135909091134,
+          "local_xy_m": [
+            0.0064075323990696875,
+            0.0035732183965827636
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04655066179916009,
+            -0.00998250976740971,
+            0.03991989686147578
+          ],
+          "force6_n": [
+            33.47081038087654,
+            49.25339157202537,
+            16.72234525031089,
+            -1.050893678957436,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0008.jpg",
+      "tilt_vel_deg_s": 6.373618009222598,
+      "tilt_vel_rad_s": 0.1112406195253407,
+      "axial_omega_deg_s": 251.99105945272254,
+      "lateral_omega_deg_s": 7.750361431643946,
+      "contact_force_total_n": 60.3200196636098
+    },
+    {
+      "axis_tilt_rad": 0.03528396416387373,
+      "axis_tilt_deg": 2.021622231080807,
+      "lateral_omega_rad_s": 0.09943255719205804,
+      "axial_omega_rad_s": 4.499966473690997,
+      "axis_rotation_deg": 70.19336099133174,
+      "tip_error_m": 0.003076082291272522,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.029436515250749504,
+        -0.019440502630217814,
+        -0.9993775855137921
+      ],
+      "rod_pos_m": [
+        -0.0025110661562561336,
+        -0.0489875629152299,
+        0.0009483573464731946
+      ],
+      "reward": 9.762966853063798,
+      "reward_rotation": 10.0,
+      "reward_rotation_before_support_gate": 10.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.05533147231633447,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 9,
+      "t_s": 0.36,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.11966540869233472,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 24.77905380277276,
+          "in_contact": true,
+          "axis_dist_m": 0.045893733041989154,
+          "local_xy_m": [
+            -0.004060413585138017,
+            0.009634387438442707
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04063354209891476,
+            -0.06463292999424747,
+            0.03365434689636999
+          ],
+          "force6_n": [
+            24.77905380277276,
+            47.85029460213371,
+            4.7406275564097715,
+            0.3426714221896336,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 32.157296842476455,
+          "in_contact": true,
+          "axis_dist_m": 0.060030902807857014,
+          "local_xy_m": [
+            0.006126923928489998,
+            0.0025470580226797128
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04743665802432763,
+            -0.009170475035403185,
+            0.04040198185128337
+          ],
+          "force6_n": [
+            32.157296842476455,
+            48.154370178497516,
+            16.442406901103883,
+            -1.1783349856398972,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0009.jpg",
+      "tilt_vel_deg_s": 6.494728640162217,
+      "tilt_vel_rad_s": 0.11335439879440468,
+      "axial_omega_deg_s": 257.82908689286194,
+      "lateral_omega_deg_s": 5.697065873298105,
+      "contact_force_total_n": 56.93635064524922
+    },
+    {
+      "axis_tilt_rad": 0.03714038080566949,
+      "axis_tilt_deg": 2.127987069673554,
+      "lateral_omega_rad_s": 0.07927587136812049,
+      "axial_omega_rad_s": 4.177330570206551,
+      "axis_rotation_deg": 80.40471134567935,
+      "tip_error_m": 0.003076189083530547,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03183573806931988,
+        -0.019111764158263576,
+        -0.9993103753350812
+      ],
+      "rod_pos_m": [
+        -0.0026299336013574618,
+        -0.04901478808251596,
+        0.0009502990102341376
+      ],
+      "reward": 9.761769803220199,
+      "reward_rotation": 10.0,
+      "reward_rotation_before_support_gate": 10.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.06130701717289524,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 10,
+      "t_s": 0.4,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.12342821837210305,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 23.42578755134131,
+          "in_contact": true,
+          "axis_dist_m": 0.04652356571922989,
+          "local_xy_m": [
+            -0.004316663767977564,
+            0.008869027166587712
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04167600409225408,
+            -0.06320725271418984,
+            0.033321364580307294
+          ],
+          "force6_n": [
+            23.42578755134131,
+            49.66228384068839,
+            4.196119667848961,
+            0.14390955275873862,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 31.53369723190873,
+          "in_contact": true,
+          "axis_dist_m": 0.06078315503160328,
+          "local_xy_m": [
+            0.00571858112633767,
+            0.0015892855791569118
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.048329014672170746,
+            -0.00893753861502938,
+            0.04053077118670153
+          ],
+          "force6_n": [
+            31.53369723190873,
+            42.8731011551128,
+            12.94058907912783,
+            -1.2342459357410926,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0010.jpg",
+      "tilt_vel_deg_s": 2.659120964818673,
+      "tilt_vel_rad_s": 0.04641041604489405,
+      "axial_omega_deg_s": 239.34341130381299,
+      "lateral_omega_deg_s": 4.5421728466153075,
+      "contact_force_total_n": 54.95948478325003
+    },
+    {
+      "axis_tilt_rad": 0.03500162746415816,
+      "axis_tilt_deg": 2.0054455297854523,
+      "lateral_omega_rad_s": 0.13987173005362472,
+      "axial_omega_rad_s": 3.7762690412442455,
+      "axis_rotation_deg": 89.63937788808346,
+      "tip_error_m": 0.002930527702971604,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.031512149924459984,
+        -0.015218347893843819,
+        -0.9993875055725484
+      ],
+      "rod_pos_m": [
+        -0.0025371396158018616,
+        -0.049290342730320305,
+        0.0008163356808883543
+      ],
+      "reward": 9.202572138697969,
+      "reward_rotation": 9.440672603110613,
+      "reward_rotation_before_support_gate": 9.440672603110613,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.05444950778398715,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 11,
+      "t_s": 0.44,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.12621332128180682,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 23.363535838789332,
+          "in_contact": true,
+          "axis_dist_m": 0.04715889770764399,
+          "local_xy_m": [
+            -0.004387983948491829,
+            0.008162330342330978
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04280223180797141,
+            -0.06226350856974291,
+            0.03317647419322177
+          ],
+          "force6_n": [
+            23.363535838789332,
+            49.98103699502026,
+            4.553858614677907,
+            0.05170980837051339,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 30.5915048152233,
+          "in_contact": true,
+          "axis_dist_m": 0.06125725242677904,
+          "local_xy_m": [
+            0.005266245381123977,
+            0.0006970498895467652
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.048535375474094374,
+            -0.008835265511224311,
+            0.04059395279034654
+          ],
+          "force6_n": [
+            30.5915048152233,
+            38.917424741371455,
+            11.812156367008408,
+            -1.2061223968870534,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0011.jpg",
+      "tilt_vel_deg_s": -3.063538497202545,
+      "tilt_vel_rad_s": -0.05346883353778333,
+      "axial_omega_deg_s": 216.36427836920907,
+      "lateral_omega_deg_s": 8.014059805265852,
+      "contact_force_total_n": 53.955040654012635
+    },
+    {
+      "axis_tilt_rad": 0.032505631881537475,
+      "axis_tilt_deg": 1.8624355172179905,
+      "lateral_omega_rad_s": 0.11536923640839916,
+      "axial_omega_rad_s": 3.776267470378351,
+      "axis_rotation_deg": 98.65811347794305,
+      "tip_error_m": 0.002884162606812214,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03048386603207973,
+        -0.011268448088232354,
+        -0.9994717384645856
+      ],
+      "rod_pos_m": [
+        -0.002447591690657406,
+        -0.04959245126470527,
+        0.0007739075567067782
+      ],
+      "reward": 9.18425594773934,
+      "reward_rotation": 9.440668675945878,
+      "reward_rotation_before_support_gate": 9.440668675945878,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.046960715734134476,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 12,
+      "t_s": 0.48,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.128405616837945,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 22.315820308223554,
+          "in_contact": true,
+          "axis_dist_m": 0.04776176996485131,
+          "local_xy_m": [
+            -0.004443665614158378,
+            0.007430670079715735
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.043859501413820834,
+            -0.06129030569996632,
+            0.03307689421158828
+          ],
+          "force6_n": [
+            22.315820308223554,
+            51.09247761654161,
+            4.613401981624641,
+            -0.06610351160475235,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 28.830878775183162,
+          "in_contact": true,
+          "axis_dist_m": 0.06155767423672417,
+          "local_xy_m": [
+            0.004823152958697629,
+            -0.00027224921249269923
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.048082265848691644,
+            -0.008278727492516728,
+            0.04096888408098215
+          ],
+          "force6_n": [
+            28.830878775183162,
+            36.800947536414846,
+            11.729490310060836,
+            -1.3342447296372173,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0012.jpg",
+      "tilt_vel_deg_s": -3.5752503141865453,
+      "tilt_vel_rad_s": -0.06239988956551704,
+      "axial_omega_deg_s": 216.36418836522313,
+      "lateral_omega_deg_s": 6.610170331848308,
+      "contact_force_total_n": 51.146699083406716
+    },
+    {
+      "axis_tilt_rad": 0.032410565159968305,
+      "axis_tilt_deg": 1.8569885952999317,
+      "lateral_omega_rad_s": 0.09017912344800244,
+      "axial_omega_rad_s": 3.8138285749250262,
+      "axis_rotation_deg": 107.80870288534233,
+      "tip_error_m": 0.002896462725845151,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03120987055620155,
+        -0.008718999597766673,
+        -0.9994748236078184
+      ],
+      "rod_pos_m": [
+        -0.002499277836534363,
+        -0.049792894497001014,
+        0.000783489362608184
+      ],
+      "reward": 9.250133659360976,
+      "reward_rotation": 9.534571437312566,
+      "reward_rotation_before_support_gate": 9.534571437312566,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.046686432621713396,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 13,
+      "t_s": 0.52,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13026506064438997,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 20.02343870081226,
+          "in_contact": true,
+          "axis_dist_m": 0.04823279903198729,
+          "local_xy_m": [
+            -0.00457251497874719,
+            0.006625424955007193
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.044640393270519566,
+            -0.06000339450331113,
+            0.03291199319424935
+          ],
+          "force6_n": [
+            20.02343870081226,
+            52.06753476361549,
+            3.7781971648285793,
+            -0.15224414686691237,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 26.32138635958671,
+          "in_contact": true,
+          "axis_dist_m": 0.061705645946552895,
+          "local_xy_m": [
+            0.0043908210341776725,
+            -0.0013600160870322073
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04736006082354122,
+            -0.00742431071757765,
+            0.04158504785207983
+          ],
+          "force6_n": [
+            26.32138635958671,
+            35.41045183966604,
+            12.08898136184349,
+            -1.541216824634287,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0013.jpg",
+      "tilt_vel_deg_s": -0.13617304795147112,
+      "tilt_vel_rad_s": -0.002376668039229257,
+      "axial_omega_deg_s": 218.51628112959727,
+      "lateral_omega_deg_s": 5.16688317375978,
+      "contact_force_total_n": 46.344825060398975
+    },
+    {
+      "axis_tilt_rad": 0.034295429619903575,
+      "axis_tilt_deg": 1.964983373808428,
+      "lateral_omega_rad_s": 0.10559799688657921,
+      "axial_omega_rad_s": 3.7201613480310387,
+      "axis_rotation_deg": 116.8106406404354,
+      "tip_error_m": 0.002844779253424867,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03367048627521534,
+        -0.006481804435012504,
+        -0.9994119693926309
+      ],
+      "rod_pos_m": [
+        -0.002689650915549985,
+        -0.04999689739928534,
+        0.0007171576491543454
+      ],
+      "reward": 8.980067197889875,
+      "reward_rotation": 9.300403370077596,
+      "reward_rotation_before_support_gate": 9.300403370077596,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.05227451079172265,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 14,
+      "t_s": 0.56,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.1318665071555324,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 17.514169286444893,
+          "in_contact": true,
+          "axis_dist_m": 0.0485515543904045,
+          "local_xy_m": [
+            -0.00473417644710512,
+            0.005795583518922592
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.045087448373067406,
+            -0.05863415490905093,
+            0.03266538494886003
+          ],
+          "force6_n": [
+            17.514169286444893,
+            3.564758720280343,
+            -51.793336528797525,
+            -0.10234269972088093,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 23.629787925093623,
+          "in_contact": true,
+          "axis_dist_m": 0.06168200315401013,
+          "local_xy_m": [
+            0.003956386502437103,
+            -0.002468445627981497
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04666434587253829,
+            -0.006743045356592731,
+            0.042138167186888446
+          ],
+          "force6_n": [
+            23.629787925093623,
+            33.45397803030589,
+            12.752894743662427,
+            -1.675198942309014,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0014.jpg",
+      "tilt_vel_deg_s": 2.6998694627124062,
+      "tilt_vel_rad_s": 0.04712161149838176,
+      "axial_omega_deg_s": 213.14954434987752,
+      "lateral_omega_deg_s": 6.050319546636596,
+      "contact_force_total_n": 41.14395721153852
+    },
+    {
+      "axis_tilt_rad": 0.03724716102903029,
+      "axis_tilt_deg": 2.1341051258075923,
+      "lateral_omega_rad_s": 0.1241051832086613,
+      "axial_omega_rad_s": 3.508250241061087,
+      "axis_rotation_deg": 125.33590379908507,
+      "tip_error_m": 0.0027625241516191787,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03706960849260808,
+        -0.003543115671046868,
+        -0.9993064046915472
+      ],
+      "rod_pos_m": [
+        -0.00293066437806098,
+        -0.050258700253099656,
+        0.0006154555673578958
+      ],
+      "reward": 8.411835567654402,
+      "reward_rotation": 8.770625602652718,
+      "reward_rotation_before_support_gate": 8.770625602652718,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.06166004465433391,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 15,
+      "t_s": 0.6,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13308884008177121,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 15.69236462599665,
+          "in_contact": true,
+          "axis_dist_m": 0.048737739746330985,
+          "local_xy_m": [
+            -0.004887134842441068,
+            0.004979309492696021
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04528809159109165,
+            -0.05735227821971135,
+            0.032455968795125203
+          ],
+          "force6_n": [
+            15.69236462599665,
+            2.594914905697971,
+            -51.53905105883463,
+            -0.05003127450177547,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 21.7910179963403,
+          "in_contact": true,
+          "axis_dist_m": 0.06153276987026921,
+          "local_xy_m": [
+            0.003517669108290442,
+            -0.0034985943163734308
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04611527616991163,
+            -0.006425253294245682,
+            0.04247591535535054
+          ],
+          "force6_n": [
+            21.7910179963403,
+            30.765341599842515,
+            12.812926026274239,
+            -1.714021495630259,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0015.jpg",
+      "tilt_vel_deg_s": 4.228043799979108,
+      "tilt_vel_rad_s": 0.07379328522816794,
+      "axial_omega_deg_s": 201.00793228855395,
+      "lateral_omega_deg_s": 7.110703213554145,
+      "contact_force_total_n": 37.48338262233695
+    },
+    {
+      "axis_tilt_rad": 0.04084332722134272,
+      "axis_tilt_deg": 2.3401502710547257,
+      "lateral_omega_rad_s": 0.1402568665716593,
+      "axial_omega_rad_s": 3.266273899727516,
+      "axis_rotation_deg": 133.26261055555838,
+      "tip_error_m": 0.002693557181149929,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.04083137558955244,
+        0.0002207872643924523,
+        -0.9991660272549547
+      ],
+      "rod_pos_m": [
+        -0.0031865083504010587,
+        -0.050578763847255584,
+        0.0005242616840937388
+      ],
+      "reward": 7.771176392831492,
+      "reward_rotation": 8.16568474931879,
+      "reward_rotation_before_support_gate": 8.16568474931879,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.07414121682265225,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 16,
+      "t_s": 0.64,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13397085698502073,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 14.286628668938867,
+          "in_contact": true,
+          "axis_dist_m": 0.048821255031701476,
+          "local_xy_m": [
+            -0.0050239107354773885,
+            0.004199867904897275
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04530857501933547,
+            -0.05621275282778622,
+            0.03232849650351464
+          ],
+          "force6_n": [
+            14.286628668938867,
+            1.7705128801378016,
+            -51.39639115435008,
+            -0.0017626588639188148,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 20.386149194616166,
+          "in_contact": true,
+          "axis_dist_m": 0.06129991192942016,
+          "local_xy_m": [
+            0.0030876412664347756,
+            -0.004419773774285213
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04568725592221024,
+            -0.006404499185667576,
+            0.042628630582513635
+          ],
+          "force6_n": [
+            20.386149194616166,
+            28.311992349768335,
+            12.711076180657694,
+            -1.7236882732681926,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0016.jpg",
+      "tilt_vel_deg_s": 5.151128631178336,
+      "tilt_vel_rad_s": 0.0899041548078107,
+      "axial_omega_deg_s": 187.14370918812332,
+      "lateral_omega_deg_s": 8.0361265022856,
+      "contact_force_total_n": 34.672777863555034
+    },
+    {
+      "axis_tilt_rad": 0.045067250806515,
+      "axis_tilt_deg": 2.582163265470865,
+      "lateral_omega_rad_s": 0.15465805986575848,
+      "axial_omega_rad_s": 3.044642709631685,
+      "axis_rotation_deg": 140.61747724734147,
+      "tip_error_m": 0.0026334031729190453,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.04480307674668826,
+        0.004729346392880803,
+        -0.9989846433237735
+      ],
+      "rod_pos_m": [
+        -0.003448465903296786,
+        -0.050944564435842915,
+        0.000439962270031974
+      ],
+      "reward": 7.180780176249033,
+      "reward_rotation": 7.611606774079212,
+      "reward_rotation_before_support_gate": 7.611606774079212,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.09026920423365899,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 17,
+      "t_s": 0.68,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13471684020579922,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 13.106472466402197,
+          "in_contact": true,
+          "axis_dist_m": 0.048817482565113465,
+          "local_xy_m": [
+            -0.0051516634967151125,
+            0.003460543614727383
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04518234834985828,
+            -0.05520959773820855,
+            0.032258796864752984
+          ],
+          "force6_n": [
+            13.106472466402197,
+            1.0123256511099687,
+            -51.40165171071197,
+            0.040941343448686524,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 19.240363423999973,
+          "in_contact": true,
+          "axis_dist_m": 0.06100281050967185,
+          "local_xy_m": [
+            0.0026787446988918336,
+            -0.00523931286531107
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04535377034665146,
+            -0.00661299160576289,
+            0.04263581065843765
+          ],
+          "force6_n": [
+            19.240363423999973,
+            26.186184819315372,
+            12.568000987331839,
+            -1.7245849960237754,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0017.jpg",
+      "tilt_vel_deg_s": 6.050324860403477,
+      "tilt_vel_rad_s": 0.1055980896293069,
+      "axial_omega_deg_s": 174.44517738717056,
+      "lateral_omega_deg_s": 8.861254097989583,
+      "contact_force_total_n": 32.34683589040217
+    },
+    {
+      "axis_tilt_rad": 0.04980912898656912,
+      "axis_tilt_deg": 2.853852872153142,
+      "lateral_omega_rad_s": 0.16508829415645343,
+      "axial_omega_rad_s": 2.8389892352617467,
+      "axis_rotation_deg": 147.44303931235447,
+      "tip_error_m": 0.002578500707253878,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.04879609870884002,
+        0.009891362725823622,
+        -0.9987597817764907
+      ],
+      "rod_pos_m": [
+        -0.003704857139457729,
+        -0.05134888265952328,
+        0.00035914121815544276
+      ],
+      "reward": 6.6282840176906,
+      "reward_rotation": 7.097473088154366,
+      "reward_rotation_before_support_gate": 7.097473088154366,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.11026441468447468,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 18,
+      "t_s": 0.72,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13536507343353932,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 12.1636969290654,
+          "in_contact": true,
+          "axis_dist_m": 0.04873813344126246,
+          "local_xy_m": [
+            -0.005276280152265173,
+            0.0027614860057659143
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.044941770238753974,
+            -0.054334062061792025,
+            0.032229344326339435
+          ],
+          "force6_n": [
+            12.1636969290654,
+            0.3649736226202527,
+            -51.50019446969901,
+            0.0779103561270465,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 18.402171017283006,
+          "in_contact": true,
+          "axis_dist_m": 0.060654136638256424,
+          "local_xy_m": [
+            0.0022955516139838705,
+            -0.005965667589708402
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04509867179164024,
+            -0.007015188928084198,
+            0.042515719235309044
+          ],
+          "force6_n": [
+            18.402171017283006,
+            24.334665428151933,
+            12.381996057975577,
+            -1.7151767139089331,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0018.jpg",
+      "tilt_vel_deg_s": 6.792240167056929,
+      "tilt_vel_rad_s": 0.11854695450135305,
+      "axial_omega_deg_s": 162.66210126357123,
+      "lateral_omega_deg_s": 9.458862502179032,
+      "contact_force_total_n": 30.565867946348405
+    },
+    {
+      "axis_tilt_rad": 0.054489216669673615,
+      "axis_tilt_deg": 3.1220021441461894,
+      "lateral_omega_rad_s": 0.16864049705012152,
+      "axial_omega_rad_s": 2.661246247436423,
+      "axis_rotation_deg": 153.78685426011918,
+      "tip_error_m": 0.00253354274435219,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.052143932143918825,
+        0.015720934088409643,
+        -0.9985158299055445
+      ],
+      "rod_pos_m": [
+        -0.0039079465654831246,
+        -0.05179070973953275,
+        0.0002894534148965471
+      ],
+      "reward": 6.145248452888419,
+      "reward_rotation": 6.653115618591058,
+      "reward_rotation_before_support_gate": 6.653115618591058,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.13195887703442832,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 19,
+      "t_s": 0.76,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13587878871001072,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 11.485079489795154,
+          "in_contact": true,
+          "axis_dist_m": 0.04861188975780755,
+          "local_xy_m": [
+            -0.005397898977743308,
+            0.0021018272862423455
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.044671036766652364,
+            -0.053579062121290016,
+            0.03221825881592729
+          ],
+          "force6_n": [
+            11.485079489795154,
+            -0.0947387225360696,
+            -51.714846475687345,
+            0.1133154377953383,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 17.85630113933974,
+          "in_contact": true,
+          "axis_dist_m": 0.060265366801113246,
+          "local_xy_m": [
+            0.0019287146941928141,
+            -0.006601831902266451
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.044893512107717214,
+            -0.007608158286997145,
+            0.04226591953334292
+          ],
+          "force6_n": [
+            17.85630113933974,
+            -11.764487478385593,
+            23.064887263208902,
+            -1.689046337119045,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0019.jpg",
+      "tilt_vel_deg_s": 6.703731799826184,
+      "tilt_vel_rad_s": 0.1170021920776124,
+      "axial_omega_deg_s": 152.47817822313502,
+      "lateral_omega_deg_s": 9.662388735960372,
+      "contact_force_total_n": 29.341380629134896
+    },
+    {
+      "axis_tilt_rad": 0.059339572361000834,
+      "axis_tilt_deg": 3.3999070543964978,
+      "lateral_omega_rad_s": 0.16988264061978017,
+      "axial_omega_rad_s": 2.472322528042116,
+      "axis_rotation_deg": 159.6845774975089,
+      "tip_error_m": 0.0024638431086994625,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.05510383771179392,
+        0.021923068741706624,
+        -0.9982399241296547
+      ],
+      "rod_pos_m": [
+        -0.004084528038748182,
+        -0.052259025853957045,
+        0.00019013011278327455
+      ],
+      "reward": 5.635479849722359,
+      "reward_rotation": 6.18080632010529,
+      "reward_rotation_before_support_gate": 6.18080632010529,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.15649710435495354,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 20,
+      "t_s": 0.8,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13629478597963982,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 11.376590547174168,
+          "in_contact": true,
+          "axis_dist_m": 0.0484603142489128,
+          "local_xy_m": [
+            -0.005470898579588788,
+            0.0014978756742936668
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04437000262146351,
+            -0.05300770175311876,
+            0.03234730479456521
+          ],
+          "force6_n": [
+            11.376590547174168,
+            -0.48171506778315965,
+            -51.40115450447965,
+            0.11926654137301004,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 17.89564478319762,
+          "in_contact": true,
+          "axis_dist_m": 0.05984481767325111,
+          "local_xy_m": [
+            0.0015943615095123653,
+            -0.0071535191856777055
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.044745975245504846,
+            -0.008349472071245832,
+            0.04190610280868159
+          ],
+          "force6_n": [
+            17.89564478319762,
+            -11.330373957501173,
+            21.581987500103754,
+            -1.6728953452481892,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0020.jpg",
+      "tilt_vel_deg_s": 6.94762275625771,
+      "tilt_vel_rad_s": 0.12125889228318046,
+      "axial_omega_deg_s": 141.65364645192736,
+      "lateral_omega_deg_s": 9.733558320051127,
+      "contact_force_total_n": 29.27223533037179
+    },
+    {
+      "axis_tilt_rad": 0.06315558832341704,
+      "axis_tilt_deg": 3.6185486635974993,
+      "lateral_omega_rad_s": 0.16620642300736124,
+      "axial_omega_rad_s": 2.3161138210450067,
+      "axis_rotation_deg": 165.13903518278894,
+      "tip_error_m": 0.0024018620008156993,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.056351817320648145,
+        0.028421836474540555,
+        -0.9980063486251352
+      ],
+      "rod_pos_m": [
+        -0.004129198187637997,
+        -0.05273695840121379,
+        0.00010507223412792667
+      ],
+      "reward": 5.21509006978617,
+      "reward_rotation": 5.790284552612517,
+      "reward_rotation_before_support_gate": 5.790284552612517,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.17727237051008585,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 21,
+      "t_s": 0.84,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13652187278231714,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 11.722953566879562,
+          "in_contact": true,
+          "axis_dist_m": 0.04835456984088769,
+          "local_xy_m": [
+            -0.00548089560478091,
+            0.0009473102024638207
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04422514149267581,
+            -0.052587765311174664,
+            0.03258691525341487
+          ],
+          "force6_n": [
+            11.722953566879562,
+            -0.4859638814968915,
+            -50.9793505087472,
+            0.13475690877421,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 18.42379842575015,
+          "in_contact": true,
+          "axis_dist_m": 0.05940810976166723,
+          "local_xy_m": [
+            0.001262873321540018,
+            -0.0076170546871207
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04460868342894575,
+            -0.009254378210371287,
+            0.04142169629419075
+          ],
+          "force6_n": [
+            18.42379842575015,
+            -11.134531214160397,
+            20.510022187703367,
+            -1.618816476525976,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0021.jpg",
+      "tilt_vel_deg_s": 5.466040230025038,
+      "tilt_vel_rad_s": 0.0954003990604052,
+      "axial_omega_deg_s": 132.7035468177973,
+      "lateral_omega_deg_s": 9.522926566287863,
+      "contact_force_total_n": 30.14675199262971
+    },
+    {
+      "axis_tilt_rad": 0.06595635836260186,
+      "axis_tilt_deg": 3.7790209662294796,
+      "lateral_omega_rad_s": 0.1735044825190345,
+      "axial_omega_rad_s": 2.2492659752368027,
+      "axis_rotation_deg": 170.35692324924764,
+      "tip_error_m": 0.002358098371083407,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.055729834699484976,
+        0.03518696052690526,
+        -0.9978256678063789
+      ],
+      "rod_pos_m": [
+        -0.004042485232969237,
+        -0.05322794729652241,
+        4.3540630811183094e-05
+      ],
+      "reward": 5.025275877789067,
+      "reward_rotation": 5.623164938092007,
+      "reward_rotation_before_support_gate": 5.623164938092007,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.1933440537091538,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 22,
+      "t_s": 0.88,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13658109599959675,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 12.09140793150982,
+          "in_contact": true,
+          "axis_dist_m": 0.048311112925778645,
+          "local_xy_m": [
+            -0.00544164701352212,
+            0.0004302878097796783
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04425914034984696,
+            -0.052270555952937066,
+            0.03289408693965337
+          ],
+          "force6_n": [
+            12.09140793150982,
+            -0.6251480326123938,
+            -50.66739038351652,
+            0.14142566434437587,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 18.63505293655422,
+          "in_contact": true,
+          "axis_dist_m": 0.05895898100558557,
+          "local_xy_m": [
+            0.0009257813360827039,
+            -0.008016993941744332
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04443778376692091,
+            -0.010281686719262346,
+            0.04086222486988888
+          ],
+          "force6_n": [
+            18.63505293655422,
+            -11.02717507162934,
+            19.686206512372376,
+            -1.5935826583674548,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0022.jpg",
+      "tilt_vel_deg_s": 4.011807565799508,
+      "tilt_vel_rad_s": 0.0700192509796204,
+      "axial_omega_deg_s": 128.87344738344592,
+      "lateral_omega_deg_s": 9.941074574942046,
+      "contact_force_total_n": 30.72646086806404
+    },
+    {
+      "axis_tilt_rad": 0.06866403177065293,
+      "axis_tilt_deg": 3.93415922481061,
+      "lateral_omega_rad_s": 0.17609236032026804,
+      "axial_omega_rad_s": 2.2028756635429616,
+      "axis_rotation_deg": 175.4590262519689,
+      "tip_error_m": 0.0023195026600093776,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.05423378461159047,
+        0.04202428942740902,
+        -0.9976435514274752
+      ],
+      "rod_pos_m": [
+        -0.0038961928085581147,
+        -0.0537194284483072,
+        -1.2255890347482551e-05
+      ],
+      "reward": 4.888221929500095,
+      "reward_rotation": 5.507189158857404,
+      "reward_rotation_before_support_gate": 5.507189158857404,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.209544411511166,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 23,
+      "t_s": 0.92,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.1365564708537416,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 12.535014382372955,
+          "in_contact": true,
+          "axis_dist_m": 0.04828763531246498,
+          "local_xy_m": [
+            -0.005375333869474556,
+            -7.017498285914227e-05
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04436090235402583,
+            -0.052002311521906416,
+            0.03323029066251846
+          ],
+          "force6_n": [
+            12.535014382372955,
+            -0.8731802718585219,
+            -50.350440328543364,
+            0.13830820640796723,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 19.674124760968677,
+          "in_contact": true,
+          "axis_dist_m": 0.0584842976684536,
+          "local_xy_m": [
+            0.0005980172495921639,
+            -0.008376564009620257
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04424942034243619,
+            -0.011387051933736791,
+            0.040264125833862095
+          ],
+          "force6_n": [
+            19.674124760968677,
+            -10.430732661922237,
+            19.108022450072703,
+            -1.5804012096128308,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0023.jpg",
+      "tilt_vel_deg_s": 3.878456464528257,
+      "tilt_vel_rad_s": 0.06769183520127682,
+      "axial_omega_deg_s": 126.21547831309245,
+      "lateral_omega_deg_s": 10.089349050848323,
+      "contact_force_total_n": 32.20913914334163
+    },
+    {
+      "axis_tilt_rad": 0.07065649856937588,
+      "axis_tilt_deg": 4.048319163197377,
+      "lateral_omega_rad_s": 0.19525466157021476,
+      "axial_omega_rad_s": 2.1444428154060815,
+      "axis_rotation_deg": 180.4104159023185,
+      "tip_error_m": 0.0022750141922102227,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.05107558740505101,
+        0.048737284159230065,
+        -0.9975048679099323
+      ],
+      "rod_pos_m": [
+        -0.003624893481850236,
+        -0.05419662074009881,
+        -7.004324830480812e-05
+      ],
+      "reward": 4.72705827782393,
+      "reward_rotation": 5.361107038515204,
+      "reward_rotation_before_support_gate": 5.361107038515204,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.22188181289263179,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 24,
+      "t_s": 0.96,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.136391552777591,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 13.300159166073339,
+          "in_contact": true,
+          "axis_dist_m": 0.04831610462055435,
+          "local_xy_m": [
+            -0.0052679104416205255,
+            -0.0005466029141170275
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.044630263843766366,
+            -0.05177056278853549,
+            0.0335871776871063
+          ],
+          "force6_n": [
+            13.300159166073339,
+            -0.8584873555103957,
+            -49.96670943905936,
+            0.1448542031178296,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 20.09188022004106,
+          "in_contact": true,
+          "axis_dist_m": 0.057981919646963934,
+          "local_xy_m": [
+            0.0002632020180934492,
+            -0.008684574692423723
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04403997474295643,
+            -0.01262109653889162,
+            0.03957708167283973
+          ],
+          "force6_n": [
+            20.09188022004106,
+            -10.608903733999234,
+            18.30831331781561,
+            -1.5520800295154282,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0024.jpg",
+      "tilt_vel_deg_s": 2.8539984596691714,
+      "tilt_vel_rad_s": 0.04981166996807368,
+      "axial_omega_deg_s": 122.86752272992034,
+      "lateral_omega_deg_s": 11.187268038228533,
+      "contact_force_total_n": 33.3920393861144
+    },
+    {
+      "axis_tilt_rad": 0.07266776032401405,
+      "axis_tilt_deg": 4.163555973234221,
+      "lateral_omega_rad_s": 0.1907616471948159,
+      "axial_omega_rad_s": 2.1415229881730173,
+      "axis_rotation_deg": 185.32838688528713,
+      "tip_error_m": 0.00223631157936101,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.04697320116082068,
+        0.055360937321039486,
+        -0.9973608599657604
+      ],
+      "rod_pos_m": [
+        -0.0032924714929510406,
+        -0.054668141454607876,
+        -0.00012365123054191248
+      ],
+      "reward": 4.706230050306242,
+      "reward_rotation": 5.353807470432543,
+      "reward_rotation_before_support_gate": 5.353807470432543,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.23469348402259338,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 25,
+      "t_s": 1.0,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.1361701730615948,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 13.836123963891222,
+          "in_contact": true,
+          "axis_dist_m": 0.04837932749615571,
+          "local_xy_m": [
+            -0.005135396991698623,
+            -0.0010120467284056903
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.0449869741569226,
+            -0.05156097928935405,
+            0.03396128903845088
+          ],
+          "force6_n": [
+            13.836123963891222,
+            -1.2178873514187543,
+            -49.71847512729391,
+            0.13401571795370765,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 20.18474699807708,
+          "in_contact": true,
+          "axis_dist_m": 0.05747182916583156,
+          "local_xy_m": [
+            -6.314642007587169e-05,
+            -0.00896561216993902
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.043804001333734736,
+            -0.013902627872343035,
+            0.038879551585384656
+          ],
+          "force6_n": [
+            20.18474699807708,
+            -10.513210814048094,
+            17.581411617535473,
+            -1.5714994482717048,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0025.jpg",
+      "tilt_vel_deg_s": 2.880920250921104,
+      "tilt_vel_rad_s": 0.05028154386595429,
+      "axial_omega_deg_s": 122.7002289525584,
+      "lateral_omega_deg_s": 10.92983727722657,
+      "contact_force_total_n": 34.0208709619683
+    },
+    {
+      "axis_tilt_rad": 0.07570023733268266,
+      "axis_tilt_deg": 4.337304107301389,
+      "lateral_omega_rad_s": 0.1771912108143803,
+      "axial_omega_rad_s": 2.1082384526942106,
+      "axis_rotation_deg": 190.19938833034547,
+      "tip_error_m": 0.002195215962886382,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.04353940080201677,
+        0.061837759994988604,
+        -0.9971361050611915
+      ],
+      "rod_pos_m": [
+        -0.003009895329961868,
+        -0.05512441548878821,
+        -0.0001847184416952048
+      ],
+      "reward": 4.603919488646645,
+      "reward_rotation": 5.270596131735527,
+      "reward_rotation_before_support_gate": 5.270596131735527,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.2546900414321992,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 26,
+      "t_s": 1.04,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13601249069647603,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 14.30717997391013,
+          "in_contact": true,
+          "axis_dist_m": 0.04839540203358395,
+          "local_xy_m": [
+            -0.00500791893821802,
+            -0.001475210285154226
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.045237906294200506,
+            -0.05134756806961757,
+            0.03432062138554036
+          ],
+          "force6_n": [
+            14.30717997391013,
+            -1.570770612178964,
+            -49.47583971071036,
+            0.12028503284708914,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 20.68903907994644,
+          "in_contact": true,
+          "axis_dist_m": 0.05693400313873547,
+          "local_xy_m": [
+            -0.0003521256565674549,
+            -0.009229392358221618
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04358580487188878,
+            -0.015186009433377022,
+            0.0381979064548162
+          ],
+          "force6_n": [
+            20.68903907994644,
+            -10.338489225941704,
+            16.770212660348985,
+            -1.5922797845079975,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0026.jpg",
+      "tilt_vel_deg_s": 4.343703351679196,
+      "tilt_vel_rad_s": 0.07581192521671533,
+      "axial_omega_deg_s": 120.79316554656933,
+      "lateral_omega_deg_s": 10.152308546476823,
+      "contact_force_total_n": 34.99621905385657
+    },
+    {
+      "axis_tilt_rad": 0.07957295039578623,
+      "axis_tilt_deg": 4.559194221082405,
+      "lateral_omega_rad_s": 0.168578790037654,
+      "axial_omega_rad_s": 2.072884144005466,
+      "axis_rotation_deg": 194.9866258067055,
+      "tip_error_m": 0.0021488051833433584,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.04086833268673088,
+        0.0681783027712068,
+        -0.9968357429459702
+      ],
+      "rod_pos_m": [
+        -0.0027816349277515256,
+        -0.05556748249701968,
+        -0.0002563855007976122
+      ],
+      "reward": 4.491133274070299,
+      "reward_rotation": 5.182210360013665,
+      "reward_rotation_before_support_gate": 5.182210360013665,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.28141575265290025,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 27,
+      "t_s": 1.08,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13591610905871127,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 14.716885900151235,
+          "in_contact": true,
+          "axis_dist_m": 0.04835728851051386,
+          "local_xy_m": [
+            -0.004890690950228054,
+            -0.0019336125875002914
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04537215936858922,
+            -0.05113584093268064,
+            0.034655979570321564
+          ],
+          "force6_n": [
+            14.716885900151235,
+            -1.8595179713458814,
+            -49.24587682145054,
+            0.1080174982846391,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 21.287757840455054,
+          "in_contact": true,
+          "axis_dist_m": 0.056377511373562075,
+          "local_xy_m": [
+            -0.0006009640329877764,
+            -0.009477816077196692
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.043395843230006885,
+            -0.016466205373923907,
+            0.03752949471732359
+          ],
+          "force6_n": [
+            21.287757840455054,
+            -10.240203880294773,
+            15.909553085665063,
+            -1.613639440907465,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0027.jpg",
+      "tilt_vel_deg_s": 5.547252844525397,
+      "tilt_vel_rad_s": 0.0968178265775891,
+      "axial_omega_deg_s": 118.76751287110156,
+      "lateral_omega_deg_s": 9.658853184579621,
+      "contact_force_total_n": 36.00464374060629
+    },
+    {
+      "axis_tilt_rad": 0.08402281346611722,
+      "axis_tilt_deg": 4.814152594423496,
+      "lateral_omega_rad_s": 0.16434977560083028,
+      "axial_omega_rad_s": 2.0536059463836436,
+      "axis_rotation_deg": 199.71023075143756,
+      "tip_error_m": 0.0021032637229260096,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.038725727515799425,
+        0.07445504075458036,
+        -0.9964721596384948
+      ],
+      "rod_pos_m": [
+        -0.0025925584480836184,
+        -0.05600267896207087,
+        -0.0003311123734247703
+      ],
+      "reward": 4.414006159592754,
+      "reward_rotation": 5.134014865959109,
+      "reward_rotation_before_support_gate": 5.134014865959109,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.31377036367830796,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 28,
+      "t_s": 1.12,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.1358582006179078,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 15.061672596840964,
+          "in_contact": true,
+          "axis_dist_m": 0.04827323015196263,
+          "local_xy_m": [
+            -0.004781731787135665,
+            -0.0023878808989358158
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.045413385775357945,
+            -0.050929803197756134,
+            0.03497206909594159
+          ],
+          "force6_n": [
+            15.061672596840964,
+            -2.1113057309021244,
+            -49.045000127634076,
+            0.09665934562845986,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 21.839187957750884,
+          "in_contact": true,
+          "axis_dist_m": 0.05580341329460117,
+          "local_xy_m": [
+            -0.0008156933491704401,
+            -0.009711724703694531
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.043225056764730166,
+            -0.017753221242048395,
+            0.03687021834675204
+          ],
+          "force6_n": [
+            21.839187957750884,
+            -10.237670202019954,
+            15.033606093347565,
+            -1.637726148485071,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0028.jpg",
+      "tilt_vel_deg_s": 6.37395933352729,
+      "tilt_vel_rad_s": 0.11124657675827473,
+      "axial_omega_deg_s": 117.662953510752,
+      "lateral_omega_deg_s": 9.416548505849729,
+      "contact_force_total_n": 36.900860554591844
+    },
+    {
+      "axis_tilt_rad": 0.08892406064113272,
+      "axis_tilt_deg": 5.094973371902302,
+      "lateral_omega_rad_s": 0.16280038583863457,
+      "axial_omega_rad_s": 2.0556800551506527,
+      "axis_rotation_deg": 204.41507139235523,
+      "tip_error_m": 0.00206047886151925,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03698679240430449,
+        0.08073812556394407,
+        -0.99604886038189
+      ],
+      "rod_pos_m": [
+        -0.0024339511035866724,
+        -0.05643558977705495,
+        -0.0004067266228161987
+      ],
+      "reward": 4.385869482882941,
+      "reward_rotation": 5.139200137876632,
+      "reward_rotation_before_support_gate": 5.139200137876632,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.3514439360403489,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 29,
+      "t_s": 1.16,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13582234227064313,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 15.337967913494838,
+          "in_contact": true,
+          "axis_dist_m": 0.04814682935496521,
+          "local_xy_m": [
+            -0.004678488959298396,
+            -0.002841347772571199
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04537368445933291,
+            -0.05073057804882805,
+            0.03527202844406441
+          ],
+          "force6_n": [
+            15.337967913494838,
+            -2.3436881427940204,
+            -48.880831966058224,
+            0.08525911042141394,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 22.3361868945821,
+          "in_contact": true,
+          "axis_dist_m": 0.0552084346694169,
+          "local_xy_m": [
+            -0.0010001364693844926,
+            -0.009932695849534802
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04306737135802882,
+            -0.019060512291206654,
+            0.0362143700095075
+          ],
+          "force6_n": [
+            22.3361868945821,
+            -10.315513259843492,
+            14.135086333247411,
+            -1.6653907302475257,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0029.jpg",
+      "tilt_vel_deg_s": 7.020519436970152,
+      "tilt_vel_rad_s": 0.12253117937538749,
+      "axial_omega_deg_s": 117.7817911893527,
+      "lateral_omega_deg_s": 9.327775011655136,
+      "contact_force_total_n": 37.674154808076935
+    },
+    {
+      "axis_tilt_rad": 0.09423734960953231,
+      "axis_tilt_deg": 5.399402405125018,
+      "lateral_omega_rad_s": 0.16343461394034275,
+      "axial_omega_rad_s": 2.079140304999947,
+      "axis_rotation_deg": 209.15053881695647,
+      "tip_error_m": 0.0020192644415098584,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03562618671278192,
+        0.08709302598976071,
+        -0.9955629460984639
+      ],
+      "rod_pos_m": [
+        -0.0023036768103710933,
+        -0.056871108005833164,
+        -0.0004847314079366063
+      ],
+      "reward": 4.406387838802364,
+      "reward_rotation": 5.197850762499867,
+      "reward_rotation_before_support_gate": 5.197850762499867,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.3946968027301876,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 30,
+      "t_s": 1.2,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13579758382640794,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 15.541374766023994,
+          "in_contact": true,
+          "axis_dist_m": 0.047976546252230544,
+          "local_xy_m": [
+            -0.00457917425638079,
+            -0.0032981579528291276
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.045253050434086825,
+            -0.05053812418391715,
+            0.035556079099680234
+          ],
+          "force6_n": [
+            15.541374766023994,
+            -2.5667000029068805,
+            -48.75067548106278,
+            0.07285898636851311,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 22.79083495982088,
+          "in_contact": true,
+          "axis_dist_m": 0.054588090764716116,
+          "local_xy_m": [
+            -0.0011554456713175438,
+            -0.01014249495289057
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.042921469321076676,
+            -0.020401194585396385,
+            0.035555727097721875
+          ],
+          "force6_n": [
+            22.79083495982088,
+            -10.463581987844133,
+            13.189062456643919,
+            -1.69708194100875,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0030.jpg",
+      "tilt_vel_deg_s": 7.610725830567899,
+      "tilt_vel_rad_s": 0.13283222420998989,
+      "axial_omega_deg_s": 119.12596449203969,
+      "lateral_omega_deg_s": 9.364113605131609,
+      "contact_force_total_n": 38.332209725844876
+    },
+    {
+      "axis_tilt_rad": 0.10011250313793152,
+      "axis_tilt_deg": 5.736023906293687,
+      "lateral_omega_rad_s": 0.16279686487215292,
+      "axial_omega_rad_s": 2.217189605804858,
+      "axis_rotation_deg": 214.09170513884283,
+      "tip_error_m": 0.0019083549224004454,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03516940678463594,
+        0.09355312519308204,
+        -0.9949929274085443
+      ],
+      "rod_pos_m": [
+        -0.002240086485269597,
+        -0.057293853126606675,
+        -0.0006367073909303986
+      ],
+      "reward": 4.706167125523456,
+      "reward_rotation": 5.542974014512145,
+      "reward_rotation_before_support_gate": 5.542974014512145,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.4454450348685489,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 31,
+      "t_s": 1.24,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13580778136324168,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 16.63540528771958,
+          "in_contact": true,
+          "axis_dist_m": 0.0477154012821146,
+          "local_xy_m": [
+            -0.004482906455597912,
+            -0.003774535554040553
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.044961375588594234,
+            -0.050309477878753915,
+            0.03573800629599299
+          ],
+          "force6_n": [
+            16.63540528771958,
+            -1.8403396441394333,
+            -46.2380914754267,
+            0.041634408446536354,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 24.333695421723167,
+          "in_contact": true,
+          "axis_dist_m": 0.05391826460226307,
+          "local_xy_m": [
+            -0.0012674845110962679,
+            -0.01034095795337469
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04283004499775511,
+            -0.02180252283772683,
+            0.03485824372664209
+          ],
+          "force6_n": [
+            24.333695421723167,
+            -10.777136556503248,
+            12.217387366642303,
+            -1.7108608732508352,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0031.jpg",
+      "tilt_vel_deg_s": 8.41553752921671,
+      "tilt_vel_rad_s": 0.14687883820998018,
+      "axial_omega_deg_s": 127.03560679289306,
+      "lateral_omega_deg_s": 9.327573275135931,
+      "contact_force_total_n": 40.96910070944274
+    },
+    {
+      "axis_tilt_rad": 0.10806381414454677,
+      "axis_tilt_deg": 6.191600468568659,
+      "lateral_omega_rad_s": 0.20738203101553707,
+      "axial_omega_rad_s": 2.8843267057303223,
+      "axis_rotation_deg": 220.17129606368502,
+      "tip_error_m": 0.0013716411624999033,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.03869085473385673,
+        0.10067482056743246,
+        -0.9941667859386969
+      ],
+      "rod_pos_m": [
+        -0.0024882577970428504,
+        -0.05759135496396835,
+        -0.001197289258735378
+      ],
+      "reward": 6.303789464034466,
+      "reward_rotation": 7.210816764325806,
+      "reward_rotation_before_support_gate": 7.210816764325806,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.5190127967763176,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 32,
+      "t_s": 1.28,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13605852707448693,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 21.932286129642964,
+          "in_contact": true,
+          "axis_dist_m": 0.04714638323190649,
+          "local_xy_m": [
+            -0.0043826659578158535,
+            -0.004363348750224502
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04400857074777921,
+            -0.04979222763309255,
+            0.035389538801538174
+          ],
+          "force6_n": [
+            21.932286129642964,
+            2.208981520453361,
+            -32.84158665798207,
+            -0.13591175253072696,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 31.520247947869983,
+          "in_contact": true,
+          "axis_dist_m": 0.053043591589491346,
+          "local_xy_m": [
+            -0.0012602430180962462,
+            -0.010509079025929532
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04302128985450927,
+            -0.023375921005867568,
+            0.03395250081177891
+          ],
+          "force6_n": [
+            31.520247947869983,
+            -11.146900925224408,
+            8.933526300440073,
+            -1.7250033317668851,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0032.jpg",
+      "tilt_vel_deg_s": 11.389414056874303,
+      "tilt_vel_rad_s": 0.19878277516538131,
+      "axial_omega_deg_s": 165.25974697521963,
+      "lateral_omega_deg_s": 11.88211512404141,
+      "contact_force_total_n": 53.45253407751295
+    },
+    {
+      "axis_tilt_rad": 0.1169108096264302,
+      "axis_tilt_deg": 6.698495971051887,
+      "lateral_omega_rad_s": 0.22020240986355197,
+      "axial_omega_rad_s": 3.599177498301432,
+      "axis_rotation_deg": 227.7766542483067,
+      "tip_error_m": 0.0008057813726692356,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.04461432703794188,
+        0.10777541438798897,
+        -0.9931737118331561
+      ],
+      "rod_pos_m": [
+        -0.002890191633614107,
+        -0.0579201039931801,
+        -0.0018316734835132232
+      ],
+      "reward": 8.00387172974177,
+      "reward_rotation": 8.997943745753581,
+      "reward_rotation_before_support_gate": 8.997943745753581,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.6074727736669959,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 33,
+      "t_s": 1.32,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13639947514571432,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 27.085744440670986,
+          "in_contact": true,
+          "axis_dist_m": 0.046382574203474684,
+          "local_xy_m": [
+            -0.004195853714444326,
+            -0.005091016804252787
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04263801868817922,
+            -0.049058656332928066,
+            0.03484369668779228
+          ],
+          "force6_n": [
+            27.085744440670986,
+            7.097040971313783,
+            -19.35740862239527,
+            -0.32098762752243193,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 37.92406850588312,
+          "in_contact": true,
+          "axis_dist_m": 0.051985698053563505,
+          "local_xy_m": [
+            -0.0011949003835706714,
+            -0.010668077323801114
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.0433221539400077,
+            -0.02524336568944721,
+            0.0328903557385436
+          ],
+          "force6_n": [
+            37.92406850588312,
+            -12.429605225241897,
+            4.957573656002313,
+            -1.773821373794677,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0033.jpg",
+      "tilt_vel_deg_s": 12.672387562080711,
+      "tilt_vel_rad_s": 0.2211748870470858,
+      "axial_omega_deg_s": 206.21768037112608,
+      "lateral_omega_deg_s": 12.616668723791458,
+      "contact_force_total_n": 65.0098129465541
+    },
+    {
+      "axis_tilt_rad": 0.12589497266634375,
+      "axis_tilt_deg": 7.2132505956963575,
+      "lateral_omega_rad_s": 0.2338917341060905,
+      "axial_omega_rad_s": 4.52885142370707,
+      "axis_rotation_deg": 237.27765507234582,
+      "tip_error_m": 0.00043141838171889026,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.05105376114083076,
+        0.11471485673772111,
+        -0.9920856894023918
+      ],
+      "rod_pos_m": [
+        -0.0032835962493761505,
+        -0.05833184717479356,
+        -0.002461873375936315
+      ],
+      "reward": 8.856610720207444,
+      "reward_rotation": 10.0,
+      "reward_rotation_before_support_gate": 10.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.7044241841181974,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 34,
+      "t_s": 1.36,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13662634583399605,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 31.119406479953028,
+          "in_contact": true,
+          "axis_dist_m": 0.045463942238724374,
+          "local_xy_m": [
+            -0.003859513143292328,
+            -0.005944478584180437
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.04103250505749146,
+            -0.0481803345364961,
+            0.0343160408057495
+          ],
+          "force6_n": [
+            31.119406479953028,
+            11.67517916901898,
+            -8.398150775066027,
+            -0.4460184719550144,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 42.64642426575674,
+          "in_contact": true,
+          "axis_dist_m": 0.050743871327970654,
+          "local_xy_m": [
+            -0.0011046929730666984,
+            -0.010840287278861275
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04363388059896188,
+            -0.027561812558998616,
+            0.03166668047604338
+          ],
+          "force6_n": [
+            42.64642426575674,
+            -14.923469975401098,
+            -0.34027241857019896,
+            -1.8707626333070833,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0034.jpg",
+      "tilt_vel_deg_s": 12.868865616111757,
+      "tilt_vel_rad_s": 0.2246040759978387,
+      "axial_omega_deg_s": 259.48407262022926,
+      "lateral_omega_deg_s": 13.401009227275038,
+      "contact_force_total_n": 73.76583074570976
+    },
+    {
+      "axis_tilt_rad": 0.13567741855704332,
+      "axis_tilt_deg": 7.773743458548538,
+      "lateral_omega_rad_s": 0.28822286882781106,
+      "axial_omega_rad_s": 5.748482352760328,
+      "axis_rotation_deg": 249.21943636066942,
+      "tip_error_m": 0.0005820594894454143,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.05800439963173063,
+        0.12219317689848902,
+        -0.9908099298769755
+      ],
+      "rod_pos_m": [
+        -0.003685487388715647,
+        -0.058794268166480035,
+        -0.0030547939533435613
+      ],
+      "reward": 8.620756045056266,
+      "reward_rotation": 10.0,
+      "reward_rotation_before_support_gate": 10.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.8181494180579167,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 35,
+      "t_s": 1.4000000000000001,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13672593287257673,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 33.798793140119365,
+          "in_contact": true,
+          "axis_dist_m": 0.04440641196771965,
+          "local_xy_m": [
+            -0.003329403179214912,
+            -0.006951182505143613
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.039155403473256446,
+            -0.04710720292325363,
+            0.033944490104141974
+          ],
+          "force6_n": [
+            33.798793140119365,
+            -1.1156448251869988,
+            16.5825210417013,
+            -0.49239382589137776,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 45.6595937862055,
+          "in_contact": true,
+          "axis_dist_m": 0.04923473811743202,
+          "local_xy_m": [
+            -0.0009744007646977832,
+            -0.01100179037843765
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04394573219346002,
+            -0.030453976605626834,
+            0.030279384076430868
+          ],
+          "force6_n": [
+            45.6595937862055,
+            -19.445398248058694,
+            -6.606575602298507,
+            -1.9642988696455284,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0035.jpg",
+      "tilt_vel_deg_s": 14.01232157130452,
+      "tilt_vel_rad_s": 0.24456114726748926,
+      "axial_omega_deg_s": 329.3637774186005,
+      "lateral_omega_deg_s": 16.513953942986312,
+      "contact_force_total_n": 79.45838692632486
+    },
+    {
+      "axis_tilt_rad": 0.14344233689485353,
+      "axis_tilt_deg": 8.218640507568802,
+      "lateral_omega_rad_s": 0.14640236654712463,
+      "axial_omega_rad_s": 7.374070611694585,
+      "axis_rotation_deg": 264.94633275530845,
+      "tip_error_m": 0.0010017749423650113,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.06324675820836442,
+        0.1281983553263058,
+        -0.9897297758821663
+      ],
+      "rod_pos_m": [
+        -0.003947628855451522,
+        -0.05911873687679772,
+        -0.0036201822736873306
+      ],
+      "reward": 8.365931953840425,
+      "reward_rotation": 10.0,
+      "reward_rotation_before_support_gate": 10.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.9144757339491849,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 36,
+      "t_s": 1.44,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13647559623071528,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 36.764902419963356,
+          "in_contact": true,
+          "axis_dist_m": 0.043150522048989795,
+          "local_xy_m": [
+            -0.0023661599292767238,
+            -0.008106314643767851
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03702470196805921,
+            -0.045582280176865254,
+            0.03401088507492591
+          ],
+          "force6_n": [
+            36.764902419963356,
+            -14.626218955734515,
+            19.14044437023754,
+            -0.5596766877523683,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 50.11957241438249,
+          "in_contact": true,
+          "axis_dist_m": 0.04727705174514376,
+          "local_xy_m": [
+            -0.0008361818544432627,
+            -0.011006347550742533
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04418277107734632,
+            -0.03429429424263372,
+            0.028648073244042692
+          ],
+          "force6_n": [
+            50.11957241438249,
+            -22.417205166100995,
+            -5.959024623123549,
+            -1.972748961888214,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0036.jpg",
+      "tilt_vel_deg_s": 11.122426225506587,
+      "tilt_vel_rad_s": 0.19412295844525515,
+      "axial_omega_deg_s": 422.50312388155305,
+      "lateral_omega_deg_s": 8.388237713877512,
+      "contact_force_total_n": 86.88447483434584
+    },
+    {
+      "axis_tilt_rad": 0.14844728094382345,
+      "axis_tilt_deg": 8.505402678273896,
+      "lateral_omega_rad_s": 0.1432647692049119,
+      "axial_omega_rad_s": 6.336899809626036,
+      "axis_rotation_deg": 281.1215166174986,
+      "tip_error_m": 0.0011246557730799796,
+      "contact_count": 2,
+      "ncon": 2,
+      "rod_axis_world": [
+        0.06460993726586008,
+        0.1330441865643914,
+        -0.989001921346931
+      ],
+      "rod_pos_m": [
+        -0.0039603307651485805,
+        -0.05950089522384618,
+        -0.0037595926582885963
+      ],
+      "reward": 8.409891602560128,
+      "reward_rotation": 10.0,
+      "reward_rotation_before_support_gate": 10.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -0.9794042319828645,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 37,
+      "t_s": 1.48,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13574874012650295,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 45.230138290392226,
+          "in_contact": true,
+          "axis_dist_m": 0.04192019312325848,
+          "local_xy_m": [
+            -0.0013153309919640612,
+            -0.009138911435205396
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03507299176801915,
+            -0.04421356963978841,
+            0.03423447312144904
+          ],
+          "force6_n": [
+            45.230138290392226,
+            -26.750559235967497,
+            10.484988525256124,
+            0.01740417259636904,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 56.348035292743404,
+          "in_contact": true,
+          "axis_dist_m": 0.045163261939471046,
+          "local_xy_m": [
+            -0.0007143207007339865,
+            -0.010976423743632656
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.043725890685962616,
+            -0.03809013920736179,
+            0.02742843309584441
+          ],
+          "force6_n": [
+            56.348035292743404,
+            -15.465776032422301,
+            5.49487624151462,
+            -2.0838904573654675,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0037.jpg",
+      "tilt_vel_deg_s": 7.1690542676273505,
+      "tilt_vel_rad_s": 0.12512360122424807,
+      "axial_omega_deg_s": 363.07761428882674,
+      "lateral_omega_deg_s": 8.20846662835726,
+      "contact_force_total_n": 101.57817358313562
+    },
+    {
+      "axis_tilt_rad": 0.15270713842133524,
+      "axis_tilt_deg": 8.749474533062566,
+      "lateral_omega_rad_s": 0.06439543405823668,
+      "axial_omega_rad_s": 4.442036891395613,
+      "axis_rotation_deg": 293.8049276508638,
+      "tip_error_m": 0.0010366610842341235,
+      "contact_count": 2,
+      "ncon": 3,
+      "rod_axis_world": [
+        0.06553671558011862,
+        0.13727237815979582,
+        -0.9883629055692675
+      ],
+      "rod_pos_m": [
+        -0.00407601974626717,
+        -0.059843787456989914,
+        -0.0037191985194957836
+      ],
+      "reward": 8.544829492812765,
+      "reward_rotation": 10.0,
+      "reward_rotation_before_support_gate": 10.0,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.0364208944370152,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 38,
+      "t_s": 1.52,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.1348613406876245,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 50.37042134494996,
+          "in_contact": true,
+          "axis_dist_m": 0.04079847026659624,
+          "local_xy_m": [
+            -0.0005212283163446357,
+            -0.009832301493665548
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03327451861205075,
+            -0.04342878028555806,
+            0.03431459764016194
+          ],
+          "force6_n": [
+            50.37042134494996,
+            -39.473035087956205,
+            12.4760105648695,
+            0.3080170016086606,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 45.664399325202325,
+          "in_contact": true,
+          "axis_dist_m": 0.043425810640199826,
+          "local_xy_m": [
+            -0.0006141269838228318,
+            -0.011062977351394283
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04309474510419653,
+            -0.04078230532151647,
+            0.026762465919772438
+          ],
+          "force6_n": [
+            45.664399325202325,
+            -7.015170399547494,
+            18.83129927752178,
+            -1.4272580467099314,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0038.jpg",
+      "tilt_vel_deg_s": 6.10179636971675,
+      "tilt_vel_rad_s": 0.10649643693779465,
+      "axial_omega_deg_s": 254.50996631838066,
+      "lateral_omega_deg_s": 3.689586591449961,
+      "contact_force_total_n": 96.03482067015229
+    },
+    {
+      "axis_tilt_rad": 0.1526274660020214,
+      "axis_tilt_deg": 8.744909639692287,
+      "lateral_omega_rad_s": 0.027272684299189453,
+      "axial_omega_rad_s": 2.3762453196932216,
+      "axis_rotation_deg": 301.6273004335211,
+      "tip_error_m": 0.001049689636751132,
+      "contact_count": 2,
+      "ncon": 4,
+      "rod_axis_world": [
+        0.06466875206022712,
+        0.13759639853891212,
+        -0.9883750217483714
+      ],
+      "rod_pos_m": [
+        -0.004035680079198862,
+        -0.05986242656818147,
+        -0.0037460616943247402
+      ],
+      "reward": 4.530101518165589,
+      "reward_rotation": 5.940613299233054,
+      "reward_rotation_before_support_gate": 5.940613299233054,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.0353397056976976,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 39,
+      "t_s": 1.56,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.1335937141623016,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 53.27921320695322,
+          "in_contact": true,
+          "axis_dist_m": 0.04013695128301886,
+          "local_xy_m": [
+            0.00010081706488994716,
+            -0.010199270537514519
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.032289114240821024,
+            -0.04278951891003253,
+            0.03432068698700464
+          ],
+          "force6_n": [
+            53.27921320695322,
+            -52.662981957752336,
+            21.293947570140286,
+            0.64814696421858,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 31.08830661201566,
+          "in_contact": true,
+          "axis_dist_m": 0.04257994593333312,
+          "local_xy_m": [
+            -0.0005927559051764196,
+            -0.011349014036399725
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04270805143456193,
+            -0.04204391121368391,
+            0.026528648209722255
+          ],
+          "force6_n": [
+            31.08830661201566,
+            8.315274377558609,
+            19.393393040424957,
+            -0.5802863562534185,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0039.jpg",
+      "tilt_vel_deg_s": -0.11412233425698304,
+      "tilt_vel_rad_s": -0.0019918104828459127,
+      "axial_omega_deg_s": 136.14882790613663,
+      "lateral_omega_deg_s": 1.562609706336261,
+      "contact_force_total_n": 84.36751981896889
+    },
+    {
+      "axis_tilt_rad": 0.15481673620109718,
+      "axis_tilt_deg": 8.870345582313094,
+      "lateral_omega_rad_s": 0.03110500801140711,
+      "axial_omega_rad_s": 2.1151083686865904,
+      "axis_rotation_deg": 307.12459899465995,
+      "tip_error_m": 0.0012001434620651865,
+      "contact_count": 2,
+      "ncon": 4,
+      "rod_axis_world": [
+        0.06611517178131109,
+        0.13930586814213203,
+        -0.9880398064660627
+      ],
+      "rod_pos_m": [
+        -0.004049058921520853,
+        -0.0599475937934595,
+        -0.0039038343745672623
+      ],
+      "reward": 3.8440154017748753,
+      "reward_rotation": 5.287770921716476,
+      "reward_rotation_before_support_gate": 5.287770921716476,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.0652543025760053,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 40,
+      "t_s": 1.6,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13249715429977038,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 50.2015258330636,
+          "in_contact": true,
+          "axis_dist_m": 0.0397294100842032,
+          "local_xy_m": [
+            0.0005668180919195633,
+            -0.010542493022061073
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.031603870268481306,
+            -0.04241777160920793,
+            0.03421001084399091
+          ],
+          "force6_n": [
+            50.2015258330636,
+            -57.80119919450333,
+            25.193814248049875,
+            0.9872861697904953,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 21.228564543362044,
+          "in_contact": true,
+          "axis_dist_m": 0.042012966197629384,
+          "local_xy_m": [
+            -0.0005440815463407359,
+            -0.011523693353700551
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.042430854558382296,
+            -0.04286171973289844,
+            0.026414996052968917
+          ],
+          "force6_n": [
+            21.228564543362044,
+            8.371445218786041,
+            17.021722007148103,
+            -0.31774097499207726,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0040.jpg",
+      "tilt_vel_deg_s": 3.13589856552019,
+      "tilt_vel_rad_s": 0.05473175497689442,
+      "axial_omega_deg_s": 121.18678273854212,
+      "lateral_omega_deg_s": 1.782185680774241,
+      "contact_force_total_n": 71.43009037642564
+    },
+    {
+      "axis_tilt_rad": 0.15709137117127336,
+      "axis_tilt_deg": 9.000672566037055,
+      "lateral_omega_rad_s": 0.04116746009506665,
+      "axial_omega_rad_s": 2.2964224449321855,
+      "axis_rotation_deg": 312.65071664854656,
+      "tip_error_m": 0.0014190037043936023,
+      "contact_count": 2,
+      "ncon": 4,
+      "rod_axis_world": [
+        0.06719786935815475,
+        0.14127921195506835,
+        -0.9876865042224073
+      ],
+      "rod_pos_m": [
+        -0.004002120004941705,
+        -0.0601090868518105,
+        -0.004109576131510957
+      ],
+      "reward": 4.262954615535373,
+      "reward_rotation": 5.7410561123304635,
+      "reward_rotation_before_support_gate": 5.7410561123304635,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.0967866176209236,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 41,
+      "t_s": 1.6400000000000001,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13149184968288682,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 48.36676346990156,
+          "in_contact": true,
+          "axis_dist_m": 0.03929453564606654,
+          "local_xy_m": [
+            0.0010328206493005225,
+            -0.010869539046003778
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.030993502704227176,
+            -0.04223824683692879,
+            0.03405629542988945
+          ],
+          "force6_n": [
+            48.36676346990156,
+            -60.461938483535306,
+            27.94790684665993,
+            1.368216147465593,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 6.304286774752327,
+          "in_contact": true,
+          "axis_dist_m": 0.04146416415401903,
+          "local_xy_m": [
+            -0.0004966983872879275,
+            -0.011676230036732101
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04212050872319468,
+            -0.043791447607250615,
+            0.026292726745868016
+          ],
+          "force6_n": [
+            6.304286774752327,
+            5.864032634080954,
+            8.109745815084546,
+            -0.15402617865921708,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0041.jpg",
+      "tilt_vel_deg_s": 3.258174593099028,
+      "tilt_vel_rad_s": 0.056865874254404675,
+      "axial_omega_deg_s": 131.57531407372792,
+      "lateral_omega_deg_s": 2.358721716720554,
+      "contact_force_total_n": 54.671050244653884
+    },
+    {
+      "axis_tilt_rad": 0.15957864658232335,
+      "axis_tilt_deg": 9.143182949576886,
+      "lateral_omega_rad_s": 0.08197645402182825,
+      "axial_omega_rad_s": 3.1343266213736176,
+      "axis_rotation_deg": 319.3427412469724,
+      "tip_error_m": 0.0016598460466430672,
+      "contact_count": 2,
+      "ncon": 4,
+      "rod_axis_world": [
+        0.06704922727157925,
+        0.14406358640323927,
+        -0.9872943250089714
+      ],
+      "rod_pos_m": [
+        -0.0038497557626685653,
+        -0.060315458712378534,
+        -0.004334166142758171
+      ],
+      "reward": 6.321786620050073,
+      "reward_rotation": 7.835816553434044,
+      "reward_rotation_before_support_gate": 7.835816553434044,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.1317930864464916,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 42,
+      "t_s": 1.68,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.13008410294399242,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 44.20031251384628,
+          "in_contact": true,
+          "axis_dist_m": 0.03875245373042962,
+          "local_xy_m": [
+            0.001548910005562283,
+            -0.011223391677615244
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03036989896618662,
+            -0.042128433107100814,
+            0.033951522831968506
+          ],
+          "force6_n": [
+            44.20031251384628,
+            -61.03092995921993,
+            22.82188712191461,
+            1.7923613152449318,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.6791515533060957,
+          "in_contact": true,
+          "axis_dist_m": 0.04080654004302979,
+          "local_xy_m": [
+            -0.0004591140323799525,
+            -0.01189006708681757
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            -0.04166100710985442,
+            -0.0449700039506802,
+            0.026189173865089996
+          ],
+          "force6_n": [
+            0.6791515533060957,
+            3.5388971952983406,
+            2.6895724157807592,
+            -0.056611101916528184,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0042.jpg",
+      "tilt_vel_deg_s": 3.5627595884957675,
+      "tilt_vel_rad_s": 0.06218188527624957,
+      "axial_omega_deg_s": 179.58368702020707,
+      "lateral_omega_deg_s": 4.696904834899002,
+      "contact_force_total_n": 44.87946406715238
+    },
+    {
+      "axis_tilt_rad": 0.15977981265375316,
+      "axis_tilt_deg": 9.154708916451042,
+      "lateral_omega_rad_s": 0.2745920895051862,
+      "axial_omega_rad_s": 3.3214086555510876,
+      "axis_rotation_deg": 327.02086555386717,
+      "tip_error_m": 0.001780971240876062,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        0.05906500175907711,
+        0.14773083284573055,
+        -0.9872623392968595
+      ],
+      "rod_pos_m": [
+        -0.0031572142518828295,
+        -0.0606411853495061,
+        -0.004384579526287164
+      ],
+      "reward": 6.684164801808314,
+      "reward_rotation": 8.303521638877719,
+      "reward_rotation_before_support_gate": 8.303521638877719,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.134648379185265,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 43,
+      "t_s": 1.72,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.12767916236206564,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 41.586693719862616,
+          "in_contact": true,
+          "axis_dist_m": 0.03827730788782231,
+          "local_xy_m": [
+            0.002089406460926275,
+            -0.011592377254785097
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03028947008943127,
+            -0.04202743758846565,
+            0.03391493849957443
+          ],
+          "force6_n": [
+            41.586693719862616,
+            -58.81415125699356,
+            18.913504561491806,
+            1.9456694491283248,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03995264114541838,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0043.jpg",
+      "tilt_vel_deg_s": 0.2881491718539131,
+      "tilt_vel_rad_s": 0.005029151785745228,
+      "axial_omega_deg_s": 190.3026980012983,
+      "lateral_omega_deg_s": 15.732967816325715,
+      "contact_force_total_n": 41.586693719862616
+    },
+    {
+      "axis_tilt_rad": 0.15962907882626026,
+      "axis_tilt_deg": 9.146072504305845,
+      "lateral_omega_rad_s": 0.3048113240985196,
+      "axial_omega_rad_s": 3.451910107102656,
+      "axis_rotation_deg": 335.0774142196537,
+      "tip_error_m": 0.0017876026970863013,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        0.047333802589658726,
+        0.15174074371174687,
+        -0.9872863099578608
+      ],
+      "rod_pos_m": [
+        -0.002252526072658576,
+        -0.06092543259114885,
+        -0.004331596905114432
+      ],
+      "reward": 7.023101588339656,
+      "reward_rotation": 8.62977526775664,
+      "reward_rotation_before_support_gate": 8.62977526775664,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.1325085691964631,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 44,
+      "t_s": 1.76,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.1248371075700176,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 38.515405779816874,
+          "in_contact": true,
+          "axis_dist_m": 0.03789444203027057,
+          "local_xy_m": [
+            0.002560404641243616,
+            -0.011903750696569886
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03055597691685818,
+            -0.04196255126018,
+            0.03385081383798288
+          ],
+          "force6_n": [
+            38.515405779816874,
+            -55.770570630920936,
+            13.645868403948992,
+            1.935917452138666,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03897185036411439,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0044.jpg",
+      "tilt_vel_deg_s": -0.21591030362992925,
+      "tilt_vel_rad_s": -0.003768345687322344,
+      "axial_omega_deg_s": 197.77988039553415,
+      "lateral_omega_deg_s": 17.464402418639455,
+      "contact_force_total_n": 38.515405779816874
+    },
+    {
+      "axis_tilt_rad": 0.16112732968944712,
+      "axis_tilt_deg": 9.231915955418286,
+      "lateral_omega_rad_s": 0.32449800619159497,
+      "axial_omega_rad_s": 3.447192952696576,
+      "axis_rotation_deg": 343.43635599527397,
+      "tip_error_m": 0.0017432804276726378,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        0.035030192803526254,
+        0.1565599017308913,
+        -0.9870470519494811
+      ],
+      "rod_pos_m": [
+        -0.0013447790311519768,
+        -0.061215562746130145,
+        -0.004264311371155673
+      ],
+      "reward": 6.9992916236215335,
+      "reward_rotation": 8.61798238174144,
+      "reward_rotation_before_support_gate": 8.61798238174144,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.1538673943489686,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 45,
+      "t_s": 1.8,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.12172182750510506,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 35.29038896003015,
+          "in_contact": true,
+          "axis_dist_m": 0.03742111463331066,
+          "local_xy_m": [
+            0.0029618794399133355,
+            -0.012186397953829694
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.030766133492790473,
+            -0.042000227274713225,
+            0.03374394393771446
+          ],
+          "force6_n": [
+            35.29038896003015,
+            -55.78937892948811,
+            10.356010686919262,
+            1.8152187230369254,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03803457339032086,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0045.jpg",
+      "tilt_vel_deg_s": 2.14608627781101,
+      "tilt_vel_rad_s": 0.037456271579671546,
+      "axial_omega_deg_s": 197.50960735675426,
+      "lateral_omega_deg_s": 18.59236621518845,
+      "contact_force_total_n": 35.29038896003015
+    },
+    {
+      "axis_tilt_rad": 0.1633880984546008,
+      "axis_tilt_deg": 9.361448464116595,
+      "lateral_omega_rad_s": 0.32066820315845407,
+      "axial_omega_rad_s": 3.322752783712046,
+      "axis_rotation_deg": 351.48247323923596,
+      "tip_error_m": 0.001546334361740179,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        0.02194311540570134,
+        0.16117525057788604,
+        -0.9866818323489328
+      ],
+      "rod_pos_m": [
+        -0.0005157137977987191,
+        -0.061481627703299464,
+        -0.0041131880009725634
+      ],
+      "reward": 6.667087643311523,
+      "reward_rotation": 8.306881959280116,
+      "reward_rotation_before_support_gate": 8.306881959280116,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.1864742540715703,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 46,
+      "t_s": 1.84,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.11837810042190712,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 33.75454362656573,
+          "in_contact": true,
+          "axis_dist_m": 0.03690909133948512,
+          "local_xy_m": [
+            0.003289416213196752,
+            -0.012407732407872211
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03089572075806045,
+            -0.04210115292455805,
+            0.03362734318107042
+          ],
+          "force6_n": [
+            33.75454362656573,
+            -54.436797376939175,
+            10.860549803119856,
+            1.8372383514891863,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.036892773860735514,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0046.jpg",
+      "tilt_vel_deg_s": 3.2383127174577364,
+      "tilt_vel_rad_s": 0.05651921912884217,
+      "axial_omega_deg_s": 190.3797108720459,
+      "lateral_omega_deg_s": 18.372934665023074,
+      "contact_force_total_n": 33.75454362656573
+    },
+    {
+      "axis_tilt_rad": 0.16562216647946765,
+      "axis_tilt_deg": 9.489451133086591,
+      "lateral_omega_rad_s": 0.3341834462192195,
+      "axial_omega_rad_s": 3.2773445334619797,
+      "axis_rotation_deg": 359.3626182196765,
+      "tip_error_m": 0.0014420745657298944,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        0.008451177141405199,
+        0.1646492657239231,
+        -0.9863159721415331
+      ],
+      "rod_pos_m": [
+        0.00042296142743212465,
+        -0.06167998624103004,
+        -0.004007964174997028
+      ],
+      "reward": 6.531436683762976,
+      "reward_rotation": 8.193361333654948,
+      "reward_rotation_before_support_gate": 8.193361333654948,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.2191423124156668,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 47,
+      "t_s": 1.8800000000000001,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.11478983681806194,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 32.51768978999818,
+          "in_contact": true,
+          "axis_dist_m": 0.03637008734317085,
+          "local_xy_m": [
+            0.003580765475155026,
+            -0.012573920768638254
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.0311376183632565,
+            -0.042201970359927274,
+            0.03349193869958296
+          ],
+          "force6_n": [
+            32.51768978999818,
+            -52.364184036360875,
+            11.244630339214178,
+            1.9107596246741716,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03602874937496836,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0047.jpg",
+      "tilt_vel_deg_s": 3.200066724249906,
+      "tilt_vel_rad_s": 0.05585170062167091,
+      "axial_omega_deg_s": 187.77800977764323,
+      "lateral_omega_deg_s": 19.147301051498406,
+      "contact_force_total_n": 32.51768978999818
+    },
+    {
+      "axis_tilt_rad": 0.16813133294356275,
+      "axis_tilt_deg": 9.633215781575005,
+      "lateral_omega_rad_s": 0.3484703476352556,
+      "axial_omega_rad_s": 3.325766204346347,
+      "axis_rotation_deg": 367.2977942240264,
+      "tip_error_m": 0.0013630643582201183,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        -0.005862320310223825,
+        0.16723760809429097,
+        -0.9858991914184131
+      ],
+      "rod_pos_m": [
+        0.0014247957134395789,
+        -0.06181080835665285,
+        -0.0039293115971717335
+      ],
+      "reward": 6.625867437678614,
+      "reward_rotation": 8.314415510865867,
+      "reward_rotation_before_support_gate": 8.314415510865867,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.2563620052168512,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 48,
+      "t_s": 1.92,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.11095692895625968,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 31.544100208560845,
+          "in_contact": true,
+          "axis_dist_m": 0.035802029309122824,
+          "local_xy_m": [
+            0.00384052845457085,
+            -0.012694633055502223
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03143796489195279,
+            -0.04229171569041361,
+            0.033355036813753416
+          ],
+          "force6_n": [
+            31.544100208560845,
+            -50.26351845103091,
+            11.702303611112255,
+            1.994419254326535,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03525594403401575,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0048.jpg",
+      "tilt_vel_deg_s": 3.594116212210352,
+      "tilt_vel_rad_s": 0.06272916160237757,
+      "axial_omega_deg_s": 190.552367156289,
+      "lateral_omega_deg_s": 19.96588020495675,
+      "contact_force_total_n": 31.544100208560845
+    },
+    {
+      "axis_tilt_rad": 0.17072585493375048,
+      "axis_tilt_deg": 9.781870941466645,
+      "lateral_omega_rad_s": 0.3577512234424424,
+      "axial_omega_rad_s": 3.3567011379995826,
+      "axis_rotation_deg": 375.34490840289817,
+      "tip_error_m": 0.001310162946762389,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        -0.02074098754323768,
+        0.16862692116746988,
+        -0.9854617054423329
+      ],
+      "rod_pos_m": [
+        0.0024744569709893474,
+        -0.061851961169412405,
+        -0.0038740329167280562
+      ],
+      "reward": 6.674683632532429,
+      "reward_rotation": 8.391752844998956,
+      "reward_rotation_before_support_gate": 8.391752844998956,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.2954363352382228,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 49,
+      "t_s": 1.96,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.1068642480850981,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 31.319455215633823,
+          "in_contact": true,
+          "axis_dist_m": 0.03518966970941357,
+          "local_xy_m": [
+            0.004068838228974817,
+            -0.012758980374540464
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03177161243178407,
+            -0.04235864087338165,
+            0.033226199168752975
+          ],
+          "force6_n": [
+            31.319455215633823,
+            -48.20952028922345,
+            11.81496940317587,
+            2.081119972477334,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03458811980408335,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0049.jpg",
+      "tilt_vel_deg_s": 3.716378997290981,
+      "tilt_vel_rad_s": 0.06486304975469315,
+      "axial_omega_deg_s": 192.3248082941366,
+      "lateral_omega_deg_s": 20.497635218893627,
+      "contact_force_total_n": 31.319455215633823
+    },
+    {
+      "axis_tilt_rad": 0.1730051628736266,
+      "axis_tilt_deg": 9.912465666632206,
+      "lateral_omega_rad_s": 0.35608191635731906,
+      "axial_omega_rad_s": 3.260018312540561,
+      "axis_rotation_deg": 383.3005886815889,
+      "tip_error_m": 0.0012850962468982396,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        -0.03564718353487233,
+        0.1684121032812661,
+        -0.9850718967539431
+      ],
+      "rod_pos_m": [
+        0.0035345315416993616,
+        -0.06177561599719173,
+        -0.003840396460704761
+      ],
+      "reward": 6.408713171248519,
+      "reward_rotation": 8.150045781351402,
+      "reward_rotation_before_support_gate": 8.150045781351402,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.330257172485781,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 50,
+      "t_s": 2.0,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.10245791849637213,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 32.28482060342679,
+          "in_contact": true,
+          "axis_dist_m": 0.03455453016603495,
+          "local_xy_m": [
+            0.004261433515967392,
+            -0.012755600217884399
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.03213301779894372,
+            -0.042381231789653064,
+            0.03311685792326567
+          ],
+          "force6_n": [
+            32.28482060342679,
+            -46.17103001044641,
+            11.269119478826534,
+            2.1635728223143222,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03408362048937574,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0050.jpg",
+      "tilt_vel_deg_s": 3.2648681291390425,
+      "tilt_vel_rad_s": 0.05698269849690324,
+      "axial_omega_deg_s": 186.78529044393468,
+      "lateral_omega_deg_s": 20.401990968204775,
+      "contact_force_total_n": 32.28482060342679
+    },
+    {
+      "axis_tilt_rad": 0.1745491215604417,
+      "axis_tilt_deg": 10.000927983129271,
+      "lateral_omega_rad_s": 0.34492922601617754,
+      "axial_omega_rad_s": 2.9506721079195213,
+      "axis_rotation_deg": 390.8273787896152,
+      "tip_error_m": 0.0012745769878246464,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        -0.05001097262929878,
+        0.16630734184614943,
+        -0.9848049404144658
+      ],
+      "rod_pos_m": [
+        0.004550189646032034,
+        -0.06156829264828176,
+        -0.003823473506815853
+      ],
+      "reward": 5.621191226366284,
+      "reward_rotation": 7.376680269798803,
+      "reward_rotation_before_support_gate": 7.376680269798803,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.354106481667638,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 51,
+      "t_s": 2.04,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.09772598379254067,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 34.496567337324066,
+          "in_contact": true,
+          "axis_dist_m": 0.033944371121539134,
+          "local_xy_m": [
+            0.004390895317496587,
+            -0.01268975303679303
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.0325231490839915,
+            -0.042339827521833046,
+            0.03303745007870538
+          ],
+          "force6_n": [
+            34.496567337324066,
+            -45.27567787470599,
+            9.02694908552677,
+            2.184617524602458,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03384326169712094,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0051.jpg",
+      "tilt_vel_deg_s": 2.2115579124266205,
+      "tilt_vel_rad_s": 0.038598967170377224,
+      "axial_omega_deg_s": 169.06105851075873,
+      "lateral_omega_deg_s": 19.762988881441046,
+      "contact_force_total_n": 34.496567337324066
+    },
+    {
+      "axis_tilt_rad": 0.17822588847732135,
+      "axis_tilt_deg": 10.211591209719803,
+      "lateral_omega_rad_s": 0.09789770462473367,
+      "axial_omega_rad_s": 1.8794275741883968,
+      "axis_rotation_deg": 396.16047549001553,
+      "tip_error_m": 0.001010844811135886,
+      "contact_count": 1,
+      "ncon": 3,
+      "rod_axis_world": [
+        -0.05846125832087781,
+        0.1673673883324888,
+        -0.9841597627409391
+      ],
+      "rod_pos_m": [
+        0.004848605969228072,
+        -0.06165097731099673,
+        -0.0038142262191153864
+      ],
+      "reward": 2.895224652691741,
+      "reward_rotation": 4.698568935470992,
+      "reward_rotation_before_support_gate": 4.698568935470992,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.4117541032680265,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 52,
+      "t_s": 2.08,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.09355484056137356,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 22.76874079382447,
+          "in_contact": true,
+          "axis_dist_m": 0.033577147140077764,
+          "local_xy_m": [
+            0.00438347341565406,
+            -0.01282150112153834
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.0323757301665578,
+            -0.04242385471058622,
+            0.03300966783308874
+          ],
+          "force6_n": [
+            22.76874079382447,
+            -54.111095210391966,
+            6.8079811966672255,
+            1.801905658540267,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.0336415632598995,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0052.jpg",
+      "tilt_vel_deg_s": 5.266580664763287,
+      "tilt_vel_rad_s": 0.09191917292199134,
+      "axial_omega_deg_s": 107.68326790150556,
+      "lateral_omega_deg_s": 5.6091252990155995,
+      "contact_force_total_n": 22.76874079382447
+    },
+    {
+      "axis_tilt_rad": 0.18242095932226063,
+      "axis_tilt_deg": 10.451951063893205,
+      "lateral_omega_rad_s": 0.06644780186978205,
+      "axial_omega_rad_s": 1.6564115069333565,
+      "axis_rotation_deg": 400.18787066871187,
+      "tip_error_m": 0.0008059657003848589,
+      "contact_count": 1,
+      "ncon": 2,
+      "rod_axis_world": [
+        -0.06007822294120346,
+        0.1711739433083367,
+        -0.9834073867225634
+      ],
+      "rod_pos_m": [
+        0.004683926501613695,
+        -0.061923791145120886,
+        -0.003842550349167456
+      ],
+      "reward": 2.2842670401985656,
+      "reward_rotation": 4.141028767333391,
+      "reward_rotation_before_support_gate": 4.141028767333391,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.478995840002394,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 53,
+      "t_s": 2.12,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.09011870489150679,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 11.220117984132301,
+          "in_contact": true,
+          "axis_dist_m": 0.03310441092872041,
+          "local_xy_m": [
+            0.004279535984280005,
+            -0.012976011055287739
+          ],
+          "n_contacts": 1,
+          "world_pos_m": [
+            0.031786998519682017,
+            -0.042915227019417315,
+            0.03288050243090357
+          ],
+          "force6_n": [
+            11.220117984132301,
+            -57.4239518038056,
+            5.917851411985782,
+            1.5697911859680176,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03326856645716764,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0053.jpg",
+      "tilt_vel_deg_s": 6.00899635433505,
+      "tilt_vel_rad_s": 0.10487677112348201,
+      "axial_omega_deg_s": 94.90538848418602,
+      "lateral_omega_deg_s": 3.807178605060012,
+      "contact_force_total_n": 11.220117984132301
+    },
+    {
+      "axis_tilt_rad": 0.1908903524772474,
+      "axis_tilt_deg": 10.937211546710934,
+      "lateral_omega_rad_s": 0.35161960711803436,
+      "axial_omega_rad_s": 1.5495501758789731,
+      "axis_rotation_deg": 404.12347541800096,
+      "tip_error_m": 0.0004186181309904358,
+      "contact_count": 0,
+      "ncon": 1,
+      "rod_axis_world": [
+        -0.06439399382004145,
+        0.17847151518870602,
+        -0.9818356949236221
+      ],
+      "rod_pos_m": [
+        0.004819886327439638,
+        -0.062475647719024245,
+        -0.0035874052010635787
+      ],
+      "reward": 0.9914390908451161,
+      "reward_rotation": 3.873875439697433,
+      "reward_rotation_before_support_gate": 3.873875439697433,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.619516740839456,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 54,
+      "t_s": 2.16,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.08722180293186231,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.034675168665561314,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.032610269954929307,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0054.jpg",
+      "tilt_vel_deg_s": 12.131512070443229,
+      "tilt_vel_rad_s": 0.21173482887466913,
+      "axial_omega_deg_s": 88.78268522161957,
+      "lateral_omega_deg_s": 20.14631948191153,
+      "contact_force_total_n": 0.0
+    },
+    {
+      "axis_tilt_rad": 0.20950017392728978,
+      "axis_tilt_deg": 12.003475773290393,
+      "lateral_omega_rad_s": 0.9908667895128536,
+      "axial_omega_rad_s": 1.080827499929975,
+      "axis_rotation_deg": 407.40786120476616,
+      "tip_error_m": 0.0006402207078008626,
+      "contact_count": 0,
+      "ncon": 2,
+      "rod_axis_world": [
+        -0.0914777676805352,
+        0.1867719644527781,
+        -0.978134986244044
+      ],
+      "rod_pos_m": [
+        0.006423093490227184,
+        -0.06306489063146983,
+        -0.002920422406833699
+      ],
+      "reward": -0.5428003853212271,
+      "reward_rotation": 2.7020687498249374,
+      "reward_rotation_before_support_gate": 2.7020687498249374,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -1.950681016691763,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 55,
+      "t_s": 2.2,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.08686779354435673,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03849590953422116,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03084443075167882,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0055.jpg",
+      "tilt_vel_deg_s": 26.656605664486488,
+      "tilt_vel_rad_s": 0.46524553625105974,
+      "axial_omega_deg_s": 61.926854127663844,
+      "lateral_omega_deg_s": 56.77248509876421,
+      "contact_force_total_n": 0.0
+    },
+    {
+      "axis_tilt_rad": 0.257271478023194,
+      "axis_tilt_deg": 14.740569879821727,
+      "lateral_omega_rad_s": 1.6467232413246138,
+      "axial_omega_rad_s": 0.466609698817813,
+      "axis_rotation_deg": 409.0455033364974,
+      "tip_error_m": 0.0004325090782948607,
+      "contact_count": 0,
+      "ncon": 3,
+      "rod_axis_world": [
+        -0.13097714988294337,
+        0.2181424201634353,
+        -0.9670878298964268
+      ],
+      "rod_pos_m": [
+        0.009000165684947324,
+        -0.0649541856985422,
+        -0.004571707484960484
+      ],
+      "reward": -3.140947514573558,
+      "reward_rotation": 1.1665242470445325,
+      "reward_rotation_before_support_gate": 1.1665242470445325,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -2.9417161512995023,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 56,
+      "t_s": 2.24,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.08569475104558019,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.038318832115767615,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03700013185729128,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0056.jpg",
+      "tilt_vel_deg_s": 68.42735266328334,
+      "tilt_vel_rad_s": 1.1942826023976054,
+      "axial_omega_deg_s": 26.734766422131162,
+      "lateral_omega_deg_s": 94.35029175400332,
+      "contact_force_total_n": 0.0
+    },
+    {
+      "axis_tilt_rad": 0.3422784295323749,
+      "axis_tilt_deg": 19.611109430571037,
+      "lateral_omega_rad_s": 2.663267393293585,
+      "axial_omega_rad_s": 0.20144251609617253,
+      "axis_rotation_deg": 409.750292469293,
+      "tip_error_m": 0.0003983155548610737,
+      "contact_count": 0,
+      "ncon": 1,
+      "rod_axis_world": [
+        -0.18732076120991042,
+        0.27849823202717533,
+        -0.9419923923140131
+      ],
+      "rod_pos_m": [
+        0.012905842188429316,
+        -0.06916436583290289,
+        -0.006151790705611496
+      ],
+      "reward": -6.134659504198502,
+      "reward_rotation": 0.5036062902404314,
+      "reward_rotation_before_support_gate": 0.5036062902404314,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -5.206867703251064,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 57,
+      "t_s": 2.2800000000000002,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.08545947366193091,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03806903807548372,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.04334467563453931,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0057.jpg",
+      "tilt_vel_deg_s": 121.76348876873276,
+      "tilt_vel_rad_s": 2.1251737877295227,
+      "axial_omega_deg_s": 11.541805986806839,
+      "lateral_omega_deg_s": 152.59398135053075,
+      "contact_force_total_n": 0.0
+    },
+    {
+      "axis_tilt_rad": 0.47528236731637935,
+      "axis_tilt_deg": 27.231673724215074,
+      "lateral_omega_rad_s": 4.010269756667281,
+      "axial_omega_rad_s": 0.0869658033022759,
+      "axis_rotation_deg": 410.0526313484291,
+      "tip_error_m": 0.00047667956195178354,
+      "contact_count": 0,
+      "ncon": 2,
+      "rod_axis_world": [
+        -0.2656310576197576,
+        0.372596732158504,
+        -0.8891635487426445
+      ],
+      "rod_pos_m": [
+        0.01834892798945663,
+        -0.07572383964852741,
+        -0.009600175537552746
+      ],
+      "reward": -11.269382437279113,
+      "reward_rotation": 0.21741450825568975,
+      "reward_rotation_before_support_gate": 0.21741450825568975,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -10.039703496971633,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 58,
+      "t_s": 2.32,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.08589285238099445,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.03974078169409718,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.04409445320312636,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0058.jpg",
+      "tilt_vel_deg_s": 190.51410734110092,
+      "tilt_vel_rad_s": 3.3250984446001106,
+      "axial_omega_deg_s": 4.982773491185287,
+      "lateral_omega_deg_s": 229.77153176599083,
+      "contact_force_total_n": 0.0
+    },
+    {
+      "axis_tilt_rad": 0.6721110538234834,
+      "axis_tilt_deg": 38.50912674817571,
+      "lateral_omega_rad_s": 5.835601679644984,
+      "axial_omega_rad_s": 0.03754446231050243,
+      "axis_rotation_deg": 410.1813475349136,
+      "tip_error_m": 0.0006660838302878859,
+      "contact_count": 0,
+      "ncon": 2,
+      "rod_axis_world": [
+        -0.3684844750853318,
+        0.5018952872078175,
+        -0.782508985443407
+      ],
+      "rod_pos_m": [
+        0.025542952807783306,
+        -0.08478234414328695,
+        -0.016749931080701573
+      ],
+      "reward": -21.429157942053266,
+      "reward_rotation": 0.09386115577625607,
+      "reward_rotation_before_support_gate": 0.09386115577625607,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -20.07703416318726,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 59,
+      "t_s": 2.36,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.08780983689824685,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.044434739572329074,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.0460482400970612,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0059.jpg",
+      "tilt_vel_deg_s": 281.9363255990159,
+      "tilt_vel_rad_s": 4.9207171626776,
+      "axial_omega_deg_s": 2.1511392344797766,
+      "lateral_omega_deg_s": 334.3553471631119,
+      "contact_force_total_n": 0.0
+    },
+    {
+      "axis_tilt_rad": 0.9536468346223381,
+      "axis_tilt_deg": 54.63993876987037,
+      "lateral_omega_rad_s": 8.218561412716754,
+      "axial_omega_rad_s": 0.016208516292757415,
+      "axis_rotation_deg": 410.23522197103944,
+      "tip_error_m": 0.001035791023811107,
+      "contact_count": 0,
+      "ncon": 2,
+      "rod_axis_world": [
+        -0.4874852205927096,
+        0.6537963084339192,
+        -0.5787128361993166
+      ],
+      "rod_pos_m": [
+        0.03405260263565101,
+        -0.0956657940231557,
+        -0.03049203585162817
+      ],
+      "reward": -26.400672401608283,
+      "reward_rotation": 0.04052129073189353,
+      "reward_rotation_before_support_gate": 0.04052129073189353,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -25.0,
+      "termination_reason": "none",
+      "would_eval_axis_tilt_kill": false,
+      "terminated": false,
+      "truncated": false,
+      "step": 60,
+      "t_s": 2.4,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.09085539543412818,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.05148201183104955,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.05273984717856598,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0060.jpg",
+      "tilt_vel_deg_s": 403.27030054236644,
+      "tilt_vel_rad_s": 7.038394519971369,
+      "axial_omega_deg_s": 0.9286795757440314,
+      "lateral_omega_deg_s": 470.88888261774554,
+      "contact_force_total_n": 0.0
+    },
+    {
+      "axis_tilt_rad": 1.340362159023989,
+      "axis_tilt_deg": 76.79709473111745,
+      "lateral_omega_rad_s": 11.111081844503197,
+      "axial_omega_rad_s": 0.006997462993516185,
+      "axis_rotation_deg": 410.25692122286034,
+      "tip_error_m": 0.0016739564122912223,
+      "contact_count": 0,
+      "ncon": 1,
+      "rod_axis_world": [
+        -0.585370718208648,
+        0.7779295946186323,
+        -0.2284002366031648
+      ],
+      "rod_pos_m": [
+        0.04152966979246175,
+        -0.10519022630814326,
+        -0.054640872251210316
+      ],
+      "reward": -30.0,
+      "reward_rotation": 0.017493657483790462,
+      "reward_rotation_before_support_gate": 0.017493657483790462,
+      "reward_support_gating_effect": 0.0,
+      "reward_low_support_wobble": 0.0,
+      "reward_axis_tilt_penalty": -25.0,
+      "termination_reason": "axis_tilt",
+      "would_eval_axis_tilt_kill": true,
+      "terminated": true,
+      "truncated": false,
+      "step": 61,
+      "t_s": 2.44,
+      "fingers": [
+        {
+          "name": "index/tip0",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.093867019966608,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "middle/tip1",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.057818939409555896,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "thumb/tip2",
+          "force_n": 0.0,
+          "in_contact": false,
+          "axis_dist_m": 0.06287956287336045,
+          "local_xy_m": [
+            0.0,
+            0.0
+          ],
+          "n_contacts": 0,
+          "world_pos_m": null,
+          "force6_n": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "frame": "B/frames/step_0061.jpg",
+      "tilt_vel_deg_s": 553.9288990311771,
+      "tilt_vel_rad_s": 9.66788311004127,
+      "axial_omega_deg_s": 0.40092509682745636,
+      "lateral_omega_deg_s": 636.6180955144672,
+      "contact_force_total_n": 0.0
+    }
+  ]
+}

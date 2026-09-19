@@ -1,0 +1,137 @@
+<mujoco model="allegro_three_finger_rod_revolute">
+  <!--
+    Revolute curriculum variant of allegro_three_finger_rod.xml.
+    Kinematics derive from MuJoCo Menagerie wonik_allegro/right_hand.xml,
+    commit da76818e269b82289eba39808e2fb91d679d6994 (BSD-2-Clause).
+  -->
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" integrator="implicitfast" iterations="100" ls_iterations="50"
+          cone="elliptic" impratio="10" gravity="0 0 -9.81"/>
+  <size njmax="1600" nconmax="300"/>
+  <default>
+    <joint damping="0.1" armature="0.002"/>
+    <geom density="800" friction="1.8 0.05 0.001" condim="4"
+          solref="0.008 1" solimp="0.95 0.99 0.001"/>
+    <position kp="20" kv="1.0" ctrllimited="true" forcelimited="true"
+              forcerange="-3 3"/>
+    <default class="base"><joint axis="0 0 1" range="-0.47 0.47"/><position ctrlrange="-0.47 0.47"/></default>
+    <default class="proximal"><joint axis="0 1 0" range="-0.196 1.61"/><position ctrlrange="-0.196 1.61"/></default>
+    <default class="medial"><joint axis="0 1 0" range="-0.174 1.709"/><position ctrlrange="-0.174 1.709"/></default>
+    <default class="distal"><joint axis="0 1 0" range="-0.227 1.618"/><position ctrlrange="-0.227 1.618"/></default>
+    <default class="thumb_base"><joint axis="-1 0 0" range="0.263 1.396"/><position ctrlrange="0.263 1.396"/></default>
+    <default class="thumb_proximal"><joint axis="0 0 1" range="-0.105 1.163"/><position ctrlrange="-0.105 1.163"/></default>
+    <default class="thumb_medial"><joint axis="0 1 0" range="-0.189 1.644"/><position ctrlrange="-0.189 1.644"/></default>
+    <default class="thumb_distal"><joint axis="0 1 0" range="-0.162 1.719"/><position ctrlrange="-0.162 1.719"/></default>
+  </default>
+  <asset>
+    <material name="palm_mat" rgba="0.18 0.18 0.22 1"/>
+    <material name="index_mat" rgba="0.20 0.42 0.78 1"/>
+    <material name="middle_mat" rgba="0.28 0.55 0.86 1"/>
+    <material name="thumb_mat" rgba="0.70 0.42 0.20 1"/>
+    <material name="tip_mat" rgba="0.15 0.80 0.35 1"/>
+    <material name="rod_mat" rgba="0.75 0.25 0.12 1"/>
+  </asset>
+  <worldbody>
+    <light pos="0 -0.5 0.8" dir="0 0.4 -1" diffuse="0.8 0.8 0.8"/>
+    <geom name="floor" type="plane" size="1 1 0.1" pos="0 0 -0.20" density="0" rgba="0.9 0.9 0.9 1"/>
+    <body name="palm" pos="-0.018718 -0.022177 -0.058714" quat="0 1 0 1">
+      <geom name="palm_collision" type="box" size="0.0204 0.0565 0.0475"
+            pos="-0.0093 0 -0.0475" material="palm_mat"/>
+      <body name="finger0" pos="0 0.0435 -0.001542" quat="0.999048 -0.0436194 0 0">
+        <joint name="f0_j0" class="base"/>
+        <geom type="box" size="0.0098 0.01375 0.0082" pos="0 0 0.0082" material="index_mat"/>
+        <body name="f0_proximal" pos="0 0 0.0164">
+          <joint name="f0_j1" class="proximal"/>
+          <geom type="box" size="0.0098 0.01375 0.027" pos="0 0 0.027" material="index_mat"/>
+          <body name="f0_medial" pos="0 0 0.054">
+            <joint name="f0_j2" class="medial"/>
+            <geom type="box" size="0.0098 0.01375 0.0192" pos="0 0 0.0192" material="index_mat"/>
+            <body name="f0_distal" pos="0 0 0.0384">
+              <joint name="f0_j3" class="distal"/>
+              <geom type="box" size="0.0098 0.01375 0.008" pos="0 0 0.008" material="index_mat"/>
+              <body name="f0_tip">
+                <geom name="tip0" type="capsule" size="0.012 0.01" pos="0 0 0.019" material="tip_mat"/>
+                <site name="tip0_site" pos="0 0 0.019" size="0.004"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="finger1" pos="0 0 0.0007">
+        <joint name="f1_j0" class="base"/>
+        <geom type="box" size="0.0098 0.01375 0.0082" pos="0 0 0.0082" material="middle_mat"/>
+        <body name="f1_proximal" pos="0 0 0.0164">
+          <joint name="f1_j1" class="proximal"/>
+          <geom type="box" size="0.0098 0.01375 0.027" pos="0 0 0.027" material="middle_mat"/>
+          <body name="f1_medial" pos="0 0 0.054">
+            <joint name="f1_j2" class="medial"/>
+            <geom type="box" size="0.0098 0.01375 0.0192" pos="0 0 0.0192" material="middle_mat"/>
+            <body name="f1_distal" pos="0 0 0.0384">
+              <joint name="f1_j3" class="distal"/>
+              <geom type="box" size="0.0098 0.01375 0.008" pos="0 0 0.008" material="middle_mat"/>
+              <body name="f1_tip">
+                <geom name="tip1" type="capsule" size="0.014 0.01" pos="0 0 0.019" material="tip_mat"/>
+                <site name="tip1_site" pos="0 0 0.019" size="0.004"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="finger2" pos="-0.0182 0.019333 -0.045987"
+            quat="0.477714 -0.521334 -0.521334 -0.477714">
+        <joint name="f2_j0" class="thumb_base"/>
+        <geom type="box" size="0.0179 0.017 0.02275" pos="-0.0179 0.009 0.0145" material="thumb_mat"/>
+        <body name="f2_proximal" pos="-0.027 0.005 0.0399">
+          <joint name="f2_j1" class="thumb_proximal"/>
+          <geom type="box" size="0.0098 0.01375 0.00885" pos="0 0 0.00885" material="thumb_mat"/>
+          <body name="f2_medial" pos="0 0 0.0177">
+            <joint name="f2_j2" class="thumb_medial"/>
+            <geom type="box" size="0.0098 0.01375 0.0257" pos="0 0 0.0257" material="thumb_mat"/>
+            <body name="f2_distal" pos="0 0 0.0514">
+              <joint name="f2_j3" class="thumb_distal"/>
+              <geom type="box" size="0.0098 0.01375 0.0157" pos="0 0 0.0157" material="thumb_mat"/>
+              <body name="f2_tip">
+                <geom name="tip2" type="capsule" size="0.012 0.008" pos="0 0 0.035" material="tip_mat"/>
+                <site name="tip2_site" pos="0 0 0.035" size="0.004"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+    <body name="rod_mount" pos="0 -0.05 0.07">
+      <geom type="sphere" size="0.004" density="0" rgba="0.4 0.4 0.4 0.3" contype="0" conaffinity="0"/>
+      <body name="rod" pos="0 0 0" quat="0.7071068 0 0.7071068 0">
+        <joint name="rod_hinge" type="hinge" pos="-0.07 0 0" axis="1 0 0"
+               damping="0.02" armature="0.001" limited="false"/>
+        <geom name="rod_geom" type="capsule" fromto="-0.07 0 0 0.07 0 0"
+              size="0.01" density="350" material="rod_mat"/>
+        <site name="rod_tip" pos="-0.07 0 0" size="0.005" rgba="1 1 0 1"/>
+        <site name="rod_axis_mark" pos="0 0.009 0" size="0.004" rgba="0 0 0 1"/>
+      </body>
+    </body>
+    <site name="tip_target" pos="0 -0.05 0.07" size="0.007" rgba="1 0 1 0.45"/>
+  </worldbody>
+  <contact>
+    <exclude body1="palm" body2="finger0"/>
+    <exclude body1="palm" body2="finger1"/>
+    <exclude body1="palm" body2="finger2"/>
+    <exclude body1="palm" body2="f2_proximal"/>
+  </contact>
+  <actuator>
+    <position name="a0" joint="f0_j0" class="base"/><position name="a1" joint="f0_j1" class="proximal"/>
+    <position name="a2" joint="f0_j2" class="medial"/><position name="a3" joint="f0_j3" class="distal"/>
+    <position name="a4" joint="f1_j0" class="base"/><position name="a5" joint="f1_j1" class="proximal"/>
+    <position name="a6" joint="f1_j2" class="medial"/><position name="a7" joint="f1_j3" class="distal"/>
+    <position name="a8" joint="f2_j0" class="thumb_base"/><position name="a9" joint="f2_j1" class="thumb_proximal"/>
+    <position name="a10" joint="f2_j2" class="thumb_medial"/><position name="a11" joint="f2_j3" class="thumb_distal"/>
+  </actuator>
+  <sensor>
+    <touch name="touch0" site="tip0_site"/><touch name="touch1" site="tip1_site"/><touch name="touch2" site="tip2_site"/>
+    <framepos name="rod_tip_pos" objtype="site" objname="rod_tip"/>
+    <framequat name="rod_quat" objtype="body" objname="rod"/>
+    <framelinvel name="rod_linvel" objtype="body" objname="rod"/>
+    <frameangvel name="rod_angvel" objtype="body" objname="rod"/>
+    <jointpos name="rod_hinge_pos" joint="rod_hinge"/><jointvel name="rod_hinge_vel" joint="rod_hinge"/>
+  </sensor>
+</mujoco>

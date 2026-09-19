@@ -1,5 +1,538 @@
 # Findings
 
+## FIND-20260918-013: Tip penalty ×5 does not clear free-tip 0.5 cm gate
+- Confidence: high (900k one-factor from EXP-009)
+- Supporting runs: `20260918-1829-s1-freetip-tipscale1-900k-seed0`
+- Related: FIND-20260918-011/012
+- Applies to: free tip + tip-stop 0.5 cm palm_down
+- Does not apply to: tip-connect
+
+### Finding
+Raising palm-down tip penalty scale from 0.2 to **1.0** for 900k does not
+reduce tip_error_mean below ~6 mm or eliminate tip_error deaths. Fixed length
+rises modestly (239→298); unseen flat. Free tip still unsolved.
+
+### Evidence
+EXP-010 vs EXP-009 eval; demos `docs/media/s1-freetip-tipscale1-900k-*.mp4`.
+
+### Implication
+Do not keep stacking tip weight alone; try soft tip or a different tip
+objective.
+
+### Caveats
+Single seed; KL/clip high late in run.
+
+## FIND-20260918-012: +600k on tip-stop 0.5 cm free tip yields only modest length gains
+- Confidence: high (continue from EXP-008; fixed/unseen)
+- Supporting runs: `20260918-1820-s1-freetip-tipstop005-cont600k-seed0`
+- Related: FIND-20260918-011
+- Applies to: free tip + tip-stop 0.5 cm from EXP-005 stack
+- Does not apply to: tip-connect
+
+### Finding
+An additional 600k steps raises eval length from ~195 to ~240 and keeps
+tip_error as the sole death mode, but tip_error_mean stays ~6 mm and success
+remains 0. Pure longer training under this gate is slow / insufficient for
+20 s free-tip holds.
+
+### Evidence
+EXP-009 vs EXP-008 eval tables; demos `docs/media/s1-freetip-tipstop005-cont600k-*.mp4`.
+
+### Implication
+Prefer a new free-tip factor over another budget-only continue.
+
+### Caveats
+Single seed; cumulative ~900k from EXP-005 free-tip path.
+
+## FIND-20260918-011: Tip-stop 0.5 cm flips free-tip deaths from tilt to tip_error
+- Confidence: high (one-factor vs EXP-007; fixed/unseen)
+- Supporting runs: `20260918-1812-s1-freetip-tipstop005-from-exp005-seed0`
+- Related debug issues: FIND-20260918-010
+- Applies to: free tip from EXP-005 palm-down at s=1
+- Does not apply to: tip-connect (tip error ≈0)
+
+### Finding
+Tightening tip-error termination from 12 cm to **0.5 cm** on free tip from
+EXP-005 shifts nearly all deaths to `tip_error`, cuts tip error ~10×, cuts
+final tilt from ~24° to ~3°, and roughly doubles eval length (84→195). Free
+tip still fails success/drop gates within ~8 s.
+
+### Evidence
+EXP-008 eval vs EXP-007; demos `docs/media/s1-freetip-tipstop005-*.mp4`.
+
+### Implication
+Use 0.5 cm tip stop as the free-tip working gate. Next levers: tip reward
+strength, soft tip, or longer budget — not loosening the stop back to 12 cm.
+
+### Caveats
+Single seed; 300k; success still 0.
+
+## FIND-20260918-010: Free tip from EXP-005 needs more than disabling equality
+- Confidence: high (zero-shot + 300k one-factor fine-tune)
+- Supporting runs: `20260918-1753-s1-freetip-from-exp005-seed0`;
+  zero-shot `20260918-1753-freetip-from-exp005-zeroshot`
+- Related debug issues: tip-holding curriculum / soft-tip history
+- Applies to: EXP-005 palm-down PPO our_hand at s=1
+- Does not apply to: soft-tip solref fade or stronger tip-error shaping (untested)
+
+### Finding
+With user-accepted EXP-005 as Phase-T, turning tip equality off and relying
+on existing palm-down tip-error reward + `tip_error>0.12` stop fails:
+zero-shot length 147 / drop 1.0; 300k fine-tune length **84/87**, success 0,
+drop 1.0. Deaths are mostly `axis_tilt`, not tip_error. Do not claim free-tip
+phase passed.
+
+### Evidence
+EXP-007 eval tables; demos `docs/media/s1-freetip-from-exp005-*.mp4`.
+
+### Implication
+Next free-tip attempt must introduce a *new* controlled factor (soft tip,
+stronger tip penalty, assist, etc.). Keep EXP-005 tip-connect as best live
+checkpoint.
+
+### Caveats
+Single seed; 300k may be short for free tip; tip stop at 12 cm is loose vs
+success tip <2 cm.
+
+## FIND-20260918-009: Palm-down tip solref 0.004 raises spin but hurts tilt survival on our_hand
+- Confidence: high (one-factor 300k vs EXP-005; fixed/unseen eval)
+- Supporting runs: `20260918-1559-s1-palm-down-ppo-solref004-seed0` vs
+  `20260918-1528-s1-palm-down-ppo-tilt035-seed0`
+- Related debug issues: historical solref softening notes; DBG-20260918-002
+- Applies to: our Allegro tip-connect + palm-down PPO/pose at s=1
+- Does not apply to: the bundled palm_down XML/policy (other geoms/actuation)
+
+### Finding
+Copying the palm-down bundle's runtime tip-connect solref **0.004** onto the
+EXP-005 our_hand recipe (was 0.008) increases online return/length and eval
+rotation (238°/229° vs 207°/181°) and unseen net-angle success (0.70 vs 0.50),
+but **breaks 20 s survival**: length 454/434, drop 0.2/0.3, final tilt ~7–9°,
+`axis_tilt` deaths, `passed=false`. Soft tip equality **0.008** remains the
+better default for this stack.
+
+### Evidence
+EXP-006 eval_fixed/unseen vs EXP-005 tables; demos
+`docs/media/s1-palm-down-ppo-solref004-seed6.mp4` (success) and
+`...-seed10000.mp4` (axis_tilt @ 223). Curves:
+`runs/20260918-1559-.../plots/train_curves_vs_005.png`.
+
+### Implication
+Do not assume literal hyperparameter copy from the palm-down bundle is
+optimal on our MJCF. Prefer EXP-005 solref 0.008 when continuing mass-up.
+Online return alone would have falsely suggested adopting 0.004.
+
+### Caveats
+Single seed. Bundle still uses 0.004 successfully — residual differences
+(XML, solimp, contacts) are not isolated here.
+
+## FIND-20260918-008: Tip-only contact sensing still allows proximal wedges; PD vs contact is jamming, not a logic clash
+- Confidence: high (obs/actuator code + contact audit; conceptual, not a new train)
+- Supporting runs: `20260918-1528-s1-palm-down-ppo-tilt035-seed0`; FIND-20260918-007
+- Related debug issues: `DBG-20260918-001`, `DBG-20260918-002`
+- Applies to: tip-connect Allegro policies with tip-only `_touch` / `contact_count`
+  and position actuators (`kp`/`kv`, force-limited)
+- Does not apply to: claims that the policy “sees” proximal contact; torque-control
+  hardware without an equivalent PD+contact solver story
+
+### Finding
+Two linked considerations for future work:
+
+1. **Sensing gap.** The policy observation exposes only tip↔rod forces
+   (`_touch`), plus proprioception (`hand_q`/`hand_v`) and rod state
+   (tilt, linvel, ω, tip error). Proximal/medial/distal contacts are **not**
+   in the obs or in `contact_count`. Multi-link wedges (FIND-20260918-007)
+   are therefore learned **indirectly**: jammed joint angles/velocities,
+   tip-load sharing, and rewarded rod dynamics — not from an explicit
+   proximal-contact bit.
+
+2. **Actuator vs contact force.** Actuators are position servos
+   (`kp=20`, `kv=1`, `forcerange≈±3`), not open-loop torques. MuJoCo solves
+   PD joint forces and contact constraints in one step. Commanding more
+   flexion while a proximal link is already against the rod raises contact
+   normal force toward a jammed equilibrium (high Fn, possibly saturated
+   actuators). That is expected quasi-static jamming, not a software
+   double-application bug — but it does explain large audited normals
+   (tens–100+ N) and is a risk for sim instability and hardware transfer.
+
+### Evidence
+`env.py` `_touch` / `_frame_obs` (tips only); XML `<position kp="20" … forcerange="-3 3"/>`;
+contact audit proximal Fmean 67.8 N (EXP-005 seed 6). Labeled anatomy:
+`docs/media/finger-link-labels.png`.
+
+### Implication
+Future directions worth treating as first-class options (not yet chosen):
+- all-link contact diagnostics / optional privileged or student contact features
+  beyond tips;
+- penalties or gates on non-tip normal force / actuator saturation;
+- hardware transfer assumptions: tip tactile alone may not match the sim grasp;
+- mass-up / solref changes may interact with jamming force magnitude more than
+  with tip `contact_count`.
+
+### Caveats
+No experiment yet that adds proximal sensors or force penalties. Do not change
+`contact_count` semantics silently (many gates depend on tip-only).
+
+## FIND-20260918-007: Both success gaits are multi-link wedges, not fingertip-only
+- Confidence: high (full contact enumeration; EXP-005 + bundle; 2 seeds each)
+- Supporting runs: `20260918-1528-s1-palm-down-ppo-tilt035-seed0`; bundle `palm_down_screwdriver`
+- Related debug issues: `DBG-20260918-001`
+- Applies to: s=1 tip-connect screwdriver policies (our transfer and the bundle)
+- Does not apply to: s=400 T00; claims based on `contact_count` occupancy
+
+### Finding
+Enumerating every MuJoCo rod contact (normal force ≥ 0.05 N) shows both the
+EXP-005 success rollout and the palm-down bundle rollout load the rod with
+**non-fingertip finger links on ~100% of steps**. The **proximal** phalanx is
+a dominant contributor. In EXP-005 seed 6 the proximal link averages 67.8 N
+(max 163.5 N), exceeding the tip average of 46.5 N; medial and distal also
+contribute. The bundle is the same pattern but less proximal-dominant
+(tip 53 N > proximal 28 N). So the working strategy is a multi-link wedge of
+the rod against the proximal/palm region, with the tip as one of several
+supports — not a clean fingertip gait.
+
+### Evidence
+`contact_audit.json` (EXP-005): seed 6 proximal 100%/Fmean 67.8/Fmax 163.5,
+tip 100%/46.5, medial 45%, distal 77%, finger_base 29%; non-tip 100% of steps.
+`contact_audit_palm_down.json`: seed 7000 tip 100%/53.1, proximal 88.8%/27.7,
+distal 78.6%, medial 23.8%; non-tip 99.8% of steps.
+
+### Implication
+`contact_count` / ≥2-tip occupancy (FIND-20260918-001, EXP-005 tables)
+describe **tips only** and understate the grasp. Do not call these
+"2-contact fingertip gaits." When judging contact strategy, enumerate all
+rod-hand geoms. The transfer relies on the proximal link even more than the
+bundle, which may matter for real-hardware transfer and for higher-mass runs.
+
+### Caveats
+Two seeds each. Force is instantaneous normal component. Not yet folded into
+`eval_policy.py`; see DBG-20260918-001.
+
+## FIND-20260918-006: Palm-down PPO is decisive for s=1 tracker tip-connect on our_hand
+- Confidence: high (300k; 20/20 full-horizon eval; vs EXP-004 one-factor PPO)
+- Supporting runs: `20260918-1528-s1-palm-down-ppo-tilt035-seed0`; baseline EXP-004
+- Related debug issues: `DBG-20260823-006` (s=400 still open)
+- Applies to: palm-down translation + default qpos, tracker reward, 0.35 kill, s=1
+- Does not apply to: T00 s=400, free-tip, claiming three-contact gait
+
+### Finding
+Replacing T00 PPO (`[512,256,128]`, LR 3e-5, ent 0, log_std 0) with the
+palm-down PPO recipe (`[256,256]`, LR 3e-4, ent 0.005, log_std −1) at
+otherwise identical s=1 / tracker / 0.35 kill yields **20/20 full 20 s**
+episodes, drop 0, final tilt ~2°, tip <1 mm, and net-angle success
+0.80/0.50. EXP-004 under T00 PPO died by ~50–60 steps. The working contact
+pattern is a 1–2 finger gait.
+
+### Evidence
+Eval fixed/unseen passed=true; length 500/500; terminations none×20.
+Online length 394, return +366, success_rate 0.42. Demos:
+`docs/media/s1-palm-down-ppo-tilt035-seed6.mp4` (success, 210°),
+`docs/media/s1-palm-down-ppo-tilt035-seed10000.mp4` (20 s hold, ~180°,
+net_angle miss). Curves: `plots/train_curves_vs_004.png`.
+
+### Implication
+At s=1 the palm-down transfer is now reproducible on our stack without the
+bundled XML. Prefer this PPO when continuing mass-up or solref ablations.
+T00 s=400 remains a separate problem; do not assume this PPO alone fixes it.
+
+### Caveats
+Changed four PPO knobs together (as the bundle recipe). KL/clip_fraction
+are high late in training. Unseen success 0.5 is mostly near-π misses.
+Single seed. solref still 0.008 (bundle 0.004). No obs[36] rewrite.
+
+## FIND-20260918-005: s=1 improves tracker+0.35 survival but does not reproduce palm-down success under T00 PPO
+- Confidence: high (300k train; 20 eval episodes; curves vs EXP-003)
+- Supporting runs: `20260918-1515-s1-palm-down-tracker-tilt035-seed0`; parent EXP-003 `20260918-1417-...`
+- Related debug issues: `DBG-20260823-006`
+- Applies to: palm-down translation + default qpos, tracker reward, 0.35 kill, T00 PPO, solref 0.008
+- Does not apply to: palm-down bundle PPO/solref/obs rewrite; free-tip
+
+### Finding
+Lowering mass from 400 to 1 with an otherwise fixed EXP-003 stack and a
+300k budget raises online length to 77 and return to +57 (EV 0.91), and
+raises eval length/rotation/≥2-contact occupancy versus s=400. It does
+**not** yield eval success, 20 s holds, or zero tilt deaths. Failures split
+between `axis_tilt` and a new `unstable` mode. s=1 is helpful and required
+context for further transfer, but not sufficient alone under T00 PPO.
+
+### Evidence
+Eval fixed/unseen: success 0, length 58.1/46.3, rot 138.8°/155.3°,
+terms axis_tilt 6+7 and unstable 4+3, recontact 0, ≥2-contact 0.84/0.93.
+Curves: `plots/train_curves_vs_003.png`. Demo seed 6: 105 steps then
+axis_tilt (`docs/media/s1-palm-down-tracker-tilt035-seed10000.mp4` is the
+unstable 48-step seed).
+
+### Implication
+Next one-factor changes should stay at s=1 and close remaining gaps vs the
+verified bundle (solref 0.004 or palm-down PPO hyperparams), not return to
+s=400 pose swaps.
+
+### Caveats
+Steps budget also rose 100k→300k (intentional match to palm-down). At the
+106k mark online length was already 42 > EXP-003's 28, so mass—not only
+extra steps—contributes. Single seed.
+
+## FIND-20260918-004: dθ/dt vs cvel ω diverge mainly after support loss, not during 2-contact spin
+- Confidence: high (EXP-003 seeds 6 and 10000; CSV + fresh rollout agree)
+- Supporting runs: `20260918-1417-t00-palm-down-tracker-tilt035-seed0`
+- Related debug issues: `DBG-20260823-006`
+- Applies to: tip-connect free rod at s=400 under palm-down tracker; EXP-003 obs[36]
+- Does not apply to: claiming this is why palm-down s=1 succeeds
+
+### Finding
+On EXP-003 episodes, reward ω (`dθ/dt`) and body-twist `_axial_omega`
+(`cvel` projection) agree while `n_contact >= 2` (|gap| mean ≈ 0.06 rad/s,
+max ≈ 0.28). They diverge after support collapse (`n <= 1`): seed 6 max
+|gap| = 2.80 rad/s; seed 10000 max |gap| = 0.41. `obs[36]×10` equals
+`cvel` to ~1e-7, confirming EXP-003's policy sees body-twist while the
+tracker reward uses `dθ/dt`. Mean spin rates are similar (~1.17 rad/s,
+near the tracker peak). The mismatch is a **collapse-phase** effect, not a
+steady-gait disagreement.
+
+### Evidence
+`runs/20260918-1417-t00-palm-down-tracker-tilt035-seed0/plots/omega_dtheta_vs_cvel_seed{6,10000}.png`
+and `.../omega_dtheta_vs_cvel_summary.json`. Seed 6: corr 0.72 overall,
+|gap|mean 0.065 (n≥2) vs 0.627 (n≤1). Seed 10000: corr 0.98,
+|gap|mean 0.063 (n≥2) vs 0.180 (n≤1).
+
+### Implication
+Do not treat the obs[36] rewrite as the primary fail-vs-succeed explanation
+for EXP-003 vs the palm-down bundle. During the productive 2-contact phase
+the two ω's nearly match; the big gap appears only after 2→1 contact loss,
+alongside the ω spike and tilt rise. Mass s=400 remains the higher-leverage
+untested split. Fixing obs[36] to `dθ/dt` is still good hygiene for a
+palm-down-faithful recipe, but it is unlikely to rescue T00 alone.
+
+### Caveats
+Only two collapse episodes (25 steps each). No s=1 comparison yet.
+
+## FIND-20260918-003: Palm-down tracker + 0.35 rad kill does not stabilize T00 at s=400
+- Confidence: high (100k train; 20 eval episodes; length curve vs EXP-002)
+- Supporting runs: `20260918-1417-t00-palm-down-tracker-tilt035-seed0`; parent `20260918-1343-t00-palm-down-translation-seed0`
+- Related debug issues: `DBG-20260823-006`
+- Applies to: T00 s=400, palm-down XML translation + default qpos, native `reward_style=palm_down`, tilt kill 0.35
+- Does not apply to: palm-down bundle at s=1, other PPO sizes, solref 0.004
+
+### Finding
+Copying the palm-down **training objective** (tracker reward peaked at 1 rad/s
+plus a 0.35 rad tilt kill) onto the T00 pose/grasp at **s=400** still yields
+20/20 `axis_tilt`. Episodes get **shorter** (eval 29 vs EXP-002's 36; online
+48→28) while Monitor return rises on a different scale. Final tilt sits at
+the new gate (~24–25°) instead of ~80°. Rotation collapses to ~60° because
+the policy is killed before the DexScrew spin-then-fall can accumulate angle.
+
+### Evidence
+Eval `eval_fixed.json` / `eval_unseen.json`: success 0, drop 1.0,
+`termination_reasons.axis_tilt=10` each, length 28.8/28.9, recontact 0.
+Online `metrics.csv`: return −256→−4, length 47.7→28.4, EV 0.30.
+Videos: 25-step tilt-kills,
+`docs/media/t00-palm-down-tracker-tilt035-seed10000.mp4`.
+Curves: `runs/20260918-1417-t00-palm-down-tracker-tilt035-seed0/plots/train_curves_vs_002.png`.
+
+### Implication
+The palm-down screwdriver result is not explained by reward+tilt-kill alone
+at T00 mass. The remaining high-leverage split vs the verified bundle is
+**s=1** (and secondarily PPO size / solref 0.004 / 300k). Do not treat a
+rising tracker return as stability.
+
+### Caveats
+Reward and kill changed together. Observation was not rewritten at index 36.
+Single seed. 100k vs bundle 300k.
+
+## FIND-20260918-002: Palm-down translation is not a T00 fix; grasp qpos is pose-specific
+- Confidence: high (reset 10 seeds × 2 grasps × 2 poses; T00 100k eval 20/20)
+- Supporting runs: `20260918-1343-t00-palm-down-translation-seed0`; baseline A `20260914-1638-t00-ablation-A-hist1-rewbase-seed0`
+- Related debug issues: `DBG-20260823-006`
+- Applies to: T00 s=400 DexScrew, `my_grasp` vs palm-down XML translation, heavy vs default Allegro qpos
+- Does not apply to: palm-down s=1 tracker-reward policy, free-tip, real robot
+
+### Finding
+The 52 mm palm translation from the palm-down XML does **not** make T00 succeed.
+A 100k from-scratch T00 run at that pose still dies 20/20 on `axis_tilt` (length
+36, ~210–217°, recontact 0), worse than from-scratch A on `my_grasp` (length 54,
+305°, recontact 0.17).
+
+The T00 heavy grasp and the palm-down translation are incompatible: heavy qpos
+at the new pose is 10/10 **zero** tip-rod contacts; env-default qpos at
+`my_grasp` is 10/10 zero contacts and drops. Default qpos at the palm-down
+translation is 10/10 **three-contact** under zero actions. Each palm location
+needs its own joints.
+
+### Evidence
+Reset smoke `runs/20260918-1343-t00-palm-down-translation-seed0/reset_smoke.json`.
+Eval `eval_fixed.json` / `eval_unseen.json`: `termination_reasons.axis_tilt=10`
+each; `support_collapse.recontact_success_rate=0`.
+
+### Implication
+Do not treat palm-down success as “move `my_grasp` 52 mm.” Pose and grasp are
+a pair. Remaining T00 gaps vs palm-down are mass, reward, solref, PPO, and
+horizon actually lived.
+
+### Caveats
+This run changed translation **and** qpos versus A (heavy qpos cannot be held
+fixed). Single seed. 100k only.
+
+## FIND-20260918-001: Palm-down tip-connect screwdriving is stable at mass-scale 1 with a 2-contact gait
+- Confidence: high (bundled 100×20s + 30×60s bounded; independent 8×20s + 5×60s new seeds; alignment tests)
+- Supporting runs: `20260918-1225-palm-down-screwdriver-verify`; bundle `palm_down_screwdriver/`
+- Related debug issues: `DBG-20260823-006` (not resolved; different mass/pose/reward)
+- Applies to: palm-down XML, bottom `mjEQ_CONNECT`, `s=1`, stabilizer 0, bundled 300k PPO, 20 s original / 60 s with obs[37] clipped to 3 turns
+- Does not apply to: Phase T `s=400`, free-tip (no equality), `my_grasp` 52 mm palm offset, real robot, DexScrew +3 contact bonus policies
+
+### Finding
+A CPU PPO trained from scratch on palm-down tip-connect at mass-scale 1 produces continuous axial rotation with max tilt <3.1° and max tip error <1.0 mm. The working contact pattern is **2-finger**, not 3-finger: about 73% of steps have 2 tip contacts, 26% have 1, 1–4% have 3, and **zero** steps have 0. Original 20 s episodes pass 100/100 bundled and 8/8 independent. Raw 60 s fails a speed-continuity gate because cumulative-turn observation 37 leaves the 20 s training range; clipping it to 3 turns restores 10/10, 20/20, and 5/5 independent 60 s success without changing physics.
+
+### Evidence
+Independent orig 8×20s: success 1.0, mean 3.284 turns, worst tilt 2.985°, worst tip 0.919 mm. Independent bounded 5×60s: success 1.0, mean 10.358 turns, worst tilt 2.967°, worst tip 0.927 mm. Independent orig 2×60s: duration 60 s, terminated false, tilt <3°, tip <1 mm, `positive_fraction` 0.929. Videos: `docs/media/palm-down-screwdriver-20s-seed7000.mp4`, `docs/media/palm-down-screwdriver-60s-seed4000.mp4`. Alignment tests confirm palm −Z, `mjEQ_CONNECT`, free joint, zero stabilizer.
+
+### Implication
+“Stable tip-connect screwdriving” is achieved in this geometry/reward/mass setting. Phase T remains blocked at `s=400`. The T00 hypothesis that ≥2-contact recovery is physically infeasible is **not a universal statement**: at `s=1` palm-down, a 2-contact gait is the successful strategy. Support-termination and three-contact rotation gates would hide this gait. Do not mix this protocol with `eval_policy.py` success.
+
+### Caveats
+Tip **position** is constrained; only orientation is policy-stabilized. 60 s unbounded needs the obs clip. Palm translation differs from `my_grasp` by 52 mm. Single training seed. No domain randomization.
+
+## FIND-20260914-004: 300k A/B vs C/D share the seed-6 2→1→0→axis_tilt sequence
+- Confidence: medium (one deterministic seed; matches the 1748 video returns)
+- Supporting runs: `20260914-1805-t00-ablation-demos-300k`, videos `20260914-1748-t00-ablation-videos-300k`, ckpts `20260914-1712-t00-ablation-{A,B,C,D}-continue300k-seed0` step 306432
+- Related debug issues: `DBG-20260823-006`, FIND-20260914-001, FIND-20260914-003
+- Applies to: T00 300k continue policies, seed 6, tilt_terminate=1.2
+- Does not apply to: claiming task success, other seeds, λ retunes, T01
+
+### Finding
+On the same seed-6 collapse demo used for the transfer timeline, the four
+300k continue policies all follow **2-contact hold → 1-contact support loss →
+n=0 → axis_tilt**. None recontact. Support-aware C/D lose 2+ contact a few
+steps later (50 / 53 vs A 49 / B 43) and then gate rotation / apply wobble,
+but that does not change the narrative or prevent tilt-kill. D’s post-loss
+window is the shortest (9 steps).
+
+### Evidence
+Re-rolled traces (not video-filename parsing):
+
+| Cond | 2+→≤1 | n=0 | Kill | Loss→kill | Recontact |
+|---|---:|---:|---:|---:|---|
+| A | 49 | 57 | 65 | 16 | no |
+| B | 43 | 54 | 61 | 18 | no |
+| C | 50 | 60 | 65 | 15 | no |
+| D | 53 | 57 | 62 | 9 | no |
+
+Returns match the 1748 export (A +278.7 / B +258.7 / C +213.7 / D +204.2).
+Page: `docs/pages/t00-ablation-demos-300k/`.
+
+### Implication
+Do not treat C/D as a collapse-timeline fix. Do not retune λ. Next work stays
+on physical recoverability of ≥2-contact support.
+
+### Caveats
+Single seed 6. One checkpoint (306432). 3-contact exists only at reset.
+
+
+## FIND-20260914-002: 4-frame history already lengthens T00 episodes at 100k
+- Confidence: medium (online length only; low on collapse/eval)
+- Supporting runs: `20260914-1638-t00-ablation-A-hist1-rewbase-seed0`, `...-B-hist4-rewbase-seed0`, `...-C-hist1-rewsup-seed0`, `...-D-hist4-rewsup-seed0`
+- Related debug issues: `DBG-20260823-006`; revises FIND-20260914-001 for the 100k snapshot
+- Applies to: T00 bottom tip-connect s=400, from-scratch PPO `[512,256,128]`, online Monitor at ~100k, seed 0
+- Does not apply to: eval success, re-contact, GRU/LSTM, other seeds, claiming the task is solved
+
+### Finding
+At the 100k cutoff, 4-frame observation history already produces longer online
+episodes than hist1. B (192-D hist4, baseline reward) and D (192-D hist4,
+support-aware) last 53.7 / 54.6 steps versus A / C at 40.0 / 46.8. History
+stacking is effective as an early online-length signal before full convergence.
+
+This revises FIND-20260914-001’s “H1 not supported at history_len=4” for the
+100k *training* snapshot only. H1 is still unproven on collapse and eval metrics.
+
+### Evidence
+Last `metrics.csv` row (step 106,496), Monitor episode length: A 40.0, B 53.7,
+C 46.8, D 54.6. Length panel of
+`reports/comparisons/20260914-t00-ablation-train-curves.png`. Standalone page:
+`docs/pages/t00-ablation-history.html`. Seed-6 collapse demo (inherit later
+with this page): `runs/20260914-t00-seed6-tilt-collapse/index.html` and
+`docs/pages/t00-seed6-tilt-collapse/index.html`. Integration note:
+`docs/pages/README.md`.
+
+A has the highest train return (+22.1) but the shortest length. C/D returns are
+lower (−47.5 / −17.9) under the wobble penalty, not as a failed-train signal.
+
+### Implication
+Do not discard frame stacking solely from the 100k eval (80/80 `axis_tilt`).
+Keep history as an observability factor when reading later 300k curves. Do not
+treat longer episodes as contact recovery.
+
+### Caveats
+100k is not converged (returns/lengths still rising). Eval success is 0.
+Single seed 0. Episode length ≠ re-contact. Reward hacking of rotation before
+tilt-death remains plausible for A’s high return.
+The 300k continuation (FIND-20260914-003) shows this early length gap
+**narrowed**: at 303k, A 62.4 / B 64.4 / C 68.6 / D 62.4.
+
+
+## FIND-20260914-003: Hist4 length lead at 100k does not persist at 300k
+- Confidence: medium (online Monitor only; single seed)
+- Supporting runs: `20260914-1712-t00-ablation-{A,B,C,D}-continue300k-seed0` plus parents `20260914-1638-…`
+- Related debug issues: FIND-20260914-002, FIND-20260914-001, `DBG-20260823-006`
+- Applies to: T00 from-scratch PPO, seed 0, cumulative ~300k snapshot
+- Does not apply to: eval success, re-contact, GRU/LSTM, other seeds
+
+### Finding
+The 100k online-length advantage of 4-frame history (B/D > A/C) **narrowed
+and largely disappeared** by 300k. C (hist1 + support-aware) is longest
+(68.6). B is only +2 vs A (64.4 vs 62.4). D equals A (62.4). Treat the 100k
+hist4 length signal as early / transient, not as a lasting T00 fix.
+
+### Evidence
+Step 303,104 Monitor: return A +221.8, B +197.9, C +169.6, D +164.1;
+length A 62.4, B 64.4, C 68.6, D 62.4; KL ~0.01; EV 0.975–0.992.
+Figure: `reports/comparisons/20260914-t00-ablation-train-curves-300k.png`.
+Page: `docs/pages/t00-ablation-history.html`.
+
+### Implication
+Do not adopt hist4 as a T00 solution on the 100k length snapshot. Do not
+retune λ. Next work stays on physical recoverability, not another PPO trick.
+
+### Caveats
+Single seed. Eval not re-run at 300k. Returns and lengths are still rising
+(not a plateau). Jobs actually reached ~410k because SB3 adds the current
+timestep counter when `reset_num_timesteps=False`; the claim uses the 303k
+slice. Episode length ≠ contact recovery.
+
+
+## FIND-20260914-001: Short history and support-gated rotation do not stop T00 support collapse
+- Confidence: medium
+- Supporting runs: `20260914-1638-t00-ablation-A-hist1-rewbase-seed0`, `...-B-hist4-rewbase-seed0`, `...-C-hist1-rewsup-seed0`, `...-D-hist4-rewsup-seed0`; published T00 smoke `20260914-t00-ablation-eval-smoke`
+- Related debug issues: `DBG-20260823-006`
+- Applies to: T00 bottom tip-connect s=400, from-scratch PPO `[512,256,128]`, 100k *eval*, `history_len=4`, rotation contact scales `{0,0.1,1.0}`, `λ_wobble=0.5`
+- Does not apply to: GRU/LSTM, longer history, λ sweeps, revolute-transfer fine-tunes, other masses; the 100k *online-length* snapshot (see FIND-20260914-002)
+
+### Finding
+Neither 160 ms frame stacking nor contact-gated rotation plus a low-support
+wobble penalty teaches T00 re-contact. All 80 eval episodes still die on
+`axis_tilt`. On **eval** collapse metrics, history-only (B) is ~A. Support-aware
+reward alone (C) shortens episodes and increases post-loss `‖ω_perp‖` (~8 vs
+~2 rad/s). Both together (D) does not recover A. Do not treat this as a
+coefficient-tuning problem next.
+
+Revision (100k online Monitor, FIND-20260914-002): H1 has an early
+episode-length signal (B/D > A/C). That does not overturn the eval/collapse
+rejection.
+
+### Evidence
+Fixed/unseen recontact: A 0.17/0.09, B 0.09/0.09, C 0.00/0.00, D 0.00/0.00.
+Eval episode length: A 54/54, C 37/37. Every split is 10/10 `axis_tilt`.
+Comparison: `reports/comparisons/20260914-t00-ablation-A-B-C-D.md`.
+
+### Implication
+The failure is not isolated by cheap temporal observability or this particular
+credit-assignment patch. Next experiments should test physical recoverability
+of ≥2-contact support (grasp geometry, contact mechanics, force-signal latency).
+
+### Caveats
+Single training seed. From-scratch A is not the published revolute-transfer T00
+(177°, length ~35). A longer budget or GRU could still matter; this 2×2 does not
+test those. Online length at 100k (FIND-20260914-002) is a separate, weaker
+signal than eval re-contact.
+
+
 ## FIND-20260824-001: DexScrew tilt-growth penalty fires during monotonic collapse but does not restore the 0.25 rad gate
 - Confidence: medium
 - Supporting runs: `20260824-0000-dexscrew-tilt-growth-s100-tip-seed0`; recovery sibling `20260823-2350-dexscrew-tilt-recovery-s100-tip-seed0`; zero-shot parent `20260823-2015-proportional-physics-C-seed0-R02-s100-mu1-seed0`

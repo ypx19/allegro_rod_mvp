@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T00 A/B/C/D 300k demo videos</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0c1218; color: #e8eef4; }
+    main { width: min(1080px, calc(100% - 2rem)); margin: 1.5rem auto 3rem; }
+    h1 { font-size: 1.6rem; }
+    p, li { color: #8b9aab; }
+    .warn { color: #e6c86a; }
+    video { width: 100%; background: #000; border-radius: 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    a { color: #e8a54b; }
+    code { font-family: ui-monospace, monospace; font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T00 2×2 ablation · 300k continue demos</h1>
+    <p class="warn">Representative collapse demos from checkpoint 306432. Not task success. Prior eval was 80/80 axis_tilt.</p>
+    <p>Seeds 6 and 10000. Deterministic. Physics: tip_connect, bottom tip, s=400, μ=4, 25 Hz, tilt_terminate=1.2.</p>
+    <h2>2×2 grid · seed 6</h2>
+    <video controls playsinline src="ABCD_grid_seed6.mp4"></video>
+    <h2>2×2 grid · seed 10000</h2>
+    <video controls playsinline src="ABCD_grid_seed10000.mp4"></video>
+    <h2>Individuals · seed 6</h2>
+    <div class="grid">
+      <div><p>A</p><video controls playsinline src="A_seed6_rot457_tilt75_axis_tilt.mp4"></video></div>
+      <div><p>B</p><video controls playsinline src="B_seed6_rot410_tilt77_axis_tilt.mp4"></video></div>
+      <div><p>C</p><video controls playsinline src="C_seed6_rot368_tilt71_axis_tilt.mp4"></video></div>
+      <div><p>D</p><video controls playsinline src="D_seed6_rot387_tilt75_axis_tilt.mp4"></video></div>
+    </div>
+    <h2>Individuals · seed 10000</h2>
+    <div class="grid">
+      <div><p>A</p><video controls playsinline src="A_seed10000_rot462_tilt87_axis_tilt.mp4"></video></div>
+      <div><p>B</p><video controls playsinline src="B_seed10000_rot411_tilt83_axis_tilt.mp4"></video></div>
+      <div><p>C</p><video controls playsinline src="C_seed10000_rot370_tilt72_axis_tilt.mp4"></video></div>
+      <div><p>D</p><video controls playsinline src="D_seed10000_rot386_tilt75_axis_tilt.mp4"></video></div>
+    </div>
+    <p>Seed-6 contact/tilt analysis (tabs + scrubber): <a href="../t00-ablation-demos-300k/index.html">../t00-ablation-demos-300k/</a></p>
+    <p>Canonical dir: <code>runs/20260914-1748-t00-ablation-videos-300k/</code></p>
+  </main>
+</body>
+</html>

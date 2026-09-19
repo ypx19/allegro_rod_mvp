@@ -1,0 +1,90 @@
+[
+  {
+    "condition": "A",
+    "title": "A  48-D  baseline",
+    "hist": 1,
+    "support_aware": false,
+    "length": 65,
+    "return": 278.7427326306466,
+    "rotation_deg": 457.4424262973369,
+    "tilt_deg": 74.85760059556932,
+    "termination_reason": "axis_tilt",
+    "first_support_loss_step": 49,
+    "first_n0_step": 57,
+    "first_tilt_kill_step": 65,
+    "steps_to_tilt_after_loss": 16,
+    "recontact_after_first_loss": false,
+    "n_support_loss_events": 1,
+    "n_recontact_events": 0,
+    "support_loss_steps": [
+      49
+    ],
+    "recontact_steps": []
+  },
+  {
+    "condition": "B",
+    "title": "B  192-D  baseline",
+    "hist": 4,
+    "support_aware": false,
+    "length": 61,
+    "return": 258.66338495757304,
+    "rotation_deg": 410.25692122286034,
+    "tilt_deg": 76.79709473111745,
+    "termination_reason": "axis_tilt",
+    "first_support_loss_step": 43,
+    "first_n0_step": 54,
+    "first_tilt_kill_step": 61,
+    "steps_to_tilt_after_loss": 18,
+    "recontact_after_first_loss": false,
+    "n_support_loss_events": 1,
+    "n_recontact_events": 0,
+    "support_loss_steps": [
+      43
+    ],
+    "recontact_steps": []
+  },
+  {
+    "condition": "C",
+    "title": "C  48-D  support-aware",
+    "hist": 1,
+    "support_aware": true,
+    "length": 65,
+    "return": 213.66911293534736,
+    "rotation_deg": 368.49228068407945,
+    "tilt_deg": 70.66468477718874,
+    "termination_reason": "axis_tilt",
+    "first_support_loss_step": 50,
+    "first_n0_step": 60,
+    "first_tilt_kill_step": 65,
+    "steps_to_tilt_after_loss": 15,
+    "recontact_after_first_loss": false,
+    "n_support_loss_events": 1,
+    "n_recontact_events": 0,
+    "support_loss_steps": [
+      50
+    ],
+    "recontact_steps": []
+  },
+  {
+    "condition": "D",
+    "title": "D  192-D  support-aware",
+    "hist": 4,
+    "support_aware": true,
+    "length": 62,
+    "return": 204.17236704825683,
+    "rotation_deg": 386.50946819223685,
+    "tilt_deg": 75.12345929060413,
+    "termination_reason": "axis_tilt",
+    "first_support_loss_step": 53,
+    "first_n0_step": 57,
+    "first_tilt_kill_step": 62,
+    "steps_to_tilt_after_loss": 9,
+    "recontact_after_first_loss": false,
+    "n_support_loss_events": 1,
+    "n_recontact_events": 0,
+    "support_loss_steps": [
+      53
+    ],
+    "recontact_steps": []
+  }
+]
