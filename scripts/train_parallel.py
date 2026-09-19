@@ -76,6 +76,8 @@ def make_env(
     scale_rod_joint_dynamics_from_s400: bool = False,
     scale_tip_solref_with_mass: bool = True,
     tilt_terminate_rad: float = 0.7,
+    tip_error_terminate_m: float = 0.12,
+    palm_down_tip_penalty_scale: float = 0.2,
     tip_anchor: str = "top",
     dexscrew_tip_sigma: float = 0.025,
     hand_model: str = "allegro",
@@ -136,6 +138,8 @@ def make_env(
             scale_rod_joint_dynamics_from_s400=scale_rod_joint_dynamics_from_s400,
             scale_tip_solref_with_mass=scale_tip_solref_with_mass,
             tilt_terminate_rad=tilt_terminate_rad,
+            tip_error_terminate_m=tip_error_terminate_m,
+            palm_down_tip_penalty_scale=palm_down_tip_penalty_scale,
             tip_anchor=tip_anchor,
             dexscrew_tip_sigma=dexscrew_tip_sigma,
             hand_model=hand_model,
@@ -348,6 +352,8 @@ def build_vec_env(
             scale_rod_joint_dynamics_from_s400=args.scale_rod_joint_dynamics_from_s400,
             scale_tip_solref_with_mass=args.scale_tip_solref_with_mass,
             tilt_terminate_rad=args.tilt_terminate_rad,
+            tip_error_terminate_m=args.tip_error_terminate_m,
+            palm_down_tip_penalty_scale=args.palm_down_tip_penalty_scale,
             tip_anchor=args.tip_anchor,
             dexscrew_tip_sigma=args.dexscrew_tip_sigma,
             hand_model=args.hand_model,
@@ -425,6 +431,7 @@ def write_run_artifacts(
         "learning_rate": args.learning_rate if args.learning_rate is not None else 3e-4,
         "ent_coef": args.ent_coef if args.ent_coef is not None else 0.01,
         "net_arch": net_arch,
+        "log_std_init": args.log_std_init,
         "vec_normalize": args.vec_normalize,
         "reward_style": args.reward_style,
         "physics": args.physics,
@@ -461,6 +468,8 @@ def write_run_artifacts(
         ),
         "scale_tip_solref_with_mass": args.scale_tip_solref_with_mass,
         "tilt_terminate_rad": args.tilt_terminate_rad,
+        "tip_error_terminate_m": args.tip_error_terminate_m,
+        "palm_down_tip_penalty_scale": args.palm_down_tip_penalty_scale,
         "tip_anchor": args.tip_anchor,
         "hand_model": args.hand_model,
         "hand_pose_config": args.hand_pose_config,
@@ -593,7 +602,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--vec-normalize", dest="vec_normalize", action="store_true")
     parser.add_argument("--no-vec-normalize", dest="vec_normalize", action="store_false")
     parser.set_defaults(vec_normalize=True)
-    parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
+    parser.add_argument(
+        "--reward-style",
+        choices=["stage", "dexscrew", "palm_down"],
+        default="stage",
+    )
     parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
     parser.add_argument(
         "--hand-model",
@@ -708,6 +721,21 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Tip-connect hard tilt termination threshold (rad).",
     )
     parser.add_argument(
+        "--tip-error-terminate-m",
+        type=float,
+        default=0.12,
+        help="Hard tip-position error termination threshold in meters (default 0.12).",
+    )
+    parser.add_argument(
+        "--palm-down-tip-penalty-scale",
+        type=float,
+        default=0.2,
+        help=(
+            "Palm-down tip-error penalty weight: "
+            "-scale * (tip_error / 0.002)^2 (default 0.2 matches bundle)."
+        ),
+    )
+    parser.add_argument(
         "--tip-anchor",
         choices=["top", "bottom"],
         default="top",
@@ -818,6 +846,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--learning-rate", type=float, default=None)
     parser.add_argument("--ent-coef", type=float, default=None)
+    parser.add_argument(
+        "--log-std-init",
+        type=float,
+        default=0.0,
+        help="Initial log std of the Gaussian policy. SB3/T00 default 0.0; palm-down used -1.",
+    )
     parser.add_argument("--checkpoint-freq", type=int, default=50_000)
     parser.add_argument(
         "--vecnormalize-path",
@@ -905,7 +939,7 @@ def main(argv: list[str] | None = None) -> int:
             gae_lambda=0.95,
             clip_range=0.2,
             ent_coef=ent,
-            policy_kwargs={"net_arch": net_arch},
+            policy_kwargs={"net_arch": net_arch, "log_std_init": args.log_std_init},
             verbose=1,
             seed=args.seed,
             device=args.device,

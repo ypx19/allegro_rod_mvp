@@ -34,11 +34,21 @@ They are **not** a claim that T00 or Phase T is solved.
      ω_axial / tilt / dθ/dt / n_contact / fingertip forces. MP4 is optional.
      All four 2→1→0→`axis_tilt`, no recontact. Does not overwrite page 2.
 
+4. **Palm translation compare (my_grasp vs palm_down)**
+   - Page: `docs/pages/palm-translation-compare/index.html`
+   - Live sim (required for free camera):
+     `.venv/bin/python scripts/palm_translation_compare_web.py --port 8768`
+   - Side-by-side EGL views, shared orbit/pan/zoom, 52 mm origin offset.
+   - Videos: my_grasp revolute s=1 success; palm-down 60 s bounded.
+   - GitHub Pages can host the HTML shell later, not the live MuJoCo server.
+
 ## How to publish later
 
 1. Leave the files under `docs/pages/` so Pages serves them at
    `/pages/t00-ablation-history.html`, `/pages/t00-seed6-tilt-collapse/`,
-   and `/pages/t00-ablation-demos-300k/`.
+   `/pages/t00-ablation-demos-300k/`, and `/pages/palm-translation-compare/`.
+   The palm-translation page's live MuJoCo view needs the local Python server;
+   GitHub Pages will only show the shell unless videos are copied beside it.
 2. Add a Phase T / failure-mode section on `docs/demo.html` with cards
    linking those URLs. Do not restyle; reuse existing tokens.
 3. Copy media next to the HTML. Do **not** link the public page at

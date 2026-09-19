@@ -1,11 +1,18 @@
 # Project State
 
 ## Current Objective
-Phase T remains blocked at T00. After the 2×2, do not retune λ or start T01.
-Test whether ≥2-contact recovery is physically feasible with the current
-tip-connect grasp (geometry / contact mechanics), not another PPO trick.
+Free tip with tip-stop 0.5 cm: tip-penalty ×5 (EXP-010, 900k) did not clear
+the tip gate. Best overall remains tip-connect EXP-005. Next free-tip lever
+should not be tip-weight alone (try soft tip) or pause free tip.
 
 ## Current Best Result
+Live s=1 transfer (EXP-20260918-005): palm-down translation + default joints,
+tracker reward, 0.35 rad kill, palm-down PPO, 300k — **20/20 full 20 s**,
+drop 0, tilt ~2°, tip <1 mm, net-angle success 0.80/0.50.
+Checkpoint:
+`runs/20260918-1528-s1-palm-down-ppo-tilt035-seed0/checkpoints/final_model.zip`
+Verified parallel track (EXP-20260918-001): bundled palm-down tip-connect at
+mass-scale 1 (different XML/PPO path) also stable; see FIND-20260918-001.
 The saved-pose revolute reset is now robust at both endpoint masses: 10/10 seeds
 retain 3/3 contacts for 100 steps at `s=400` and `s=1`, with no non-tip rod
 collisions. The best saved-pose policy is the 200k-step continuation: fixed/unseen
@@ -27,6 +34,12 @@ fails: 80/80 `axis_tilt`. History does not raise re-contact; the support-aware
 reward shortens episodes and increases post-loss ω_perp.
 
 ## Best Checkpoint
+s=1 tip-connect screwdriver (live stack):
+`runs/20260918-1528-s1-palm-down-ppo-tilt035-seed0/checkpoints/final_model.zip`
+with `vecnormalize.pkl`
+Palm-down tip-connect bundle (verified, mass-scale 1 only):
+`palm_down_screwdriver/checkpoint/policy.zip` with `normalize.pkl`
+Phase T / revolute curriculum (unchanged, not the tip-connect best):
 `runs/20260823-2015-proportional-physics-C-seed0-R09-s1-mu0.01-seed0/checkpoints/final_model.zip`
 
 ## Active Configuration
@@ -50,6 +63,11 @@ reward shortens episodes and increases post-loss ω_perp.
   Experiment scale 50 is not the new default.
 
 ## What Is Working
+- Palm-down tip-connect PPO (300k, CPU) is a verified fixed-tip screwdriver:
+  ~3.28 turns / 20 s, ~10.35 turns / 60 s bounded, tilt <3°, tip <1 mm,
+  never zero fingertip contacts. Videos:
+  `docs/media/palm-down-screwdriver-20s-seed7000.mp4`,
+  `docs/media/palm-down-screwdriver-60s-seed4000.mp4`.
 - Both new MJCF variants compile with 12 actuators and matched 48-D observations.
 - Joint frames, axes, ranges, and palm-relative mounts match the official Allegro V3 index/middle/thumb model.
 - Bottom reset produces three fingertip contacts on 50/50 fixed seeds in revolute and point-connect checks.
@@ -87,6 +105,9 @@ reward shortens episodes and increases post-loss ω_perp.
 - Tip-connect `s=100` zero-shot, recovery fine-tune, and growth fine-tune all
   terminate 20/20 on lateral tilt (~80°). Recovery almost never fires;
   growth does fire (~3–4% of |reward|) but still misses the 0.25 rad gate.
+- Palm-down 300k policy leaves the 20 s training observation range after ~3
+  turns: unbounded 60 s keeps tilt/tip but fails speed continuity unless
+  observation 37 (cumulative turns) is clipped to 3.
 
 ## Current Hypotheses
 1. The T00 axis-tilt death is a support-collapse sequence: 2-finger support →
@@ -98,31 +119,29 @@ reward shortens episodes and increases post-loss ω_perp.
 3. H2 as gated-rotation + λ=0.5 wobble is rejected on 100k eval: C got
    shorter and more violent after support loss. At 300k online, C is
    longest but that is not re-contact.
-4. ≥2-contact recovery may be physically infeasible with the current
-   tip-connect grasp; that is now the leading hypothesis.
+4. At **s=1**, palm-down tracker + 0.35 kill + palm-down PPO reproduces
+   stable tip-connect screwdriving on our_hand (FIND-20260918-006).
+   FIND-20260918-005 showed s=1 alone with T00 PPO is not enough.
+   FIND-20260918-002/003 rejected pose and tracker+0.35 at **s=400**.
+   Whether palm-down PPO transfers up the mass curriculum is untested.
+5. **Important (FIND-20260918-008 / DBG-20260918-002):** success gaits are
+   multi-link wedges while the policy only observes tip forces. Proximal
+   contact is learned indirectly via proprioception + rod dynamics. Position
+   servos + contact constraints jam rather than “double-apply” torque; high
+   proximal Fn is expected and is a mass-up / hardware-transfer risk. Future
+   options: all-link contact diagnostics, non-tip force features/penalties,
+   actuator-saturation gates — do not silently redefine tip `contact_count`.
+6. FIND-20260918-009: tip solref **0.004** (palm-down literal) on our_hand
+   raises spin but reintroduces `axis_tilt` deaths; keep **0.008**.
 
 ## Most Recent Experiment
-`EXP-20260914-002` completed. Resume A–D from ~106k; 300k snapshot
-(step 303,104): return +222 / +198 / +170 / +164; length 62.4 / 64.4 /
-68.6 / 62.4. The 100k B/D length lead narrowed. Page:
-`docs/pages/t00-ablation-history.html`. Parent eval remains
-`EXP-20260914-001` (80/80 `axis_tilt`). 300k demo videos
-(ckpt 306432, seeds 6 / 10000, all `axis_tilt` collapse):
-`runs/20260914-1748-t00-ablation-videos-300k/ABCD_grid_seed6.mp4`.
-Seed-6 A–D timelines (re-rolled, all 2→1→0→`axis_tilt`, no recontact):
-`docs/pages/t00-ablation-demos-300k/` (step slider + stills + per-frame
-ω_axial / tilt / dθ/dt / n_contact / fingertip force; MP4 is not the UI) and
-`runs/20260914-1805-t00-ablation-demos-300k/`. Live:
-http://127.0.0.1:8767/pages/t00-ablation-demos-300k/?v=scrub20260915
+`EXP-20260918-010` / `20260918-1829-s1-freetip-tipscale1-900k-seed0`:
+tip-scale 1.0 (5×) +900k from EXP-009. Length 298/244, tip ~7.5/5.9 mm,
+tip_error×10, success 0. **Rejected** as free-tip fix.
 
 ## Next Recommended Experiment
-Do not retune `low_support_wobble_scale` and do not start T01. Probe whether
-≥2-contact recovery is physically feasible under the current tip-connect grasp
-(geometry, load redistribution in existing force observations, actuator delay).
-When the public site is updated, inherit
-`docs/pages/t00-ablation-history.html`,
-`docs/pages/t00-seed6-tilt-collapse/`, and
-`docs/pages/t00-ablation-demos-300k/` (see `docs/pages/README.md`).
+Soft-tip solref fade from EXP-009/010 stack, or pause free tip and mass-up
+tip-connect EXP-005. Avoid further tip-weight-only or budget-only continues.
 
 ## Most Recent Debugging Session
 `DBG-20260915-001` (resolved): 300k A–D analysis page no longer uses an MP4
@@ -137,13 +156,15 @@ the `s=100` recovery and growth probes also missed the 0.50 gate, so the
 curriculum stays paused.
 
 ## Project-page fragments to inherit
-Three standalone HTML pages are ready to copy into `docs/demo.html` later
+Four standalone HTML pages are ready to copy into `docs/demo.html` later
 (see `docs/pages/README.md`):
 1. `docs/pages/t00-ablation-history.html` — T00 2×2 curves + early history finding.
 2. `docs/pages/t00-seed6-tilt-collapse/index.html` — seed-6 contact/tilt timeline
    (canonical original: `runs/20260914-t00-seed6-tilt-collapse/index.html`).
 3. `docs/pages/t00-ablation-demos-300k/index.html` — 300k A/B/C/D seed-6
    **frame-slider** analysis (canonical traces: `runs/20260914-1805-t00-ablation-demos-300k/`).
+4. `docs/pages/palm-translation-compare/index.html` — my_grasp vs palm_down
+   translation (live: `scripts/palm_translation_compare_web.py --port 8768`).
 
 ## Status Deck
 Open `reports/decks/20260902-experiment-status.html` in a browser
@@ -157,9 +178,13 @@ Open `reports/decks/20260902-experiment-status.html` in a browser
 .venv/bin/python scripts/run_allegro_tip_bottom_curriculum.py --start-scale 10 --num-envs 32 --device cuda --seed 0
 .venv/bin/python scripts/edit_hand_pose_web.py --physics revolute --output configs/hand_poses/<name>.json
 .venv/bin/python scripts/policy_viz_board.py --model runs/<run>/checkpoints/final_model.zip --physics tip_connect --tip-anchor bottom --rod-mass-scale 400 --hand-pose-config configs/hand_poses/my_grasp.json --port 8770
+.venv/bin/python scripts/palm_translation_compare_web.py --port 8768
 HAND_POSE_BROWSER_TESTS=1 MUJOCO_GL=egl .venv/bin/python -m unittest tests.test_hand_pose_web.HandPoseWebBrowserTest -v
 .venv/bin/python scripts/run_t00_support_ablation.py --conditions A,B,C,D --device cuda:0 --seed 0
 .venv/bin/python -m unittest tests.test_t00_support_ablation -v
 .venv/bin/python scripts/run_two_phase_force_curriculum.py --hand-pose-config configs/hand_poses/my_grasp.json --device cuda:1
 .venv/bin/python scripts/evaluate_hand_grasp_reset.py --hand-pose-config configs/hand_poses/my_grasp.json --hand-grasp-config configs/hand_grasps/my_grasp_revolute_shared.json --out-dir runs/<run_id>
+# Palm-down screwdriver bundle (must use bundled env via PYTHONPATH)
+cd palm_down_screwdriver && PYTHONPATH=. MUJOCO_GL=egl ../.venv/bin/python test_final_alignment.py
+PYTHONPATH=palm_down_screwdriver MUJOCO_GL=egl .venv/bin/python palm_down_screwdriver/render_candidate.py --module experiment_palm_down_bounded --checkpoint palm_down_screwdriver/checkpoint/policy.zip --norm palm_down_screwdriver/checkpoint/normalize.pkl --out runs/<run_id>/demo --seed 4000 --seconds 60
 ```

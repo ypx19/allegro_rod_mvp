@@ -539,3 +539,51 @@ Logged name:
 `fraction_axis_tilt_deaths_preceded_by_support_loss`.
 This is the primary T00 mechanism metric for EXP-20260914-001.
 Diagnostic traces: `runs/<run_id>/traces/{fixed,unseen}/trace_seed<seed>.{csv,json,png}`.
+
+## Palm-down screwdriver bundle protocol (EXP-20260918-001)
+Definition:
+Independent of `scripts/eval_policy.py`. An episode succeeds iff all hold:
+- ran every requested step and did not terminate;
+- all observations, rewards, and `qpos` finite;
+- net unwrapped rotation `> 12.56` rad (2 turns);
+- max axis tilt `< 10` deg;
+- max tip-site to equality-anchor error `< 0.002` m;
+- after 2 s warmup, fraction of steps with `dθ/dt > 0.2` rad/s `> 0.95`;
+- post-warmup speed std `< 0.5` rad/s;
+- stabilizer torque identically 0;
+- `|Σ (dθ/dt) Δt − θ_final| < 1e-7` rad.
+Unit:
+Turns, degrees, millimeters in reports; radians/meters in traces.
+Aggregation:
+Per-episode pass/fail; mean/min/max/std across episodes.
+Success threshold:
+Protocol-specific. Do not compare these rates to Phase T `eval_policy.py` success.
+Implementation:
+`palm_down_screwdriver/validate_policy.py`.
+Edge cases:
+Original 60 s often fails only the 0.95 speed-fraction gate (observation 37 OOD). Tilt and tip can still be well inside bounds.
+Does not measure:
+Free-tip (no `mjEQ_CONNECT`) holding, three-contact occupancy, or Phase T `s=400`.
+
+## Palm-down tracker reward (`reward_style=palm_down`)
+Definition:
+Native port of `palm_down_screwdriver` ScrewEnv. Living reward is
+`1 + track + wobble + smooth + near + tip_term` with
+`track = 2 clip(ω,-2,1) - 2 (clip(ω,-4,4)-1)^2 + 2` peaked at 1 rad/s,
+`wobble = -3 (tilt/0.20)^2`, `smooth = -0.02 mean((a-a_prev)^2)`,
+`near = -0.3 mean(max(d_tip-0.025,0)/0.025)`,
+`tip_term = -0.2 (tip_error/0.002)^2`.
+ω in `track` is `dθ / (frame_skip * dt)`, not body-twist `_axial_omega`.
+Terminate subtracts 20; clip is `[-30, 5]`. No contact bonus.
+The companion hard kill used by that bundle is `tilt_terminate_rad=0.35`.
+That kill is **not** the env default; pass it explicitly.
+Unit:
+Reward units; ω in rad/s; tilt in rad; tip in m.
+Logged names:
+`reward_track`, `reward_wobble`, `reward_smooth`, `reward_near`, `reward_tip`,
+`omega_dtheta`.
+Implementation:
+`allegro_rod_mvp/rewards_palm_down.py`, `RodRotationEnv` `reward_style=palm_down`.
+Does not apply to:
+Historical DexScrew / T00 ablation returns (different scale and clip).
+

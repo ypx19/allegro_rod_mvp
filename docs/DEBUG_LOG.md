@@ -1,5 +1,147 @@
 # Debug Log
 
+## DBG-20260918-002: Tip-only sensing vs proximal wedges; PD torque vs contact jamming
+- Date: 2026-09-18
+- Status: open (design / future-direction note; not a training crash)
+- Related runs: `20260918-1528-s1-palm-down-ppo-tilt035-seed0`; FIND-20260918-007/008
+- Related files: `allegro_rod_mvp/env.py` (`_touch`, `_frame_obs`, step ctrl),
+  `models/allegro_three_finger_rod.xml` (position actuators),
+  `docs/media/finger-link-labels.png`
+- Severity: high for future direction (sensing + force story for transfer / mass-up)
+- First observed: user question after contact audit + labeled finger anatomy
+
+### Symptom
+Confusion: (1) contact sensors / `_touch` are tip-only, yet successful policies
+load the rod heavily via proximal (and other) links; (2) if proximal already
+produces contact force, does commanding more proximal flexion “fight” the
+joint actuator torque?
+
+### Expected Behavior
+Clarify what the policy can observe and how actuator + contact forces interact
+so later experiments do not assume tip tactile equals full grasp state, or that
+high proximal Fn is a solver bug.
+
+### Reproduction
+N/A (code + physics reading). Supporting audit:
+```bash
+unset PYTHONPATH; export MUJOCO_GL=egl
+.venv/bin/python runs/20260918-1528-s1-palm-down-ppo-tilt035-seed0/contact_audit.py
+```
+
+### Evidence
+- Obs: `hand_q`, `hand_v`, tip forces only, tip geometry, tip error, ω/angle,
+  rod axis/tilt/linvel — no proximal contact channel (`_frame_obs`).
+- Actuators: `<position kp="20" kv="1" forcerange="-3 3"/>`; policy sets
+  position targets, not open-loop torque.
+- Audit: proximal often dominates tip Fn (FIND-20260918-007).
+
+### Hypotheses
+1. Proximal contact is inferred via proprioception + rod dynamics + reward,
+   not sensed directly — RL can still discover wedges.
+2. PD + contact in one MuJoCo solve yields jammed equilibria (higher Fn,
+   saturated actuators), not a double-counted force bug.
+3. Mass-up / hardware transfer may fail because tip tactile under-represents
+   the real load path, or because jamming forces grow with mass/solref.
+
+### Investigation
+- Check performed: read `_touch` / `_frame_obs` and Allegro XML actuators;
+  linked to contact audit magnitudes.
+- Result: tip-only sensing confirmed; position-servo + contact jamming
+  interpretation confirmed as the intended physics model.
+- Interpretation: important design constraint for diagnostics, rewards, and
+  sim2real — recorded as FIND-20260918-008.
+
+### Root Cause
+By design: tip-only contact features; position-controlled fingers with soft
+contacts. Not a defect in the solver equation assembly.
+
+### Resolution
+Documented only. Candidates for later controlled experiments (do not implement
+without a hypothesis + one-factor plan):
+- all-link contact diagnostic in eval (keep tip `contact_count` semantics);
+- optional privileged / student non-tip contact features;
+- penalty or gate on non-tip Fn or actuator saturation;
+- hardware assumption check: tip pads vs multi-link wedge.
+
+### Prevention
+Keep this DBG + FIND-20260918-008 visible in PROJECT_STATE hypotheses /
+next experiments. Do not describe policies as “fingertip-only sensed grasps.”
+
+### Lessons Learned
+Tip sensors are not the full grasp story. Policy knowledge of proximal
+contact is indirect. Actuator torque and contact force co-exist as a jam,
+which can be useful for screwdriving but is a force-magnitude and transfer
+risk — a first-class future direction, not a one-off FAQ.
+
+## DBG-20260918-001: `contact_count` counts only fingertips; success gaits jam non-tip links on the rod
+- Date: 2026-09-18
+- Status: investigating (measurement-validity; not a training crash)
+- Related runs: `20260918-1528-s1-palm-down-ppo-tilt035-seed0`; bundle `palm_down_screwdriver`
+- Related files: `allegro_rod_mvp/env.py` (`_touch`, `_contact_centers`, `_tip_rod_distances`),
+  `runs/20260918-1528-.../contact_audit.py`, `.../contact_audit_palm_down.py`
+- Severity: medium (all contact metrics under-report the true grasp)
+- First observed: user asked whether non-fingertip links touch the rod
+- Follow-up: `DBG-20260918-002` / FIND-20260918-008 (sensing + PD vs contact)
+
+### Symptom
+`RodRotationEnv._touch()` and `contact_count` only test `{tipN, rod_geom}`
+pairs. A full MuJoCo contact enumeration on both the EXP-005 success rollout
+and the palm-down bundle rollout shows the rod is loaded by **non-tip finger
+links every step**, with the **proximal** link often the largest single
+normal-force contributor — larger than the tip.
+
+### Expected Behavior
+If we describe the policy as a "2-contact fingertip gait", tip contacts
+should dominate the load. Instead, proximal/medial/distal links carry
+comparable or higher force.
+
+### Reproduction
+```bash
+unset PYTHONPATH; export MUJOCO_GL=egl
+.venv/bin/python runs/20260918-1528-s1-palm-down-ppo-tilt035-seed0/contact_audit.py
+PYTHONPATH=palm_down_screwdriver .venv/bin/python \
+  runs/20260918-1528-s1-palm-down-ppo-tilt035-seed0/contact_audit_palm_down.py
+```
+
+### Evidence
+EXP-005 seed 6 (success, 500 steps): proximal 100% of steps, Fmean 67.8 N,
+Fmax 163.5 N; tip 100%, Fmean 46.5 N; medial 45%; distal 77%; finger_base 29%.
+Non-tip hand-rod contact on 100% of steps.
+Palm-down bundle seed 7000 (success): tip 100% Fmean 53.1 N; proximal 88.8%
+Fmean 27.7 N Fmax 104 N; distal 78.6%; medial 23.8%; non-tip 99.8% of steps.
+JSON: `contact_audit.json`, `contact_audit_palm_down.json`.
+
+### Hypotheses
+1. Both policies wedge the rod between the proximal phalanx / palm region and
+   the fingertips; the "tip" is a stabilizer, not the sole support.
+2. EXP-005 leans on the proximal link **more** than the bundle (Fmean 68 vs 28),
+   possibly because solref 0.008 vs 0.004 or the palm translation geometry.
+
+### Investigation
+- Check performed: full contact enumeration, normal force via `mj_contactForce`.
+- Result: non-tip contact is the norm, not an artifact.
+- Interpretation: `contact_count`-based occupancy (FIND-20260918-001 "2-contact
+  gait", EXP-005 ≥2-tip fractions) describes **tips only** and understates the
+  real multi-link grasp.
+
+### Root Cause
+Contact/touch detection is restricted to tip geoms by design; other collidable
+finger geoms (`f*_proximal/medial/distal`, `finger*`) are ignored in metrics.
+
+### Resolution
+Not yet changed. Candidate: add an all-link rod-contact diagnostic to
+`eval_policy.py` (do not silently change `contact_count`, which many gates use).
+See also DBG-20260918-002 for sensing/force future directions.
+
+### Prevention
+Keep the audit scripts; consider a regression test asserting the auditor sees
+the same tip forces as `_touch()` and additionally reports non-tip links.
+
+### Lessons Learned
+"Fingertip screwdriving" was a tip-only description. The working grasp in both
+the transfer and the bundle is a multi-link wedge dominated by the proximal
+phalanx. Revisit any claim that rests on tip contact counts.
+
 ## DBG-20260915-001: 300k A–D analysis page used MP4 as the UI
 - Date: 2026-09-15
 - Status: resolved

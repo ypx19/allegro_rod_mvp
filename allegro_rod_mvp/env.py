@@ -18,6 +18,10 @@ from allegro_rod_mvp.hand_pose import (
 from allegro_rod_mvp.hand_grasp import load_hand_grasp
 from allegro_rod_mvp.obs_history import ObservationHistoryBuffer
 from allegro_rod_mvp.rewards_dexscrew import DexScrewRewardConfig, compute_dexscrew_reward
+from allegro_rod_mvp.rewards_palm_down import (
+    compute_palm_down_living_reward,
+    finalize_palm_down_reward,
+)
 from allegro_rod_mvp.support_aware_reward import apply_support_aware_rotation
 
 
@@ -33,6 +37,7 @@ class RodRotationEnv(gym.Env):
       physics_mode=revolute — Arm A hinge rod (models/three_finger_rod_revolute.xml)
       physics_mode=tip_connect — free rod + tip equality (default XML)
       reward_style=dexscrew — ω / proximity / pose / energy (+ tilt on Arm B)
+      reward_style=palm_down — tracker ω peaked at 1 rad/s + tilt² wobble
     """
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
@@ -112,6 +117,8 @@ class RodRotationEnv(gym.Env):
         scale_rod_joint_dynamics_from_s400: bool = False,
         scale_tip_solref_with_mass: bool = True,
         tilt_terminate_rad: float = 0.7,
+        tip_error_terminate_m: float = 0.12,
+        palm_down_tip_penalty_scale: float = 0.2,
         tip_anchor: str = "top",
         dexscrew_tip_sigma: float = 0.025,
         hand_model: str = "allegro",
@@ -131,8 +138,8 @@ class RodRotationEnv(gym.Env):
         root = Path(__file__).resolve().parents[1]
         if physics_mode not in {"tip_connect", "revolute"}:
             raise ValueError("physics_mode must be 'tip_connect' or 'revolute'")
-        if reward_style not in {"stage", "dexscrew"}:
-            raise ValueError("reward_style must be 'stage' or 'dexscrew'")
+        if reward_style not in {"stage", "dexscrew", "palm_down"}:
+            raise ValueError("reward_style must be 'stage', 'dexscrew', or 'palm_down'")
         if tip_anchor not in {"top", "bottom"}:
             raise ValueError("tip_anchor must be 'top' or 'bottom'")
         if hand_model not in {"allegro", "surrogate"}:
@@ -354,6 +361,12 @@ class RodRotationEnv(gym.Env):
         self.tilt_terminate_rad = float(tilt_terminate_rad)
         if self.tilt_terminate_rad <= 0.0:
             raise ValueError("tilt_terminate_rad must be > 0")
+        self.tip_error_terminate_m = float(tip_error_terminate_m)
+        if self.tip_error_terminate_m <= 0.0:
+            raise ValueError("tip_error_terminate_m must be > 0")
+        self.palm_down_tip_penalty_scale = float(palm_down_tip_penalty_scale)
+        if self.palm_down_tip_penalty_scale < 0.0:
+            raise ValueError("palm_down_tip_penalty_scale must be >= 0")
         ctrl_ranges = np.asarray(self.model.actuator_ctrlrange, dtype=np.float64)
         self.ctrl_center = np.mean(ctrl_ranges, axis=1)
         if self.hand_model == "allegro":
@@ -1020,6 +1033,7 @@ class RodRotationEnv(gym.Env):
             )
         )
 
+        pd_comp: dict[str, float] = {}
         if self.reward_style == "dexscrew":
             reward, dex_comp = compute_dexscrew_reward(
                 axial_omega=axial_omega,
@@ -1056,6 +1070,30 @@ class RodRotationEnv(gym.Env):
             proximity = dex_comp["reward_proximity"]
             force_penalty = 0.0
             action_rate_penalty = -dex_comp["reward_energy"]
+            self.prev_axis_tilt = axis_tilt
+        elif self.reward_style == "palm_down":
+            dt_ctrl = self.frame_skip * float(self.model.opt.timestep)
+            omega_dtheta = float(dtheta / dt_ctrl) if dt_ctrl > 0.0 else 0.0
+            reward, pd_comp = compute_palm_down_living_reward(
+                omega_dtheta=omega_dtheta,
+                axis_tilt=axis_tilt,
+                action=action,
+                last_action=self.last_action,
+                fingertip_dists=dists,
+                tip_error=tip_error,
+                tip_penalty_scale=self.palm_down_tip_penalty_scale,
+            )
+            rotation_reward = float(pd_comp["reward_track"])
+            tip_penalty = -float(pd_comp["reward_tip"])
+            axis_tilt_penalty_raw = float((axis_tilt / 0.20) ** 2)
+            axis_tilt_penalty = -float(pd_comp["reward_wobble"])
+            axis_tilt_recovery_reward = 0.0
+            axis_tilt_growth_penalty = 0.0
+            lateral_omega_penalty = 0.0
+            proximity = float(pd_comp["reward_near"])
+            force_penalty = 0.0
+            action_rate_penalty = -float(pd_comp["reward_smooth"])
+            dex_comp = {}
             self.prev_axis_tilt = axis_tilt
         else:
             # Positive axial progress dominates; tip drift and unstable actions are penalties.
@@ -1094,23 +1132,29 @@ class RodRotationEnv(gym.Env):
                 - action_rate_penalty
             )
             dex_comp = {}
-        gated_rotation, support_gating_effect, wobble_penalty = apply_support_aware_rotation(
-            rotation_reward,
-            contact_count,
-            lateral_omega,
-            enabled=self.support_aware_reward_enabled,
-            scale_0=self.rotation_contact_scale_0,
-            scale_1=self.rotation_contact_scale_1,
-            scale_2plus=self.rotation_contact_scale_2plus,
-            wobble_scale=self.low_support_wobble_scale,
-        )
-        rotation_before_support_gate = float(rotation_reward)
-        if (
-            gated_rotation != rotation_reward
-            or wobble_penalty != 0.0
-        ):
-            reward = float(reward - rotation_reward + gated_rotation + wobble_penalty)
-            rotation_reward = float(gated_rotation)
+        if self.reward_style == "palm_down":
+            gated_rotation = float(rotation_reward)
+            support_gating_effect = 0.0
+            wobble_penalty = 0.0
+            rotation_before_support_gate = float(rotation_reward)
+        else:
+            gated_rotation, support_gating_effect, wobble_penalty = apply_support_aware_rotation(
+                rotation_reward,
+                contact_count,
+                lateral_omega,
+                enabled=self.support_aware_reward_enabled,
+                scale_0=self.rotation_contact_scale_0,
+                scale_1=self.rotation_contact_scale_1,
+                scale_2plus=self.rotation_contact_scale_2plus,
+                wobble_scale=self.low_support_wobble_scale,
+            )
+            rotation_before_support_gate = float(rotation_reward)
+            if (
+                gated_rotation != rotation_reward
+                or wobble_penalty != 0.0
+            ):
+                reward = float(reward - rotation_reward + gated_rotation + wobble_penalty)
+                rotation_reward = float(gated_rotation)
         self.last_action = action.copy()
 
         self.step_count += 1
@@ -1118,9 +1162,10 @@ class RodRotationEnv(gym.Env):
         tilt_term = (
             axis_tilt > self.tilt_terminate_rad and self.physics_mode != "revolute"
         )
+        tip_error_term = tip_error > self.tip_error_terminate_m
         physical_drop = (
             self.data.xpos[self.rod_body, 2] < -0.12
-            or tip_error > 0.12
+            or tip_error_term
             or tilt_term
             or not np.isfinite(reward)
         )
@@ -1143,14 +1188,22 @@ class RodRotationEnv(gym.Env):
                 termination_reason = "contact_support"
             elif tilt_term:
                 termination_reason = "axis_tilt"
-            elif tip_error > 0.12:
+            elif tip_error_term:
                 termination_reason = "tip_error"
             elif self.data.xpos[self.rod_body, 2] < -0.12:
                 termination_reason = "rod_height"
         truncated = self.step_count >= self.max_steps
         if dropped:
-            reward = -15.0 if not np.isfinite(reward) else reward - 15.0
-        reward = float(np.clip(reward, -30.0, 30.0))
+            if not np.isfinite(reward):
+                reward = -15.0
+            elif self.reward_style == "palm_down":
+                reward = finalize_palm_down_reward(reward, terminated=True)
+            else:
+                reward = reward - 15.0
+        elif self.reward_style == "palm_down":
+            reward = finalize_palm_down_reward(reward, terminated=False)
+        if self.reward_style != "palm_down":
+            reward = float(np.clip(reward, -30.0, 30.0))
 
         success_tilt_ok = axis_tilt < 0.25 or self.physics_mode == "revolute"
         # DexScrew success: sustain ω above threshold for a hold window (not angle).
@@ -1186,7 +1239,7 @@ class RodRotationEnv(gym.Env):
         )
         if self.success_mode == "net_angle":
             is_success = net_angle_success
-        elif self.reward_style == "dexscrew":
+        elif self.reward_style in {"dexscrew", "palm_down"}:
             is_success = legacy_omega_success
         else:
             is_success = legacy_stage_success
@@ -1295,6 +1348,10 @@ class RodRotationEnv(gym.Env):
         }
         if dex_comp:
             for k, v in dex_comp.items():
+                if k not in info:
+                    info[k] = v
+        if pd_comp:
+            for k, v in pd_comp.items():
                 if k not in info:
                     info[k] = v
         if self.render_mode == "human":

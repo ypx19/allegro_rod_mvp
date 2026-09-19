@@ -1,4 +1,796 @@
+## EXP-20260918-010: Free tip tip-stop 0.5cm + tip penalty ×5 (900k)
+- Run ID: `20260918-1829-s1-freetip-tipscale1-900k-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260918-1820-s1-freetip-tipstop005-cont600k-seed0` (EXP-009)
+- Git commit: dirty (`palm_down_tip_penalty_scale`)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=4`
+- Duration: ~420 s train (901,120 steps) + eval/render
+- Checkpoint: `runs/20260918-1829-s1-freetip-tipscale1-900k-seed0/checkpoints/final_model.zip`
+
+### Question
+Does tip penalty scale **0.2→1.0** (5×) with tip-stop 0.5 cm and 900k from
+EXP-009 push tip below the gate / raise length?
+
+### Hypothesis
+Stronger tip weight will dominate track near the 5 mm gate and extend holds.
+
+### Change from Baseline
+Vs EXP-009 only: `--palm-down-tip-penalty-scale 1.0`; +900k from EXP-009.
+
+### Configuration
+New CLI `--palm-down-tip-penalty-scale` (default 0.2).
+
+### Success Criteria
+Directional: tip_error_mean < 6.3 mm and/or length ≫ 240. Strong: tip <5 mm
+for ≥10–20 s. Reject if no tip improvement.
+
+### Result
+**Reject / revise.** Fixed length **298** (vs 239) but unseen **244** (≈247).
+Tip error **not improved** (0.0075 / 0.0059 vs 0.0063 / 0.0064). Still
+tip_error×10, success 0, drop 1.0. Online length ends ~165. Stronger tip
+penalty alone does not clear the 0.5 cm gate under this budget.
+
+### Key Metrics
+| Metric | EXP-009 | Current tip×5 | Change |
+|---|---:|---:|---:|
+| Success rate | 0.00 / 0.00 | 0.00 / 0.00 | — |
+| Episode length | 239 / 247 | 298 / 244 | mixed |
+| Tip error m | 0.0063 / 0.0064 | 0.0075 / 0.0059 | no clear win |
+| Terminations | tip×10 | tip×10 | same |
+
+### Visual Evidence
+- Curves: `plots/train_curves_vs_009.png`
+- Videos: `docs/media/s1-freetip-tipscale1-900k-seed6.mp4`,
+  `docs/media/s1-freetip-tipscale1-900k-seed10000.mp4`
+
+### Interpretation
+5× tip weight is insufficient as a sole lever for free-tip tip holding.
+Episodes still end when tip crosses 5 mm. Soft tip or a different tip
+shaping (e.g. sigma / asymmetric) may be needed.
+
+### Decision
+**reject** tip-scale 1.0 as a free-tip fix. Keep tip-stop 0.5 cm; EXP-009
+remains a comparable free-tip baseline.
+
+### Next Step
+Soft-tip solref fade, or pause free tip / return to tip-connect mass-up.
+
+## EXP-20260918-009: Free tip tip-stop 0.5 cm continue +600k
+- Run ID: `20260918-1820-s1-freetip-tipstop005-cont600k-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260918-1812-s1-freetip-tipstop005-from-exp005-seed0` (EXP-008)
+- Git commit: dirty (`tip_error_terminate_m`)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=4`
+- Duration: ~292 s train (606,208 steps, ~2073 fps) + eval/render
+- Checkpoint: `runs/20260918-1820-s1-freetip-tipstop005-cont600k-seed0/checkpoints/final_model.zip`
+
+### Question
+Does another **600k** steps on EXP-008 free-tip + tip-stop 0.5 cm raise
+length toward 20 s / cut tip_error deaths?
+
+### Hypothesis
+EXP-008 length was still rising at 300k. More budget under the same gate
+will push length and tip hold without other knob changes.
+
+### Change from Baseline
+Vs EXP-008 only: resume EXP-008; +600k steps. No other changes.
+
+### Configuration
+Identical to EXP-008.
+
+### Success Criteria
+Directional: eval length ≫ 195. Strong: most episodes ≥10–20 s. Reject if
+plateau near ~200.
+
+### Result
+**Partial / revise.** Eval length **239 / 247** (vs EXP-008 195 / 176), tip
+error still ~6.3 mm, terminations still **tip_error×10**, success 0, drop 1.0.
+Online last return +302, length 162. Modest continuation of the EXP-008 trend;
+not enough for 20 s free-tip holds (~9–10 s).
+
+### Key Metrics
+| Metric | EXP-008 (300k) | Current +600k | Change |
+|---|---:|---:|---:|
+| Success rate | 0.00 / 0.00 | 0.00 / 0.00 | — |
+| Episode length | 195 / 176 | **239 / 247** | +44 / +71 |
+| Tip error m | 0.0067 / 0.0053 | 0.0063 / 0.0064 | ≈ flat |
+| Final tilt deg | 2.8 / 2.5 | **1.2 / 2.2** | slightly better |
+| Terminations | tip×10 | tip×10 | same mode |
+
+### Visual Evidence
+- Curves: `plots/train_curves_vs_008.png`
+- Videos: `docs/media/s1-freetip-tipstop005-cont600k-seed6.mp4`,
+  `docs/media/s1-freetip-tipstop005-cont600k-seed10000.mp4`
+
+### Interpretation
+Budget alone under tip-stop 0.5 cm yields diminishing but positive length
+gains. Tip error mean does not fall below the 5 mm gate; episodes still die
+on tip_error. A new one-factor (stronger tip reward or soft tip) is needed
+for free-tip success.
+
+### Decision
+**revise** — keep tip-stop 0.5 cm and this ckpt as best free-tip so far;
+do not expect pure longer training to close the gap soon.
+
+### Next Step
+User choice: stronger tip penalty, soft-tip fade, or stop free-tip and
+revisit tip-connect mass-up.
+
+## EXP-20260918-008: Free tip + tip-error stop 0.5 cm from EXP-005
+- Run ID: `20260918-1812-s1-freetip-tipstop005-from-exp005-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260918-1753-s1-freetip-from-exp005-seed0` (EXP-007)
+- Git commit: dirty (`tip_error_terminate_m` knob)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=4`
+- Duration: ~159 s train (303,104 steps) + eval/render
+- Checkpoint: `runs/20260918-1812-s1-freetip-tipstop005-from-exp005-seed0/checkpoints/final_model.zip`
+
+### Question
+With free tip from EXP-005, does tightening the tip-error stop from 12 cm to
+**0.5 cm** improve tip holding / survival vs EXP-007?
+
+### Hypothesis
+EXP-007 died mostly on `axis_tilt` while tip drifted ~5–7 cm. A 0.5 cm tip
+stop will fire on tip drift first and force tip-holding before tilt grows.
+
+### Change from Baseline
+Vs EXP-007 **only**: `--tip-error-terminate-m 0.005` (was 0.12).
+New env/CLI knob; default remains 0.12.
+
+### Configuration
+Same as EXP-007 otherwise (resume EXP-005, no tip-connect, palm_down, s=1).
+
+### Success Criteria
+Directional: tip_error becomes dominant termination; length > EXP-007 (~84);
+tip_error_mean ≪ 0.05. Strong: 20 s holds. Reject if only instant tip kills
+with no length recovery.
+
+### Result
+**Revise / partial adopt of the tighter stop; free tip still unsolved.**
+Hypothesis on failure-mode shift **supported**: eval terminations are
+**tip_error×10 / tip_error×10** (vs EXP-007 tilt×9 tip×1). Tip error mean
+drops **0.057 → 0.0067 / 0.0053 m**. Final tilt **~2.5–2.8°** (was ~24°).
+Length **195 / 176** (vs 84 / 87). Online return +229, length 103.
+Still success 0 / drop 1.0 — tip eventually exceeds 0.5 cm (~8 s) and stops.
+Smoke early length ~8.6 confirmed the gate fires.
+
+### Key Metrics
+| Metric | EXP-007 stop 12cm | Current stop 0.5cm | Change |
+|---|---:|---:|---:|
+| Success rate | 0.00 / 0.00 | 0.00 / 0.00 | — |
+| Episode length | 84 / 87 | **195 / 176** | +111 / +89 |
+| Tip error m | 0.057 / 0.054 | **0.0067 / 0.0053** | ~10× better |
+| Final tilt deg | 24 / 20 | **2.8 / 2.5** | much better |
+| Terminations | tilt×9 tip×1 | **tip×10 / tip×10** | mode flip |
+
+### Visual Evidence
+- Curves: `plots/train_curves_vs_007.png`
+- Eval: `eval_fixed.json`, `eval_unseen.json`
+- Videos: `videos/s1_freetip_tipstop005_seed6.mp4` (~197 steps, tip_error)
+  `videos/s1_freetip_tipstop005_seed10000.mp4` (~195 steps, tip_error)
+  copies: `docs/media/s1-freetip-tipstop005-*.mp4`
+
+### Interpretation
+Tighter tip stop correctly makes tip drift the binding constraint and
+suppresses the EXP-007 tilt-death mode. Policy learns partial tip control
+(~5–7 mm mean) and longer spin (~8 s) but cannot hold <0.5 cm for 20 s at
+this budget. Free tip is not solved; the 0.5 cm gate is a useful default
+for further free-tip work.
+
+### Decision
+**revise** — keep tip-stop 0.5 cm for free-tip experiments; do not claim
+success. Next one-factor: longer budget, stronger tip reward scale, or soft
+tip fade.
+
+### Next Step
+Ask user: longer train, stronger tip penalty, or soft-tip solref fade.
+
+## EXP-20260918-007: Free tip from EXP-005 (disable tip-connect only)
+- Run ID: `20260918-1753-s1-freetip-from-exp005-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260918-1528-s1-palm-down-ppo-tilt035-seed0` (EXP-005)
+- Git commit: `b51078b`
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=4`
+- Duration: ~146 s train (303,104 steps) + eval/render
+- Checkpoint: `runs/20260918-1753-s1-freetip-from-exp005-seed0/checkpoints/final_model.zip`
+
+### Question
+After accepting EXP-005 as Phase-T sufficient, can fine-tuning with tip
+equality **off** retain screwdriving while holding the tip via reward +
+tip-error stop only?
+
+### Hypothesis
+EXP-005 already has palm-down tip-error reward (`-0.2*(e/2mm)^2`) and
+`tip_error > 0.12 m` termination. Zero-shot free tip fails (length ~147,
+drop 1.0). Fine-tuning from EXP-005 with **only** `--no-tip-connect`
+(same PPO/pose/tracker/tilt 0.35/s=1) will recover tip holding without
+other reward/PPO changes.
+
+### Change from Baseline
+Vs EXP-005:
+- `--no-tip-connect` (equality inactive)
+- `--resume` EXP-005 `final_model.zip` + its `vecnormalize.pkl`
+No other intentional changes. Tip-error reward and tip-error stop gate
+already present in palm_down / env (not newly coded).
+
+### Configuration
+- Same as EXP-005 except tip_connect_enabled=false; resume 300k additional
+- Tip error reward: palm_down `reward_tip`
+- Tip error stop: env `tip_error > 0.12` → `termination_reason=tip_error`
+- Tilt kill 0.35 unchanged
+
+### Success Criteria
+Directional: tip_error_m_mean ≪ 0.07 and fewer tip_error/axis_tilt deaths
+than zero-shot; length ≫ 147. Strong: most episodes reach 20 s with tip
+error < 2 cm and net-angle success > 0. Adopt if drop ≈ 0 and tip stable.
+Reject if tip drifts to gate immediately or NaNs.
+
+### Zero-shot (before fine-tune)
+EXP-005 ckpt, `--no-tip-connect`, fixed seed 10000×10:
+success 0, length 147.3, tip_error_mean 0.069 m (max 0.124), drop 1.0,
+terminations axis_tilt×8 tip_error×2.
+Artifact: `runs/20260918-1753-freetip-from-exp005-zeroshot/eval_fixed.json`
+
+### Result
+**Reject.** 300k fine-tune does **not** recover free-tip holding. Eval
+length **84 / 87** (worse than zero-shot 147), success 0/0, drop 1.0,
+tip_error_mean ~0.055–0.057 m, terminations almost all `axis_tilt`
+(9+9) with rare `tip_error` (1+1). Online length ends ~77 with return −11.
+No NaNs. Tip-error reward+gate alone from EXP-005 is insufficient at this
+budget without further changes (user asked not to change other things).
+
+### Key Metrics
+| Metric | EXP-005 tip-on | Zero-shot free | Fine-tune free |
+|---|---:|---:|---:|
+| Success rate | 0.80 / 0.50 | 0.00 | **0.00 / 0.00** |
+| Episode length | 500 / 500 | 147 | **84 / 87** |
+| Tip error m | 0.0005 | 0.069 | 0.057 / 0.054 |
+| Final tilt deg | 1.7 | 19.6 | 24.0 / 20.3 |
+| Drop rate | 0.0 | 1.0 | **1.0 / 1.0** |
+
+### Visual Evidence
+- Zero-shot: `runs/20260918-1753-freetip-from-exp005-zeroshot/eval_fixed.json`
+- Curves: `runs/20260918-1753-s1-freetip-from-exp005-seed0/plots/train_curves.png`
+- Eval: `eval_fixed.json`, `eval_unseen.json`
+- Videos: `videos/s1_freetip_from_exp005_seed6.mp4` (77 steps, axis_tilt)
+  `videos/s1_freetip_from_exp005_seed10000.mp4` (120 steps, axis_tilt)
+  copies: `docs/media/s1-freetip-from-exp005-seed6.mp4`,
+  `docs/media/s1-freetip-from-exp005-seed10000.mp4`
+
+### Interpretation
+Measured fact: removing tip equality while keeping EXP-005 reward/PPO/gates
+fails both zero-shot and after 300k fine-tune. Failures are dominated by
+`axis_tilt` (0.35 rad), not the tip-error stop — tip drifts ~5–6 cm but
+tilt often kills first. Online return improved from −579 toward 0 but
+length never recovered toward 500. Soft tip / curriculum fade or stronger
+tip shaping would be a *new* experiment (explicitly out of scope here).
+
+### Decision
+**reject** this one-factor free-tip transfer. Keep EXP-005 tip-connect as
+the live best. Free-tip phase needs a revised hypothesis (not “disable
+equality only”).
+
+### Next Step
+Decide with user: soft-tip solref fade, stronger tip-error scale/sigma,
+tighter tip stop, or stabilizer assist — one factor at a time. Do not
+claim free-tip Phase passed.
+
+
+## EXP-20260918-006: Align tip solref 0.008→0.004 with palm-down (300k)
+- Run ID: `20260918-1559-s1-palm-down-ppo-solref004-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260918-1528-s1-palm-down-ppo-tilt035-seed0` (EXP-005)
+- Git commit: `b51078b`
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=5`
+- Duration: ~146 s train (303,104 steps, ~2075 fps) + eval/render
+- Checkpoint: `runs/20260918-1559-s1-palm-down-ppo-solref004-seed0/checkpoints/final_model.zip`
+
+### Question
+With EXP-005's s=1 palm-down PPO recipe fixed, does setting tip-connect
+solref to the palm-down bundle value **0.004** (vs our 0.008) preserve or
+improve 20 s stability / net-angle success?
+
+### Hypothesis
+Stiffer tip equality (0.004) matches the verified palm-down fixed-tip CPU
+recipe (`tip_connect_solref=0.004`). At s=1 this should remain trainable
+without NaN/instability and match EXP-005 survival; possibly lower tip error
+or change proximal jamming forces.
+
+### Change from Baseline
+Vs EXP-20260918-005 **only**:
+- `--tip-connect-solref 0.004` (was `0.008`)
+Pose, grasp, s=1, tracker, tilt 0.35, palm-down PPO, 32 envs, 300k unchanged.
+
+### Configuration
+- Same as EXP-005 except tip_connect_solref=0.004
+- Note: palm-down XML default connect solref is 0.008; runtime override is 0.004
+
+### Success Criteria
+Adopt if eval reaches ~20 s holds with drop≈0 and success ≥ EXP-005
+(0.80/0.50) or clearly better tilt/tip without new instability.
+Reject if NaNs, widespread `unstable`, or length collapse vs EXP-005.
+Smoke (8k): finite losses, no crash; length not required to match 300k.
+
+### Result
+**Partially reject as default.** Smoke OK (len≈112). Online looks *better*
+than EXP-005 (return +547 vs +366, length 442 vs 394, success_rate 0.55 vs
+0.42). Eval net-angle success is **0.80 / 0.70** (vs 0.80 / 0.50) and
+rotation rises to **238° / 229°**, but **stability regresses**: length
+454/434 (not 500/500), drop 0.2/0.3, final tilt **7.0° / 9.2°** (vs ~1.7°),
+terminations `axis_tilt` 2/10 fixed and 3/10 unseen, `passed=false`. Seed
+10000 demo dies at step 223 on `axis_tilt` (23°). No NaNs.
+
+### Key Metrics
+| Metric | EXP-005 solref 0.008 | Current 0.004 | Change |
+|---|---:|---:|---:|
+| Success rate | 0.80 / 0.50 | **0.80 / 0.70** | unseen +0.20 |
+| Episode length | 500 / 500 | 454 / 434 | −46 / −66 |
+| Rotation deg | 206.7 / 181.0 | **237.6 / 229.0** | +31 / +48 |
+| Final tilt deg | 1.7 / 1.8 | 7.0 / 9.2 | worse |
+| Drop rate | 0.0 / 0.0 | 0.2 / 0.3 | worse |
+| Eval passed | true / true | false / false | reject gate |
+
+### Visual Evidence
+- Smoke: `runs/20260918-1559-s1-palm-down-ppo-solref004-smoke-seed0`
+- Curves: `runs/20260918-1559-s1-palm-down-ppo-solref004-seed0/plots/train_curves_vs_005.png`
+- Eval: `eval_fixed.json`, `eval_unseen.json`
+- Videos: `videos/s1_palm_down_ppo_solref004_seed6.mp4` (500 steps, 258°, success)
+  `videos/s1_palm_down_ppo_solref004_seed10000.mp4` (223 steps, axis_tilt)
+  copies: `docs/media/s1-palm-down-ppo-solref004-seed6.mp4`,
+  `docs/media/s1-palm-down-ppo-solref004-seed10000.mp4`
+
+### Interpretation
+Measured fact: copying the palm-down **runtime** tip solref (0.004) onto
+our_hand EXP-005 stack increases spin and online return but reintroduces
+axis-tilt deaths that EXP-005 had eliminated. Softer tip equality (0.008)
+is more compatible with our Allegro MJCF / servo stack at s=1 than a
+literal solref copy. Aligns with historical note that solref 0.004 can be
+aggressive for this scene (DBG older solref softening). Does not imply the
+bundle XML is wrong — other factors (XML geom, solimp, actuators) differ.
+
+### Decision
+**reject** as replacement for EXP-005 default. Keep tip solref **0.008** on
+the live our_hand palm-down PPO recipe. Retain 0.004 run as negative result.
+
+### Next Step
+Stay on EXP-005 (solref 0.008). Next one-factor remains mass-up probe or
+all-link contact diagnostics (FIND-20260918-008). Do not start T01 at s=400.
+
 # Experiment Log
+
+## EXP-20260918-005: s=1 tracker+0.35 with palm-down PPO (300k)
+- Run ID: `20260918-1528-s1-palm-down-ppo-tilt035-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260918-1515-s1-palm-down-tracker-tilt035-seed0` (s=1, T00 PPO)
+- Git commit: `b51078b` (dirty: `--log-std-init`)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=5`
+- Duration: ~148 s train (303,104 steps, ~2049 fps) + ~30 s eval/render
+- Checkpoint: `runs/20260918-1528-s1-palm-down-ppo-tilt035-seed0/checkpoints/final_model.zip`
+
+### Question
+At s=1 with tracker + 0.35 kill, does switching T00 PPO to the palm-down
+PPO recipe (`[256,256]`, LR 3e-4, ent 0.005, log_std −1) produce eval
+success or 20 s holds?
+
+### Hypothesis
+T00 PPO (wide net, 3e-5, ent 0, log_std 0) under-explores the tracker
+objective. Palm-down PPO will raise episode length toward 500 (20 s) and
+cut `axis_tilt`/`unstable` below 20/20.
+
+### Change from Baseline
+Vs EXP-20260918-004 only the PPO recipe:
+- `--net-arch 256,256` (was 512,256,128)
+- `--learning-rate 3e-4` (was 3e-5)
+- `--ent-coef 0.005` (was 0)
+- `--log-std-init -1` (was 0)
+Env, pose, grasp, s=1, tracker, tilt 0.35, solref 0.008, μ=4, 32 envs,
+300k, no obs[36] rewrite: unchanged. n_epochs stays 10 and batch 256
+(bundle used 5 epochs / batch 1024 / 16 CPU envs).
+
+### Configuration
+- Algorithm: PPO from scratch, VecNormalize
+- Environment: bottom tip-connect, s=1, μ=4, tilt kill 0.35
+- Reward: palm-down tracker
+- Network: [256,256], log_std_init −1
+- Optimizer: Adam LR 3e-4, ent 0.005
+- Training steps: 300,000
+- Evaluation protocol: net-angle, 10 fixed + 10 unseen, 20 s cap
+
+### Success Criteria
+Directional: eval success >0 or mean length ≫58 with fewer `unstable`/
+`axis_tilt` than EXP-004. Strong: most episodes reach 20 s with tilt <10°.
+Reject if still drop 1.0 at similar length.
+
+### Result
+**Supported / adopt.** Online: return +366, length 394, success_rate 0.42,
+EV 0.90. Eval: **20/20 full 20 s**, drop 0, terminations `none`, final tilt
+~1.7–1.8°, tip <1 mm. Net-angle success **0.80 / 0.50** (passed=true both).
+Failures are near-π spin misses, not tilt deaths. Contact is 1–2 finger.
+
+### Key Metrics
+| Metric | EXP-004 T00 PPO | Current fixed | Current unseen |
+|---|---:|---:|---:|
+| Success rate | 0.00 / 0.00 | **0.80** | **0.50** |
+| Episode length | 58.1 / 46.3 | **500** | **500** |
+| Rotation deg | 138.8 / 155.3 | 206.7 | 181.0 |
+| Final tilt deg | 39 / 49 | **1.7** | **1.8** |
+| Drop rate | 1.0 | **0.0** | **0.0** |
+| Terminations | tilt+unstable | none×10 | none×10 |
+
+### Visual Evidence
+- Smoke: `runs/20260918-1528-s1-palm-down-ppo-tilt035-smoke-seed0` (8k, length 101)
+- Curves vs EXP-004: `runs/20260918-1528-s1-palm-down-ppo-tilt035-seed0/plots/train_curves_vs_004.png`
+- Eval: `eval_fixed.json`, `eval_unseen.json`
+- Videos: `videos/s1_palm_down_ppo_tilt035_seed6.mp4` (500 steps, 210°, success)
+  `videos/s1_palm_down_ppo_tilt035_seed10000.mp4` (500 steps, ~180°, tilt 2.5°)
+  copies: `docs/media/s1-palm-down-ppo-tilt035-seed6.mp4`,
+  `docs/media/s1-palm-down-ppo-tilt035-seed10000.mp4`
+
+### Interpretation
+Measured fact: under identical s=1 / tracker / 0.35 kill / pose, palm-down
+PPO produces stable 20 s tip-connect screwdriving on our hand model while
+T00 PPO does not. This isolates the PPO recipe as a decisive factor at s=1.
+Does not prove T00 s=400 will transfer; mass remains blocked separately.
+
+### Decision
+adopt palm-down PPO for s=1 tracker transfer. Do not start T01 at s=400 yet.
+
+### Next Step
+Optional one-factor: solref 0.004 at this PPO, or probe higher mass with the
+same PPO. Prefer documenting before long s=400 retries.
+
+---
+
+## EXP-20260918-004: EXP-003 recipe at mass-scale 1 (300k)
+- Run ID: `20260918-1515-s1-palm-down-tracker-tilt035-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260918-1417-t00-palm-down-tracker-tilt035-seed0` (same recipe, s=400, 100k)
+- Git commit: `b51078b` (dirty: palm_down reward style)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=5`
+- Duration: ~172 s train (303,104 steps, ~1760 fps) + ~12 s eval
+- Checkpoint: `runs/20260918-1515-s1-palm-down-tracker-tilt035-seed0/checkpoints/final_model.zip`
+
+### Question
+With tracker + 0.35 rad kill already rejected at s=400, does the **same**
+pose/grasp/reward/kill/PPO recipe succeed when mass is lowered to **s=1**,
+trained for 300k like the verified palm-down bundle?
+
+### Hypothesis
+s=400 is the dominant remaining blocker. At s=1 the same tracker+0.35
+objective will produce fewer than 20/20 `axis_tilt`, longer episodes, and
+nonzero net-angle success or sustained upright spin comparable to the
+palm-down verify protocol (tilt <10°, tip <2 mm, continuous ω).
+
+### Change from Baseline
+Vs EXP-20260918-003 only:
+1. `--rod-mass-scale 1` (was 400)
+2. `--steps 300000` (was 100000; match palm-down budget)
+Pose, default grasp, tracker reward, tilt 0.35, solref 0.008, μ=4,
+`scale_rod_joint_dynamics_from_s400`, PPO `[512,256,128]`, LR 3e-5,
+ent 0, 32 envs: unchanged. Still no obs[36] rewrite.
+
+### Configuration
+- Algorithm: PPO from scratch, VecNormalize
+- Environment: bottom tip-connect, s=1, μ=4, tilt kill 0.35 rad
+- Reward: palm-down tracker
+- Observation: 48-D
+- Action: 12-D
+- Training steps: 300,000
+- Evaluation protocol: net-angle, 10 fixed + 10 unseen, 20 s cap
+
+### Success Criteria
+Directional: eval success >0, or mean length ≫29 with fewer than 20/20
+`axis_tilt` and final tilt well below 0.35. Strong support if episodes
+survive most of 20 s with continuous positive ω. Reject if still 20/20
+`axis_tilt` at short length like EXP-003.
+
+### Result
+Partially supports mass hypothesis; **rejects** sufficiency. Online length
+58→77 and return −331→**+57** with EV 0.91. Eval length 58.1/46.3 and
+rotation 138.8°/155.3° beat EXP-003 (~29 steps, ~60°), and ≥2-contact
+fraction rises to 0.84/0.93. Still success **0**, drop 1.0, recontact 0.
+Terminations split `axis_tilt` (6+7) and **`unstable` (4+3)**. Demos: seed 6
+105 steps then axis_tilt; seed 10000 48 steps unstable.
+
+### Key Metrics
+| Metric | EXP-003 s=400 100k | Current fixed | Current unseen |
+|---|---:|---:|---:|
+| Success rate | 0.00 / 0.00 | 0.00 | 0.00 |
+| Rotation deg | 56.4 / 61.0 | 138.8 | 155.3 |
+| Episode length | 28.8 / 28.9 | 58.1 | 46.3 |
+| axis_tilt count | 10/10 / 10/10 | 6/10 | 7/10 |
+| unstable count | 0 | 4/10 | 3/10 |
+| ≥2-contact frac | 0.56 / 0.56 | 0.84 | 0.93 |
+| Recontact | 0.00 / 0.00 | 0.00 | 0.00 |
+
+### Visual Evidence
+- Smoke: `runs/20260918-1515-s1-palm-down-tracker-tilt035-smoke-seed0` (8k, length 58.8)
+- Curves vs EXP-003: `runs/20260918-1515-s1-palm-down-tracker-tilt035-seed0/plots/train_curves_vs_003.png`
+- Eval: `eval_fixed.json`, `eval_unseen.json`
+- Videos: `videos/s1_palm_down_tracker_tilt035_seed6.mp4` (105 steps, 159°)
+  `videos/s1_palm_down_tracker_tilt035_seed10000.mp4` (48 steps, unstable)
+  copy: `docs/media/s1-palm-down-tracker-tilt035-seed10000.mp4`
+
+### Interpretation
+Measured fact: lowering mass to 1 under an otherwise fixed EXP-003 stack
+improves survival and contact occupancy and flips online return positive.
+Measured fact: it does **not** reproduce palm-down's 20 s stable screwdriver.
+Remaining gaps vs the verified bundle: PPO `[256,256]`/LR 3e-4/ent 0.005/
+log_std −1, solref 0.004, obs[36]=dθ/dt, and possibly XML/palm differences
+already partially controlled by the translation pose.
+
+### Decision
+revise — adopt s=1 as required context for further palm-down transfer;
+reject “s=1 alone with T00 PPO is enough.”
+
+### Next Step
+At s=1, one-factor either tip solref 0.004 or palm-down PPO hyperparameters.
+Do not start T01. Do not retune λ.
+
+---
+
+## EXP-20260918-003: T00 pose + palm-down tracker reward + 0.35 rad tilt kill
+- Run ID: `20260918-1417-t00-palm-down-tracker-tilt035-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260918-1343-t00-palm-down-translation-seed0` (same pose+grasp, DexScrew, tilt 1.2)
+- Git commit: `b51078b` (dirty: native `reward_style=palm_down`)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=5`
+- Duration: ~62 s train (106,496 steps, ~1701 fps) + ~9 s eval
+- Checkpoint: `runs/20260918-1417-t00-palm-down-tracker-tilt035-seed0/checkpoints/final_model.zip`
+
+### Question
+With palm-down translation + default joints already rejected under DexScrew
+and a 1.2 rad kill, does the palm-down **tracker reward** plus the bundle's
+**0.35 rad tilt kill** stop T00 axis-tilt death at s=400?
+
+### Hypothesis
+The DexScrew linear-ω + 1.2 rad kill lets the policy spin then fall. A reward
+peaked at 1 rad/s plus a 0.35 rad (~20°) kill will keep tilt inside the
+palm-down operating region and raise eval episode length well above 36 steps,
+with fewer than 20/20 `axis_tilt` terminations.
+
+### Change from Baseline
+Vs EXP-20260918-002 only:
+1. `--reward-style palm_down` (tracker formula, clip [-30,5], terminal -20, no contact bonus)
+2. `--tilt-terminate-rad 0.35` (was 1.2)
+Pose, default grasp, s=400, μ=4, solref 0.008, PPO `[512,256,128]`, 32 envs,
+LR 3e-5, 100k, hist1, no support-aware: unchanged.
+This is two coupled factors (reward + kill), matching the palm-down training
+objective, not a one-factor split of those two.
+
+### Configuration
+- Algorithm: PPO from scratch, VecNormalize
+- Environment: bottom tip-connect, s=400, μ=4, tilt kill 0.35 rad
+- Reward: palm-down tracker
+- Observation: 48-D (not the bundle obs[36] ω rewrite)
+- Action: 12-D
+- Training steps: 100,000
+- Evaluation protocol: net-angle, 10 fixed + 10 unseen, 20 s cap, same as EXP-002
+
+### Success Criteria
+Directional: eval success >0, or mean length ≫36 with fewer than 20/20
+`axis_tilt`. Reject if still 20/20 `axis_tilt` at similar or shorter length.
+Do not compare raw Monitor return to EXP-002 (different reward scale).
+
+### Result
+Rejected. 20/20 `axis_tilt`. Online length **fell** 47.7 → 28.4 while return
+rose −256 → −4.0 (tracker scale, not comparable to DexScrew). Eval length
+28.8 / 28.9, rotation only 56.4° / 61.0°, final tilt 24.4° / 25.0°
+(the 0.35 rad ≈ 20° kill). Recontact 0. Demos die in 25 steps with n=0.
+
+### Key Metrics
+| Metric | EXP-002 DexScrew+1.2 | Current fixed | Current unseen |
+|---|---:|---:|---:|
+| Success rate | 0.00 / 0.00 | 0.00 | 0.00 |
+| Rotation deg | 217.5 / 209.7 | 56.4 | 61.0 |
+| Episode length | 36.0 / 36.2 | 28.8 | 28.9 |
+| axis_tilt count | 10/10 / 10/10 | 10/10 | 10/10 |
+| Final tilt deg | 80.5 / 80.6 | 24.4 | 25.0 |
+| Recontact | 0.00 / 0.00 | 0.00 | 0.00 |
+| ≥2-contact frac | 0.73 / 0.73 | 0.56 | 0.56 |
+
+### Visual Evidence
+- Smoke: `runs/20260918-1416-t00-palm-down-tracker-tilt035-smoke-seed0` (8k, length 47.7)
+- Training curves vs EXP-002: `runs/20260918-1417-t00-palm-down-tracker-tilt035-seed0/plots/train_curves_vs_002.png`
+- Eval: `eval_fixed.json`, `eval_unseen.json`
+- Videos: `videos/t00_palm_down_tracker_tilt035_seed6.mp4` (25 steps, 67°, tilt-kill)
+  `videos/t00_palm_down_tracker_tilt035_seed10000.mp4` (25 steps, 69°)
+  copy: `docs/media/t00-palm-down-tracker-tilt035-seed10000.mp4`
+
+### Interpretation
+Measured fact: at s=400 the palm-down objective (tracker + 0.35 kill) makes
+episodes **shorter**, not more stable. Return rises because the policy dies
+sooner with less accumulated wobble/terminal, not because tilt stays under
+20°. Explained variance only 0.30 vs EXP-002's 0.74. The 0.35 rad gate is
+active (final tilt ~24–25° vs EXP-002 ~80°). This does not isolate reward vs
+kill separately; the coupled palm-down training objective at s=400 is rejected.
+
+### Decision
+reject tracker+0.35 at T00 s=400. Do not start T01.
+
+### Next Step
+One-factor mass split: same pose + default joints + tracker + 0.35 kill at
+**s=1**. Keep T00 PPO. Do not retune λ.
+
+---
+
+## EXP-20260918-002: T00 with palm-down XML translation
+- Run ID: `20260918-1343-t00-palm-down-translation-seed0`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `20260914-1638-t00-ablation-A-hist1-rewbase-seed0` (T00 from-scratch A)
+- Git commit: `b51078b` (dirty: new pose/grasp JSON)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: train 0; eval fixed 10000, unseen 20000
+- Device: cuda:0 via `CUDA_VISIBLE_DEVICES=5`
+- Duration: ~62 s train (106,496 steps, ~1958 fps) + ~10 s eval
+- Checkpoint: `runs/20260918-1343-t00-palm-down-translation-seed0/checkpoints/final_model.zip`
+
+### Question
+If the palm-down policy succeeded because of palm translation, does that
+translation on our T00 stack (s=400, DexScrew, same PPO as A) raise success
+or stop 10/10 `axis_tilt`?
+
+### Hypothesis
+A 52 mm palm translation that 3-contacts with env-default qpos will produce
+T00 eval success >0 or at least longer episodes / recontact vs A (54 steps,
+305°, recontact 0.17, still 10/10 tilt-kill).
+
+### Change from Baseline
+Only palm-root translation to the palm-down XML (`-0.018718, -0.077823,
+0.088714`) and the matching default Allegro qpos. Quaternion, DexScrew,
+s=400, μ=4, solref 0.008, net `[512,256,128]`, 32 envs, LR 3e-5, 100k steps,
+hist1, no support-aware reward: unchanged vs A.
+The T00 heavy grasp was **not** used: 10/10 seeds had zero tip-rod contacts
+at the new translation.
+
+### Configuration
+- Algorithm: PPO from scratch, VecNormalize
+- Environment: bottom tip-connect, s=400, μ=4
+- Reward: DexScrew + discrete contact ×0.10
+- Observation: 48-D
+- Action: 12-D
+- Training steps: 100,000 (actual 106,496)
+- Evaluation protocol: net-angle, 10 fixed + 10 unseen, 20 s cap
+
+### Success Criteria
+Directional: eval success >0, or episode length ≫54 with recontact > A's 0.17
+and fewer than 10/10 `axis_tilt`. Reject if 20/20 still `axis_tilt` at similar
+or shorter length.
+
+### Result
+Rejected. 20/20 `axis_tilt`. Length 36.0 / 36.2 (worse than A). Rotation
+217.5° / 209.7° (below A). Recontact 0. Reset with default qpos is 10/10
+three-contact under zero actions; the policy still collapses.
+
+### Key Metrics
+| Metric | A my_grasp+heavy | This run fixed | This run unseen |
+|---|---:|---:|---:|
+| Success rate | 0.00 | 0.00 | 0.00 |
+| Rotation deg | 304.9 | 217.5 | 209.7 |
+| Episode length | 54.0 | 36.0 | 36.2 |
+| axis_tilt count | 10/10 | 10/10 | 10/10 |
+| Recontact | 0.17 | 0.00 | 0.00 |
+| Final tilt deg | ~80 | 80.5 | 80.6 |
+
+### Visual Evidence
+- Reset smoke: `runs/20260918-1343-t00-palm-down-translation-seed0/reset_smoke.json`
+- Eval JSON: `eval_fixed.json`, `eval_unseen.json`
+- Traces: `traces/{fixed,unseen}/`
+- Demo videos (axis_tilt collapse):
+  `videos/t00_palm_down_translation_seed6.mp4` (37 steps, 229°, seed 6)
+  `videos/t00_palm_down_translation_seed10000.mp4` (38 steps, 251°)
+  copies: `docs/media/t00-palm-down-translation-seed6.mp4`,
+  `docs/media/t00-palm-down-translation-seed10000.mp4`
+- Training curves vs A:
+  `runs/20260918-1343-t00-palm-down-translation-seed0/plots/train_curves_vs_A.png`
+
+### Interpretation
+Palm translation is not a sufficient T00 explanation. `our_hand` heavy joints
+and the palm-down location are mutually incompatible (0-contact vs 3-contact
+swaps). T00 DexScrew at s=400 still tilt-kills at the palm-down location when
+the matching default grasp is used.
+
+### Decision
+reject pose-only T00 rescue. Do not start T01.
+
+### Next Step
+Keep s=1 / tracker-reward isolation separate from T00. Do not retune λ.
+
+---
+
+## EXP-20260918-001: Independent verification of palm-down tip-connect screwdriver
+- Run ID: `20260918-1225-palm-down-screwdriver-verify`
+- Date: 2026-09-18
+- Status: completed
+- Parent or baseline run: `palm_down_screwdriver` bundle / `screwdriver_rl_20260917` `palm_down_fixedtip_cpu_300k_seed0`
+- Git commit: `b51078b` (dirty working tree; eval used bundled `allegro_rod_mvp` via `PYTHONPATH`)
+- Git branch: `PhaseT_tilt_solving`
+- Random seed: independent 7000–7007 / 7100–7104 / 7200–7201; videos 4000, 5000, 7000, 7100
+- Device: CPU policy, EGL render, `batiquitos.ucsd.edu`
+- Duration: ~20 s eval + ~52 s render wall
+- Checkpoint: `palm_down_screwdriver/checkpoint/policy.zip` + `normalize.pkl`
+
+### Question
+Does the extracted `palm_down_screwdriver` package actually achieve stable tip-connect screwdriving under its stated gates, or only a claimed result?
+
+### Hypothesis
+If the bundled 300k PPO is a real fixed-tip rotation policy, new seeds will pass the bundle protocol (full duration, >2 turns, tilt <10°, tip <2 mm, post-warmup ω>0.2 rad/s for >95% of steps, speed std <0.5, zero stabilizer). Original 60 s will fail the speed gate without dropping. Bounded obs[37]≤3 will pass 60 s.
+
+### Change from Baseline
+No training. Independent re-eval and re-render of the bundled checkpoint. Alignment unit tests plus recomputation of bundled traces.
+
+### Configuration
+- Algorithm: PPO `[256,256]`, CPU, 16 envs, 300k steps (as trained)
+- Environment: palm-down XML, `tip_connect` equality, bottom tip, `s=1`, stabilizer 0
+- Reward terms: speed tracking + tilt wobble + action smooth + proximity + tip error; no +3 contact bonus
+- Observation space: 48-D; wrapper writes ω at index 36; bounded clips turns at index 37 to 3.0
+- Action space: 12-D Allegro
+- Domain randomization: none in eval
+- Curriculum stage: trained at tip-connect `s=1` from scratch (not Phase T `s=400`)
+- Evaluation protocol: bundle `validate_policy.py` gates (see `docs/METRICS.md` palm-down section)
+
+### Success Criteria
+- Alignment tests pass.
+- Independent original 20 s: ≥7/8 success, mean turns ≈3.28, max tilt <4°, max tip <1.5 mm.
+- Independent bounded 60 s: ≥4/5 success, mean turns ≈10.3, no drop.
+- Independent original 60 s: 0 success on speed continuity, but duration 60 s, tilt <10°, tip <2 mm.
+- Decodable demo videos with overlay matching those numbers.
+
+### Result
+Hypothesis supported. 8/8 original 20 s and 5/5 bounded 60 s passed on unseen seeds. Original 60 s completed without termination or drop and failed only `positive_fraction` (0.929 < 0.95). Bundled 100/100, 0/10, 10/10, 20/20 summaries recompute from traces. Contact occupancy is a 2-finger gait, not a 3-contact hold.
+
+### Key Metrics
+| Metric | Bundled orig 100×20s | Independent orig 8×20s | Bundled bounded 10×60s | Independent bounded 5×60s |
+|---|---:|---:|---:|---:|
+| Success rate | 1.00 | 1.00 | 1.00 | 1.00 |
+| Mean net turns | 3.284 | 3.284 | 10.343 | 10.358 |
+| Mean max tilt deg | 2.856 | 2.835 | 2.894 | 2.796 |
+| Mean max tip mm | 0.903 | 0.899 | 0.900 | 0.900 |
+| Positive ω fraction | 0.990 | 0.990 | 0.996 | 0.997 |
+
+### Visual Evidence
+- Training curve: not retrained
+- Evaluation video: `runs/20260918-1225-palm-down-screwdriver-verify/videos/demo_20s_seed7000_original.mp4`
+- 60 s bounded: `.../videos/demo_60s_seed4000_bounded.mp4` and `.../videos/demo_60s_seed7100_bounded.mp4`
+- Failure-case (speed stall, no drop): `.../plots/independent_orig_60s_seed7200_timeline.png`
+- Contact occupancy: `.../plots/contact_occupancy.png`
+- Copies: `docs/media/palm-down-screwdriver-20s-seed7000.mp4`, `docs/media/palm-down-screwdriver-60s-seed4000.mp4`
+
+### Interpretation
+Measured fact: under a **point-constrained tip**, palm-down, mass-scale 1, this policy rotates ~1.03 rad/s with tilt <3° and tip error <1 mm. The 60 s original failure is observation OOD on cumulative turns, not axis collapse. This is not evidence that Phase T `s=400` / `my_grasp` is solved, and it does not show free-tip holding.
+
+### Decision
+adopt as a verified **parallel** result. Do not replace the Phase T checkpoint. Do not start T01 on this evidence alone.
+
+### Next Step
+Keep mass-scale 1 and this reward; change only palm translation to `my_grasp` and re-eval tilt/contact. That isolates pose offset from mass and reward.
+
+---
 
 ## EXP-20260914-002: T00 2×2 continuation from ~100k to cumulative 300k
 - Run ID: `20260914-1712-t00-ablation-{A,B,C,D}-continue300k-seed0`

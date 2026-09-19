@@ -178,7 +178,11 @@ def main() -> int:
     parser.add_argument("--contact-reward-scale", type=float, default=1.0)
     parser.add_argument("--fps", type=int, default=25)
     parser.add_argument("--physics", choices=["tip_connect", "revolute"], default="tip_connect")
-    parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
+    parser.add_argument(
+        "--reward-style",
+        choices=["stage", "dexscrew", "palm_down"],
+        default="stage",
+    )
     parser.add_argument("--omega-success-threshold", type=float, default=0.5)
     parser.add_argument("--omega-success-hold-seconds", type=float, default=10.0)
     parser.add_argument(

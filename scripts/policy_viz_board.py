@@ -939,7 +939,11 @@ def main() -> int:
     parser.add_argument("--episode-seconds", type=float, default=20.0)
     parser.add_argument("--hand-pose-config", type=str, default=None)
     parser.add_argument("--hand-grasp-config", type=str, default=None)
-    parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
+    parser.add_argument(
+        "--reward-style",
+        choices=["stage", "dexscrew", "palm_down"],
+        default="stage",
+    )
     parser.add_argument("--success-mode", choices=["omega_hold", "net_angle"], default="net_angle")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8770, help="Use 0 for OS-selected port")

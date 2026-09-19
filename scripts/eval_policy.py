@@ -203,6 +203,8 @@ def evaluate(
     scale_rod_joint_dynamics_from_s400: bool = False,
     scale_tip_solref_with_mass: bool = True,
     tilt_terminate_rad: float = 0.7,
+    tip_error_terminate_m: float = 0.12,
+    palm_down_tip_penalty_scale: float = 0.2,
     tip_anchor: str = "top",
     dexscrew_tip_penalty_scale: float = 0.5,
     dexscrew_tip_sigma: float = 0.025,
@@ -258,6 +260,8 @@ def evaluate(
             scale_rod_joint_dynamics_from_s400=scale_rod_joint_dynamics_from_s400,
             scale_tip_solref_with_mass=scale_tip_solref_with_mass,
             tilt_terminate_rad=tilt_terminate_rad,
+            tip_error_terminate_m=tip_error_terminate_m,
+            palm_down_tip_penalty_scale=palm_down_tip_penalty_scale,
             tip_anchor=tip_anchor,
             hand_model=hand_model,
             hand_pose_config=hand_pose_config,
@@ -324,6 +328,10 @@ def evaluate(
         "reward_rotation_before_support_gate",
         "reward_support_gating_effect",
         "reward_low_support_wobble",
+        "reward_track",
+        "reward_wobble",
+        "reward_smooth",
+        "reward_near",
         "reward_total",
     )
     reward_episode_means = {key: [] for key in reward_keys}
@@ -552,6 +560,8 @@ def evaluate(
             env.rod_dof_adrs
         ].tolist(),
         "tilt_terminate_rad": tilt_terminate_rad,
+        "tip_error_terminate_m": tip_error_terminate_m,
+        "palm_down_tip_penalty_scale": palm_down_tip_penalty_scale,
         "tip_anchor": tip_anchor,
         "hand_model": hand_model,
         "hand_pose_config": env.hand_pose_config_path,
@@ -756,8 +766,8 @@ def evaluate(
         "passed": False,
     }
 
-    if reward_style == "dexscrew":
-        # Gate: sustained-ω success rate, tip, drop (angle is metric only).
+    if reward_style in {"dexscrew", "palm_down"}:
+        # Gate: success rate, tip, drop (angle is metric only for dexscrew).
         metrics["passed"] = bool(
             metrics["success_rate"] >= 0.5
             and metrics["tip_error_m_mean"] < 0.02
@@ -888,7 +898,11 @@ def main() -> int:
         default="6,10000",
         help="Comma-separated env reset seeds for diagnostic traces.",
     )
-    parser.add_argument("--reward-style", choices=["stage", "dexscrew"], default="stage")
+    parser.add_argument(
+        "--reward-style",
+        choices=["stage", "dexscrew", "palm_down"],
+        default="stage",
+    )
     parser.add_argument("--privileged-obs", action="store_true")
     parser.add_argument("--omega-success-threshold", type=float, default=0.5)
     parser.add_argument("--omega-success-hold-seconds", type=float, default=10.0)
@@ -932,6 +946,18 @@ def main() -> int:
     )
     parser.set_defaults(scale_tip_solref_with_mass=True)
     parser.add_argument("--tilt-terminate-rad", type=float, default=0.7)
+    parser.add_argument(
+        "--tip-error-terminate-m",
+        type=float,
+        default=0.12,
+        help="Hard tip-position error termination threshold in meters (default 0.12).",
+    )
+    parser.add_argument(
+        "--palm-down-tip-penalty-scale",
+        type=float,
+        default=0.2,
+        help="Palm-down tip-error penalty weight: -scale*(tip_error/0.002)^2 (default 0.2).",
+    )
     parser.add_argument("--tip-anchor", choices=["top", "bottom"], default="top")
     parser.add_argument("--dexscrew-tip-penalty-scale", type=float, default=0.5)
     parser.add_argument("--dexscrew-tip-sigma", type=float, default=0.025)
@@ -980,6 +1006,8 @@ def main() -> int:
         scale_rod_joint_dynamics_from_s400=args.scale_rod_joint_dynamics_from_s400,
         scale_tip_solref_with_mass=args.scale_tip_solref_with_mass,
         tilt_terminate_rad=args.tilt_terminate_rad,
+        tip_error_terminate_m=args.tip_error_terminate_m,
+        palm_down_tip_penalty_scale=args.palm_down_tip_penalty_scale,
         tip_anchor=args.tip_anchor,
         dexscrew_tip_penalty_scale=args.dexscrew_tip_penalty_scale,
         dexscrew_tip_sigma=args.dexscrew_tip_sigma,

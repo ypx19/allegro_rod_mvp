@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palm translation compare · my_grasp vs palm_down</title>
+  <meta name="description" content="Interactive MuJoCo comparison of my_grasp and palm_down_screwdriver palm translations, with each setup's most successful demo video and a free camera." />
+  <meta name="theme-color" content="#0c1218" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c1218;
+      --bg-elev: #141c26;
+      --bg-soft: #1a2533;
+      --ink: #e8eef4;
+      --muted: #8b9aab;
+      --line: rgba(232, 238, 244, 0.12);
+      --accent: #e8a54b;
+      --ok: #5cb8a0;
+      --bad: #c45c48;
+      --my: #e8a54b;
+      --pd: #5cb8a0;
+      --radius: 14px;
+      --font-display: "Fraunces", Georgia, serif;
+      --font-body: "Sora", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: var(--font-body);
+      color: var(--ink);
+      background:
+        radial-gradient(1100px 520px at 82% -12%, rgba(232, 165, 75, 0.12), transparent 55%),
+        radial-gradient(800px 420px at -8% 18%, rgba(92, 184, 160, 0.10), transparent 50%),
+        linear-gradient(180deg, #0a1016 0%, var(--bg) 40%, #0e1620 100%);
+      line-height: 1.5;
+    }
+    .wrap { width: min(1440px, calc(100% - 2rem)); margin-inline: auto; padding-bottom: 2.5rem; }
+    header { padding: 1.15rem 0 0.4rem; }
+    .kicker {
+      font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600; margin-bottom: 0.45rem;
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 3.4vw, 2.45rem);
+      letter-spacing: -0.03em; line-height: 1.1;
+      margin: 0 0 0.45rem; font-weight: 700;
+    }
+    .lede { color: var(--muted); max-width: 78ch; margin: 0 0 0.9rem; font-size: 0.95rem; }
+    .banner {
+      padding: 0.75rem 0.95rem; border-radius: var(--radius);
+      border: 1px solid rgba(212, 160, 23, 0.35);
+      background: rgba(212, 160, 23, 0.12);
+      color: #e6c86a; font-size: 0.86rem; margin-bottom: 1rem;
+    }
+    .banner.error { border-color: rgba(196, 92, 72, 0.45); background: rgba(196, 92, 72, 0.12); color: #f0a090; }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr);
+      gap: 1rem;
+    }
+    @media (max-width: 1080px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: rgba(20, 28, 38, 0.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .sim-wrap { position: relative; background: #05080c; }
+    .sim-wrap img {
+      width: 100%; display: block; aspect-ratio: 8 / 3;
+      object-fit: contain; background: #05080c; cursor: grab; user-select: none;
+    }
+    .sim-wrap img.dragging { cursor: grabbing; }
+    .sim-label {
+      position: absolute; top: 0.55rem; padding: 0.22rem 0.55rem;
+      border-radius: 999px; font-size: 0.74rem; font-weight: 600;
+      background: rgba(8, 12, 16, 0.72); border: 1px solid var(--line);
+      pointer-events: none;
+    }
+    .sim-label.left { left: 0.55rem; color: var(--my); }
+    .sim-label.right { left: calc(50% + 0.55rem); color: var(--pd); }
+    .hint {
+      position: absolute; left: 0.55rem; bottom: 0.5rem;
+      font-size: 0.75rem; color: var(--muted);
+      background: rgba(8, 12, 16, 0.7); padding: 0.2rem 0.5rem; border-radius: 8px;
+      pointer-events: none;
+    }
+    .videos { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .videos figure { margin: 0; border-top: 1px solid var(--line); }
+    .videos figure:last-child { border-left: 1px solid var(--line); }
+    .videos video { width: 100%; display: block; background: #000; max-height: 280px; }
+    .videos figcaption { padding: 0.65rem 0.8rem 0.85rem; font-size: 0.8rem; color: var(--muted); }
+    .videos figcaption strong { color: var(--ink); display: block; margin-bottom: 0.15rem; }
+    .videos .tag { color: var(--ok); font-family: var(--font-mono); font-size: 0.72rem; }
+    .videos .tag.warn { color: #e6c86a; }
+    .controls { padding: 0.95rem 1rem 1.1rem; display: grid; gap: 0.95rem; }
+    h2 {
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 0.55rem; font-weight: 600;
+    }
+    .pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    button, select {
+      font-family: var(--font-body); font-weight: 600; font-size: 0.82rem;
+      background: #243044; color: var(--ink); border: 1px solid #3a4961;
+      border-radius: 8px; padding: 0.45rem 0.7rem; cursor: pointer;
+    }
+    button.primary { background: #176b50; border-color: #299873; }
+    button.my { background: rgba(232, 165, 75, 0.16); border-color: rgba(232, 165, 75, 0.45); color: var(--my); }
+    button.pd { background: rgba(92, 184, 160, 0.14); border-color: rgba(92, 184, 160, 0.4); color: var(--pd); }
+    button.active { outline: 2px solid var(--accent); }
+    button:hover, select:hover { filter: brightness(1.12); }
+    .row { display: grid; grid-template-columns: 52px 1fr 72px; gap: 0.45rem; align-items: center; margin: 0.35rem 0; }
+    .row label { font-size: 0.8rem; font-weight: 650; }
+    input[type=range] { width: 100%; accent-color: var(--accent); }
+    input[type=number] {
+      width: 100%; background: #0c1119; color: var(--ink);
+      border: 1px solid #344056; border-radius: 7px; padding: 0.35rem 0.45rem;
+      font-family: var(--font-mono); font-size: 0.78rem;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-family: var(--font-mono); }
+    th, td { text-align: right; padding: 0.28rem 0.35rem; border-bottom: 1px solid var(--line); }
+    th:first-child, td:first-child { text-align: left; }
+    .my-txt { color: var(--my); }
+    .pd-txt { color: var(--pd); }
+    .status { min-height: 2.4rem; padding: 0.55rem 0.65rem; border-radius: 8px; background: #0c1119; color: var(--muted); font-size: 0.8rem; white-space: pre-wrap; }
+    .status.ok { color: #82e8bb; }
+    .status.error { color: #ff8e8e; }
+    .metrics { display: flex; flex-wrap: wrap; gap: 0.55rem 0.9rem; color: var(--muted); font-size: 0.78rem; }
+    .metrics b { color: var(--ink); font-variant-numeric: tabular-nums; }
+    small { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="kicker">Pose isolation · FIND-20260918-001</div>
+      <h1>Palm translation: my_grasp vs palm_down</h1>
+      <p class="lede">
+        Live MuJoCo on the left and right, shared free camera. Gold marker =
+        <span class="my-txt">my_grasp</span> palm origin; teal =
+        <span class="pd-txt">palm_down</span>. Same palm orientation (world −Z);
+        only the 52&nbsp;mm translation differs. This does not claim T00 is solved.
+      </p>
+      <div id="offline" class="banner" hidden>
+        Live simulation needs the local server:
+        <code>.venv/bin/python scripts/palm_translation_compare_web.py</code>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div>
+        <section class="card">
+          <div class="sim-wrap">
+            <img id="render" alt="Side-by-side MuJoCo: my_grasp left, palm_down right" draggable="false" />
+            <div class="sim-label left">my_grasp</div>
+            <div class="sim-label right">palm_down_screwdriver</div>
+            <div class="hint">Drag orbit · scroll zoom · Shift/right-drag pan · R reset camera</div>
+          </div>
+          <div class="videos">
+            <figure>
+              <video id="vidMy" controls loop muted playsinline></video>
+              <figcaption>
+                <strong>my_grasp · most successful clip</strong>
+                <span id="capMy"></span>
+              </figcaption>
+            </figure>
+            <figure>
+              <video id="vidPd" controls loop muted playsinline></video>
+              <figcaption>
+                <strong>palm_down · most successful clip</strong>
+                <span id="capPd"></span>
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+
+      <aside class="card controls">
+        <div>
+          <h2>Edit which palm</h2>
+          <div class="pills">
+            <button id="editMy" class="my" type="button">my_grasp</button>
+            <button id="editPd" class="pd" type="button">palm_down</button>
+          </div>
+        </div>
+        <div>
+          <h2>Snap translation</h2>
+          <div class="pills">
+            <button id="snapNative" type="button">Both native</button>
+            <button id="copyMyToPd" class="my" type="button">my_grasp → palm_down</button>
+            <button id="copyPdToMy" class="pd" type="button">palm_down → my_grasp</button>
+            <button id="settle" type="button">Settle 80 steps</button>
+            <button id="resetCam" type="button">Reset camera</button>
+          </div>
+          <small>Copying my_grasp onto palm_down is the isolating follow-up in PROJECT_STATE (translation only).</small>
+        </div>
+        <div>
+          <h2>Blend palm_down toward my_grasp</h2>
+          <div class="row">
+            <label for="blend">t</label>
+            <input id="blend" type="range" min="0" max="100" step="1" value="0" />
+            <input id="blendN" type="number" min="0" max="100" step="1" value="0" />
+          </div>
+          <small>0 = palm_down native, 100 = my_grasp XYZ on the palm_down scene.</small>
+        </div>
+        <div>
+          <h2>Selected translation (mm)</h2>
+          <div id="poseRows"></div>
+        </div>
+        <div>
+          <h2>Numbers</h2>
+          <table>
+            <thead><tr><th></th><th>X</th><th>Y</th><th>Z</th><th>|Δ|</th></tr></thead>
+            <tbody>
+              <tr><td class="my-txt">my_grasp</td><td id="mx">—</td><td id="my">—</td><td id="mz">—</td><td></td></tr>
+              <tr><td class="pd-txt">palm_down</td><td id="px">—</td><td id="py">—</td><td id="pz">—</td><td></td></tr>
+              <tr><td>delta</td><td id="dx">—</td><td id="dy">—</td><td id="dz">—</td><td id="dn">—</td></tr>
+            </tbody>
+          </table>
+          <div class="metrics" style="margin-top:0.7rem">
+            <span>Native |Δ| <b>52.0 mm</b></span>
+            <span>my contacts <b id="cMy">—</b></span>
+            <span>pd contacts <b id="cPd">—</b></span>
+          </div>
+        </div>
+        <div>
+          <h2>Demo video</h2>
+          <label for="myVidSel" style="font-size:0.78rem;color:var(--muted)">my_grasp clip</label>
+          <select id="myVidSel"></select>
+          <label for="pdVidSel" style="font-size:0.78rem;color:var(--muted);display:block;margin-top:0.45rem">palm_down clip</label>
+          <select id="pdVidSel"></select>
+        </div>
+        <div id="status" class="status">Connecting to local MuJoCo server…</div>
+      </aside>
+    </div>
+  </div>
+  <script>
+    const poseDefs = [
+      {label: "X", index: 0, min: -250, max: 250},
+      {label: "Y", index: 1, min: -250, max: 250},
+      {label: "Z", index: 2, min: -250, max: 250},
+    ];
+    let state = null, draft = [0,0,0], editTarget = "palm_down";
+    let poseTimer, mutationSeq = 0, renderSeq = 0;
+    let camInFlight = false, camQueued = null, dragging = false, lastX = 0, lastY = 0, btn = 0;
+
+    const statusEl = document.getElementById("status");
+    function status(message, error=false) {
+      statusEl.textContent = message;
+      statusEl.className = "status " + (error ? "error" : "ok");
+    }
+    async function api(path, body) {
+      let r;
+      try {
+        r = await fetch(path, {
+          method: body === undefined ? "GET" : "POST",
+          headers: {"Content-Type": "application/json"},
+          body: body === undefined ? undefined : JSON.stringify(body),
+        });
+      } catch (e) {
+        throw new Error("Server unreachable. Start scripts/palm_translation_compare_web.py");
+      }
+      const text = await r.text();
+      let j = {};
+      try { j = text ? JSON.parse(text) : {}; }
+      catch (_) { throw new Error(`Bad response (${r.status})`); }
+      if (!r.ok) throw new Error(j.error || `Request failed (${r.status})`);
+      return j;
+    }
+    function mm(v) { return Number(v).toFixed(1); }
+    function refresh(s, syncInputs=true) {
+      state = s;
+      const my = s.scenes.my_grasp.translation_mm;
+      const pd = s.scenes.palm_down.translation_mm;
+      const d = [my[0]-pd[0], my[1]-pd[1], my[2]-pd[2]];
+      const n = Math.hypot(d[0], d[1], d[2]);
+      ["mx","my","mz"].forEach((id,i)=>document.getElementById(id).textContent=mm(my[i]));
+      ["px","py","pz"].forEach((id,i)=>document.getElementById(id).textContent=mm(pd[i]));
+      ["dx","dy","dz"].forEach((id,i)=>document.getElementById(id).textContent=mm(d[i]));
+      document.getElementById("dn").textContent = mm(n);
+      document.getElementById("cMy").textContent = s.scenes.my_grasp.contact_count + "/3";
+      document.getElementById("cPd").textContent = s.scenes.palm_down.contact_count + "/3";
+      document.getElementById("editMy").classList.toggle("active", editTarget==="my_grasp");
+      document.getElementById("editPd").classList.toggle("active", editTarget==="palm_down");
+      if (syncInputs) {
+        draft = s.scenes[editTarget].translation_mm.slice();
+        poseInputs.forEach(({def,r,n})=>{r.value=draft[def.index]; n.value=Number(draft[def.index]).toFixed(2);});
+        const t = Math.round(100 * s.blend);
+        document.getElementById("blend").value = t;
+        document.getElementById("blendN").value = t;
+      }
+      document.getElementById("render").src = "/api/render.jpg?v=" + (++renderSeq);
+    }
+    const poseRows = document.getElementById("poseRows");
+    const poseInputs = poseDefs.map(def => {
+      const id = "p" + def.index;
+      poseRows.insertAdjacentHTML("beforeend",
+        `<div class="row"><label for="${id}n">${def.label} <small>mm</small></label>` +
+        `<input id="${id}r" type="range" min="${def.min}" max="${def.max}" step="0.5">` +
+        `<input id="${id}n" type="number" min="${def.min}" max="${def.max}" step="0.5"></div>`);
+      return {def, r: document.getElementById(id+"r"), n: document.getElementById(id+"n")};
+    });
+    async function sendPose() {
+      const seq = ++mutationSeq;
+      try {
+        const s = await api("/api/translation", {scene: editTarget, translation_mm: draft});
+        if (seq === mutationSeq) { refresh(s, false); status("Translation updated."); }
+      } catch (e) { if (seq === mutationSeq) status(e.message, true); }
+    }
+    function queuePose() { clearTimeout(poseTimer); poseTimer = setTimeout(sendPose, 70); }
+    poseInputs.forEach(({def,r,n}) => {
+      r.addEventListener("input", () => { draft[def.index]=Number(r.value); n.value=r.value; queuePose(); });
+      n.addEventListener("change", () => { draft[def.index]=Number(n.value); r.value=n.value; sendPose(); });
+    });
+    document.getElementById("editMy").onclick = () => { editTarget="my_grasp"; refresh(state); };
+    document.getElementById("editPd").onclick = () => { editTarget="palm_down"; refresh(state); };
+
+    async function action(path, body, message) {
+      const seq = ++mutationSeq;
+      try {
+        const s = await api(path, body);
+        if (seq === mutationSeq) { refresh(s); status(message); }
+      } catch (e) { if (seq === mutationSeq) status(e.message, true); }
+    }
+    document.getElementById("snapNative").onclick = () => action("/api/native", {}, "Both palms restored to native translations.");
+    document.getElementById("copyMyToPd").onclick = () => action("/api/copy", {from:"my_grasp", to:"palm_down"}, "Applied my_grasp XYZ onto the palm_down scene.");
+    document.getElementById("copyPdToMy").onclick = () => action("/api/copy", {from:"palm_down", to:"my_grasp"}, "Applied palm_down XYZ onto the my_grasp scene.");
+    document.getElementById("settle").onclick = () => action("/api/settle", {steps:80}, "Settled both scenes.");
+    document.getElementById("resetCam").onclick = () => action("/api/camera/reset", {}, "Camera reset.");
+
+    function syncBlend(t) {
+      document.getElementById("blend").value = t;
+      document.getElementById("blendN").value = t;
+      action("/api/blend", {t: t/100}, `palm_down blend t=${(t/100).toFixed(2)}`);
+    }
+    document.getElementById("blend").addEventListener("input", e => {
+      document.getElementById("blendN").value = e.target.value;
+      clearTimeout(poseTimer);
+      poseTimer = setTimeout(() => syncBlend(Number(e.target.value)), 70);
+    });
+    document.getElementById("blendN").addEventListener("change", e => syncBlend(Number(e.target.value)));
+
+    const img = document.getElementById("render");
+    async function flushCam() {
+      if (camInFlight) return;
+      while (camQueued) {
+        const body = camQueued; camQueued = null;
+        camInFlight = true;
+        try {
+          const s = await api("/api/camera/move", body);
+          state = s;
+          img.src = "/api/render.jpg?v=" + (++renderSeq);
+          await img.decode().catch(()=>{});
+        } catch (e) { status(e.message, true); }
+        finally { camInFlight = false; }
+      }
+    }
+    function queueCam(actionName, dx, dy) {
+      if (camQueued && camQueued.action === actionName) {
+        camQueued.dx += dx; camQueued.dy += dy;
+      } else {
+        camQueued = {action: actionName, dx, dy};
+      }
+      flushCam();
+    }
+    img.addEventListener("pointerdown", e => {
+      dragging = true; lastX = e.clientX; lastY = e.clientY; btn = e.button;
+      img.classList.add("dragging");
+      img.setPointerCapture(e.pointerId);
+    });
+    img.addEventListener("pointermove", e => {
+      if (!dragging) return;
+      const dx = (e.clientX - lastX) / Math.max(img.clientHeight, 1);
+      const dy = (e.clientY - lastY) / Math.max(img.clientHeight, 1);
+      lastX = e.clientX; lastY = e.clientY;
+      queueCam((btn === 2 || e.shiftKey) ? "pan" : "rotate", dx, dy);
+    });
+    function endDrag() { dragging = false; img.classList.remove("dragging"); }
+    img.addEventListener("pointerup", endDrag);
+    img.addEventListener("pointercancel", endDrag);
+    img.addEventListener("contextmenu", e => e.preventDefault());
+    img.addEventListener("wheel", e => {
+      e.preventDefault();
+      queueCam("zoom", 0, e.deltaY / 180);
+    }, {passive: false});
+    window.addEventListener("keydown", e => {
+      if (e.key === "r" || e.key === "R") document.getElementById("resetCam").click();
+    });
+
+    function fillVideos(s) {
+      const mySel = document.getElementById("myVidSel");
+      const pdSel = document.getElementById("pdVidSel");
+      mySel.innerHTML = ""; pdSel.innerHTML = "";
+      s.videos.my_grasp.forEach((v,i) => {
+        const o = document.createElement("option"); o.value = v.url; o.textContent = v.label; mySel.appendChild(o);
+        if (i === 0) applyVideo("vidMy", "capMy", v);
+      });
+      s.videos.palm_down.forEach((v,i) => {
+        const o = document.createElement("option"); o.value = v.url; o.textContent = v.label; pdSel.appendChild(o);
+        if (i === 0) applyVideo("vidPd", "capPd", v);
+      });
+      mySel.onchange = () => applyVideo("vidMy", "capMy", s.videos.my_grasp[mySel.selectedIndex]);
+      pdSel.onchange = () => applyVideo("vidPd", "capPd", s.videos.palm_down[pdSel.selectedIndex]);
+    }
+    function applyVideo(vidId, capId, v) {
+      const el = document.getElementById(vidId);
+      el.src = v.url;
+      const cap = document.getElementById(capId);
+      cap.innerHTML = `<span class="tag ${v.success ? "" : "warn"}">${v.tag}</span><br>${v.caption}`;
+    }
+
+    (async () => {
+      try {
+        const s = await api("/api/state");
+        fillVideos(s);
+        refresh(s);
+        status("Ready. Drag the simulation to change the view.");
+      } catch (e) {
+        document.getElementById("offline").hidden = false;
+        status(e.message, true);
+      }
+    })();
+  </script>
+</body>
+</html>
